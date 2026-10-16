@@ -76,14 +76,35 @@ final class SystemController extends Controller
 
     // ------------------------------------------------------------ Einstellungen
 
+    /** Einstellungsseiten: URL-Name => [Gruppe, Titel, Einleitung]. */
+    private const SETTING_PAGES = [
+        'allgemein' => ['general', 'Allgemeine Einstellungen', 'Name, Markenfarbe, öffentliche Adresse, Upload-Limit und Proxy-Angaben.'],
+        'email' => ['mail', 'E-Mail-Versand (SMTP)', 'Zugang zum Mailserver für Einladungen, Passwort-Zurücksetzen und Benachrichtigungen.'],
+        'signatur' => ['signature', 'Signaturanbieter', 'Anbieter und Zugangsdaten für elektronische Unterschriften.'],
+    ];
+    private const GROUP_PAGE = ['general' => '/system/einstellungen/allgemein', 'mail' => '/system/einstellungen/email', 'signature' => '/system/einstellungen/signatur', 'backup' => '/system/sicherungen'];
+
+    /** @param array<string,mixed> $params */
+    public function settingsIndex(Request $r, array $params = []): Response
+    {
+        return Response::redirect('/system/einstellungen/allgemein');
+    }
+
     /** @param array<string,mixed> $params */
     public function settingsForm(Request $r, array $params = []): Response
     {
+        $page = (string) ($params['page'] ?? '');
+        if (!isset(self::SETTING_PAGES[$page])) {
+            throw new \App\Core\NotFoundException();
+        }
+        [$group, $title, $intro] = self::SETTING_PAGES[$page];
         $s = $this->s();
         return $this->render('system/settings', [
+            'group' => $group,
+            'pageTitle' => $title,
+            'intro' => $intro,
             'items' => $s->settings->view($s->envConfig),
             'phpLimits' => ['upload' => ini_get('upload_max_filesize'), 'post' => ini_get('post_max_size')],
-            'backupPassSet' => $s->config->get('BACKUP_PASSPHRASE', '') !== '',
             'mailActive' => $s->config->get('SMTP_HOST', '') !== '',
         ]);
     }
@@ -92,9 +113,10 @@ final class SystemController extends Controller
     public function settingsSave(Request $r, array $params): Response
     {
         $group = (string) ($params['group'] ?? '');
+        $back = self::GROUP_PAGE[$group] ?? '/system/einstellungen/allgemein';
         $post = $r->post;
         $reset = is_array($post['reset'] ?? null) ? $post['reset'] : [];
-        return $this->act($r, '/system/einstellungen', 'Einstellungen gespeichert. Sie gelten ab sofort.', function () use ($group, $post, $reset): void {
+        return $this->act($r, $back, 'Einstellungen gespeichert. Sie gelten ab sofort.', function () use ($group, $post, $reset): void {
             $this->s()->settings->save($this->p(), $group, $post, $reset, $this->s()->envConfig);
         });
     }
@@ -102,7 +124,7 @@ final class SystemController extends Controller
     /** @param array<string,mixed> $params */
     public function mailTest(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/system/einstellungen', null, function (): void {
+        return $this->act($r, '/system/einstellungen/email', null, function (): void {
             $p = $this->p();
             if (!$p->isSystemAdmin) {
                 throw new ForbiddenException();
@@ -177,6 +199,7 @@ final class SystemController extends Controller
             'files' => $this->backupList(),
             'passSet' => $this->backupPass() !== null,
             'keep' => max(1, $this->s()->config->int('BACKUP_KEEP', 14)),
+            'items' => $this->s()->settings->view($this->s()->envConfig),
             'result' => $this->x->session->get('backup_result'),
             'free' => @disk_free_space($this->s()->storageRoot),
         ]);

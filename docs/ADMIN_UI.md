@@ -4,7 +4,10 @@ Alles Betriebliche ist unter **Systemverwaltung** erreichbar (nur Systemadminist
 
 | Bereich | Seite | Inhalt |
 |---|---|---|
-| Einstellungen | /system/einstellungen | Allgemein (Name, URL, Upload-Limit, Proxy-IPs), E-Mail/SMTP inkl. Testmail, Signaturanbieter (Sandbox/Skribble), Aufbewahrung der Sicherungen |
+| Allgemein | /system/einstellungen/allgemein | Name, Markenfarbe, URL, Upload-Limit, Proxy-IPs |
+| E-Mail | /system/einstellungen/email | SMTP-Zugang inkl. Testmail |
+| Signatur | /system/einstellungen/signatur | Signaturanbieter (Sandbox/Skribble) |
+| Sicherungen | /system/sicherungen | Sicherungen erstellen/prüfen/herunterladen; Aufbewahrung (Anzahl) |
 | Sicherungen | /system/sicherungen | Erstellen (mit automatischer Prüfung und Aufräumen), Prüfen, Herunterladen, Löschen |
 | Aktualisierung | /system/aktualisierung | Aus GitHub, siehe UPDATE.md |
 | Cron | /system | Aufgaben von Hand ausführen; Status je Aufgabe |

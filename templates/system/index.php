@@ -14,9 +14,13 @@
     <a class="btn btn-secondary" href="/system/aktualisierung"><i class="bx bx-refresh" aria-hidden="true"></i> Aktualisierung öffnen</a></div>
 
   <div class="card"><h2 class="h2"><i class="bx bx-slider-alt" aria-hidden="true"></i> Einstellungen &amp; Sicherungen</h2>
-    <p class="muted small">E-Mail, Signaturanbieter, Allgemeines und Sicherungen werden hier gepflegt.</p>
-    <a class="btn btn-secondary" href="/system/einstellungen"><i class="bx bx-cog" aria-hidden="true"></i> Einstellungen</a>
-    <a class="btn btn-secondary" href="/system/sicherungen"><i class="bx bx-data" aria-hidden="true"></i> Sicherungen</a></div>
+    <p class="muted small">Jeder Bereich hat einen eigenen Menüpunkt.</p>
+    <div class="row-gap">
+      <a class="btn btn-secondary" href="/system/einstellungen/allgemein"><i class="bx bx-cog" aria-hidden="true"></i> Allgemein</a>
+      <a class="btn btn-secondary" href="/system/einstellungen/email"><i class="bx bx-envelope" aria-hidden="true"></i> E-Mail</a>
+      <a class="btn btn-secondary" href="/system/einstellungen/signatur"><i class="bx bx-pen" aria-hidden="true"></i> Signatur</a>
+      <a class="btn btn-secondary" href="/system/sicherungen"><i class="bx bx-data" aria-hidden="true"></i> Sicherungen</a>
+    </div></div>
 
   <div class="card"><h2 class="h2"><i class="bx bx-link-alt" aria-hidden="true"></i> Audit-Kette</h2>
     <p class="muted small">Prüft die Hash-Verkettung aller Protokolleinträge und den letzten Anker. Erkennt nachträgliche Änderungen, nicht jedoch eine vollständige Neuberechnung durch jemanden mit Datenbank-Vollzugriff.</p>

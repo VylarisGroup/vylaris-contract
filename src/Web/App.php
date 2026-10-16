@@ -354,7 +354,8 @@ final class App
         $r->post('/system/aktualisierung/pruefen', $h(C\SystemController::class, 'updateCheck'), $sys);
         $r->post('/system/aktualisierung/rechte', $h(C\SystemController::class, 'updateRepair'), $sys);
         $r->post('/system/aktualisierung/installieren', $h(C\SystemController::class, 'updateInstall'), $sys);
-        $r->get('/system/einstellungen', $h(C\SystemController::class, 'settingsForm'), $sys);
+        $r->get('/system/einstellungen', $h(C\SystemController::class, 'settingsIndex'), $sys);
+        $r->get('/system/einstellungen/{page}', $h(C\SystemController::class, 'settingsForm'), $sys);
         $r->post('/system/einstellungen/testmail', $h(C\SystemController::class, 'mailTest'), $sys);
         $r->post('/system/einstellungen/{group}', $h(C\SystemController::class, 'settingsSave'), $sys);
         $r->get('/system/sicherungen', $h(C\SystemController::class, 'backups'), $sys);

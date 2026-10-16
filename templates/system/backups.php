@@ -20,6 +20,10 @@
         <?= $ui->action('/system/sicherungen/' . $f['id'] . '/loeschen', 'Löschen', 'bx-trash', 'btn btn-ghost btn-sm', 'Diese Sicherung endgültig löschen?') ?></td></tr><?php endforeach; ?>
     </tbody></table></div><?php endif; ?>
   </div>
+  <div class="card"><h2 class="h2">Aufbewahrung</h2>
+    <?= $v->partial('partials/settings_form', ['group' => 'backup', 'items' => $items]) ?>
+    <p class="small muted">Sicherungs-Passphrase: <strong><?= $passSet ? 'gesetzt (in .env)' : 'NICHT gesetzt – Sicherungen wären unverschlüsselt' ?></strong>.</p>
+  </div>
   <div class="card"><h2 class="h2">Wiederherstellung</h2>
     <p class="small">Eine Wiederherstellung überschreibt nie die laufende Datenbank und ist deshalb bewusst nicht per Klick möglich. Sie erfolgt auf der Kommandozeile in eine separate Datenbank, siehe <code>docs/BACKUP_RESTORE.md</code>. »Prüfen« kontrolliert Entschlüsselung und alle Hashes des Archivs.</p>
   </div>

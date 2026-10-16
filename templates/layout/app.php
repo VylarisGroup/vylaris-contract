@@ -5,7 +5,7 @@ $nav = [];
 if ($p !== null) {
     $nav[] = ['/', 'Start', 'bx-home', 'Hauptbereich'];
     if ($sysCtx) {
-        $nav = [['/system', 'Systemverwaltung', 'bx-server', 'System'], ['/system/einstellungen', 'Einstellungen', 'bx-cog', 'System'], ['/system/sicherungen', 'Sicherungen', 'bx-data', 'System'], ['/system/aktualisierung', 'Aktualisierung', 'bx-cloud-download', 'System']];
+        $nav = [['/system', 'Systemverwaltung', 'bx-server', 'System'], ['/system/einstellungen/allgemein', 'Allgemein', 'bx-cog', 'System'], ['/system/einstellungen/email', 'E-Mail', 'bx-envelope', 'System'], ['/system/einstellungen/signatur', 'Signatur', 'bx-pen', 'System'], ['/system/sicherungen', 'Sicherungen', 'bx-data', 'System'], ['/system/aktualisierung', 'Aktualisierung', 'bx-cloud-download', 'System']];
     } elseif ($int) {
         $nav[] = ['/vertraege', 'Verträge', 'bx-file', 'Hauptbereich'];
         if ($p->can('contract.create')) {
