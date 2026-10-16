@@ -33,9 +33,13 @@ a:hover{color:var(--brand-800)}
 .tabular,.num,.stat-n,td.num{font-variant-numeric:tabular-nums}
 
 @keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes toast-in{from{opacity:0;transform:translateY(-14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes toast-in{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes toast-out{to{opacity:0;transform:translateX(24px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes reveal{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes show{to{opacity:1}}
+@keyframes sheen{from{transform:translateX(-120%) skewX(-18deg)}to{transform:translateX(220%) skewX(-18deg)}}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgb(190 18 60/.45)}70%,100%{box-shadow:0 0 0 7px rgb(190 18 60/0)}}
 @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 
 @layer components{
@@ -69,7 +73,7 @@ a:hover{color:var(--brand-800)}
  .content{min-height:100vh;display:flex;flex-direction:column}
  .page{@apply mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6;animation:fade-up .35s var(--ease-out)}
  .page-foot{@apply mx-auto w-full max-w-7xl px-4 pb-8 text-xs sm:px-6;color:var(--muted)}
- .toasts{@apply fixed left-4 right-4 top-4 z-[60] flex flex-col gap-2 sm:left-auto sm:w-96;pointer-events:none}
+ .toasts{@apply fixed bottom-4 left-4 right-4 z-[60] flex flex-col-reverse gap-2 sm:left-auto sm:right-6 sm:w-96;pointer-events:none}
  .toasts .alert{pointer-events:auto;box-shadow:var(--shadow-lift);animation:toast-in .4s var(--ease-spring);margin:0}
  .toasts .alert.is-leaving{animation:toast-out .25s var(--ease-out) forwards}
  .alert-close{@apply ml-auto cursor-pointer border-0 bg-transparent p-0 text-lg leading-none;color:inherit;opacity:.6}
@@ -135,9 +139,19 @@ a:hover{color:var(--brand-800)}
  .input::placeholder{color:#94a3b8}
  .input:focus{outline:none;box-shadow:0 0 0 2px var(--brand-500)}
  .input[aria-invalid=true]{box-shadow:0 0 0 2px #fb7185}
- select.input{appearance:none;padding-right:2.5rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;background-size:1.25rem}
- textarea.input{min-height:6rem}
- input[type=color].input{padding:.25rem;height:2.625rem;width:8rem;cursor:pointer}
+ select.input:not([multiple]){appearance:none;padding-right:2.5rem;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;background-size:1.25rem}
+ select[multiple].input{padding:.35rem;min-height:7.5rem}
+ select[multiple].input option{border-radius:.5rem;padding:.35rem .6rem}
+ select[multiple].input option:checked{background:var(--brand-100) linear-gradient(0deg,var(--brand-100),var(--brand-100));color:var(--brand-800)}
+ textarea.input{min-height:6rem;resize:vertical}
+ input[type=color].input{padding:.3rem;height:2.625rem;width:4.5rem;cursor:pointer}
+ input[type=color].input::-webkit-color-swatch-wrapper{padding:0}
+ input[type=color].input::-webkit-color-swatch{border:0;border-radius:.55rem}
+ input[type=color].input::-moz-color-swatch{border:0;border-radius:.55rem}
+ input[type=file].input{padding:.4rem;cursor:pointer;color:var(--muted)}
+ input[type=file].input::file-selector-button{margin-right:.75rem;cursor:pointer;border:0;border-radius:.6rem;padding:.4rem .85rem;font:inherit;font-weight:600;font-size:13px;background:var(--brand-50);color:var(--brand-700);box-shadow:inset 0 0 0 1px var(--brand-200);transition:background .2s,transform .2s var(--ease-out)}
+ input[type=file].input:hover::file-selector-button{background:var(--brand-100)}
+ .input:hover:not(:focus):not([aria-invalid=true]){box-shadow:0 0 0 1px var(--muted)}
  .input-sm{@apply py-1.5 text-sm;min-height:2.25rem;width:auto}
  input[type=checkbox],input[type=radio]{accent-color:var(--brand-600);width:1rem;height:1rem}
  .check{@apply inline-flex items-center gap-2}
@@ -214,6 +228,74 @@ a:hover{color:var(--brand-800)}
  dialog.confirm::backdrop{background:rgb(15 23 42/.4);backdrop-filter:blur(3px)}
  dialog.confirm p{@apply mb-5 mt-1 text-sm}
  dialog.confirm .row-gap{justify-content:flex-end}
+}
+
+/* ---------- Bewegung: Hover & Scroll (Grundzustand ohne JS = alles sichtbar) ---------- */
+@layer components{
+ /* Scroll-Einblendung: html.js wird von boot.js gesetzt; fällt JS aus, erscheint der Inhalt nach 2,5 s von selbst */
+ html.js [data-reveal]:not(.is-in){opacity:0;animation:show .01s 2.5s forwards}
+ html.js [data-reveal].is-in{animation:reveal .65s var(--ease-out) backwards;animation-delay:calc(var(--i,0)*70ms)}
+ .scroll-progress{position:fixed;left:0;right:0;top:0;height:3px;z-index:70;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,var(--brand-400),var(--brand-600));pointer-events:none;opacity:0;transition:opacity .25s}
+ .scroll-progress.is-on{opacity:1}
+ .mobilebar.is-stuck{box-shadow:0 6px 18px -10px rgb(15 23 42/.35)}
+
+ /* Karten */
+ .card{transition:box-shadow .3s var(--ease-out),transform .3s var(--ease-out)}
+ .card:hover{box-shadow:0 0 0 1px var(--border-strong),var(--shadow-lift)}
+ .card-unread:hover{box-shadow:inset 3px 0 0 var(--brand-600),0 0 0 1px var(--border-strong),var(--shadow-lift)}
+ a.card,.list-cards>li.card{transition:transform .3s var(--ease-out),box-shadow .3s var(--ease-out)}
+ a.card:hover,.list-cards>li.card:hover{transform:translateY(-2px)}
+ .stat{position:relative;overflow:hidden}
+ .stat::after,.tiles .tile::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--brand-600);transform:scaleX(0);transform-origin:0 50%;transition:transform .4s var(--ease-out)}
+ .stat:hover::after,.tiles .tile:hover::after{transform:scaleX(1)}
+ .tiles .tile{position:relative;overflow:hidden}
+ .tiles .tile i{transition:transform .35s var(--ease-spring)}
+ .tiles .tile:hover i{transform:scale(1.15) rotate(-4deg)}
+ .brand-tile{transition:transform .35s var(--ease-spring)}
+ .brand:hover .brand-tile{transform:rotate(-8deg) scale(1.08)}
+
+ /* Navigation: Balken wächst, Symbol rückt vor */
+ .navlink{position:relative}
+ .navlink::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:3px;border-radius:3px;background:var(--brand-600);transform:scaleY(0);transition:transform .25s var(--ease-out)}
+ .navlink:hover::before{transform:scaleY(.6)}
+ .navlink.is-active::before{transform:scaleY(1)}
+ .navlink i{transition:transform .25s var(--ease-spring),color .2s}
+ .navlink:hover i{transform:translateX(2px) scale(1.12);color:var(--brand-600)}
+ .navlink span:not(.count){transition:transform .25s var(--ease-out)}
+ .navlink:hover span:not(.count){transform:translateX(2px)}
+
+ /* Buttons: Lichtreflex, Symbole */
+ .btn{overflow:hidden}
+ .btn-primary::before{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgb(255 255 255/.28),transparent);transform:translateX(-120%) skewX(-18deg);pointer-events:none}
+ .btn-primary:hover::before{animation:sheen .8s var(--ease-out)}
+ .btn-primary:hover{box-shadow:0 10px 22px -8px var(--brand-600)}
+ .btn .bx{transition:transform .25s var(--ease-spring)}
+ .btn:hover .bx{transform:scale(1.18)}
+ .btn-secondary:hover{transform:translateY(-1px)}
+ .btn-danger:hover{transform:translateY(-1px);box-shadow:0 10px 22px -8px #e11d48}
+
+ /* Links: Unterstreichung läuft ein */
+ .page a:not(.btn):not(.navlink):not(.brand):not(.tile):not(.card):not(.stat){text-decoration:none;background-image:linear-gradient(var(--brand-400),var(--brand-400));background-size:100% 1.5px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .3s var(--ease-out),color .2s}
+ .page a:not(.btn):not(.navlink):not(.brand):not(.tile):not(.card):not(.stat):hover{background-size:100% 100%;background-image:linear-gradient(var(--brand-50),var(--brand-50));color:var(--brand-800)}
+
+ /* Tabellen: Zeile mit Markierung */
+ .table tbody tr{position:relative}
+ .table tbody tr td:first-child,.table tbody tr th:first-child{transition:box-shadow .2s}
+ .table tbody tr:hover td:first-child,.table tbody tr:hover th:first-child{box-shadow:inset 3px 0 0 var(--brand-600)}
+ .table tbody tr:hover{background:var(--brand-50)}
+
+ /* Badges & Benutzer */
+ .badge{transition:transform .2s var(--ease-spring)}
+ tr:hover .badge,.badge:hover{transform:scale(1.06)}
+ .avatar{transition:transform .3s var(--ease-spring)}
+ .usermenu summary:hover .avatar{transform:scale(1.08) rotate(-4deg)}
+ .count{animation:ring 2.4s ease-out infinite}
+ .field:focus-within .label{color:var(--brand-700)}
+ .label{transition:color .2s}
+}
+@media (prefers-reduced-motion:reduce){
+ html.js [data-reveal]:not(.is-in){opacity:1;animation:none}
+ .scroll-progress{display:none}
 }
 @media (max-width:639px){dialog.confirm{margin-bottom:0;max-width:none;border-bottom-left-radius:0;border-bottom-right-radius:0}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.btn.is-loading::after{animation-duration:1.5s!important;animation-iteration-count:infinite!important}}

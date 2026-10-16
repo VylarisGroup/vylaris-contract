@@ -49,6 +49,7 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?= e($v->title ?? 'Vertragsplattform') ?> – Vertragsplattform</title>
+<script src="/assets/boot.js"></script>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/vendor/inter/inter.css">
 <link rel="stylesheet" href="/assets/app.css">
@@ -56,6 +57,7 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
 <link rel="stylesheet" href="/brand.css?v=<?= e(substr(md5($brandHex), 0, 8)) ?>">
 </head>
 <body>
+<div class="scroll-progress" aria-hidden="true"></div>
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
 <?php if ($p !== null): ?>
 <header class="mobilebar">

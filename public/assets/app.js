@@ -87,4 +87,58 @@
       if (!d.contains(ev.target)) { d.removeAttribute('open'); }
     });
   });
+
+  // ---- Bewegung: Scroll-Einblendung, Fortschrittsbalken, Zählanimation ----
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var targets = Array.prototype.slice.call(document.querySelectorAll('.page .card, .page .stat, .page .tile, .page .table-wrap, .page .h1, .guest-card'))
+    .filter(function (el) { return !el.parentElement.closest('.card, dialog'); });
+  function countUp(el) {
+    var txt = el.textContent.trim();
+    if (reduce || !/^\d{1,6}$/.test(txt)) { return; }
+    var to = parseInt(txt, 10), t0 = null;
+    if (to === 0) { return; }
+    function step(ts) {
+      if (t0 === null) { t0 = ts; }
+      var k = Math.min(1, (ts - t0) / 700), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = String(Math.round(to * e));
+      if (k < 1) { window.requestAnimationFrame(step); }
+    }
+    el.textContent = '0';
+    window.requestAnimationFrame(step);
+  }
+  function reveal(el, i) {
+    el.style.setProperty('--i', String(Math.min(i, 6)));
+    el.classList.add('is-in');
+    el.querySelectorAll('.stat-n').forEach(countUp);
+    if (el.classList.contains('stat-n')) { countUp(el); }
+  }
+  if (!reduce && 'IntersectionObserver' in window) {
+    var batch = 0, timer = null;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { reveal(en.target, batch++); io.unobserve(en.target); }
+      });
+      window.clearTimeout(timer);
+      timer = window.setTimeout(function () { batch = 0; }, 120);
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    targets.forEach(function (el) { el.setAttribute('data-reveal', ''); io.observe(el); });
+  }
+
+  var bar = document.querySelector('.scroll-progress');
+  var mobilebar = document.querySelector('.mobilebar');
+  var ticking = false;
+  function onScroll() {
+    ticking = false;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    if (bar) {
+      bar.classList.toggle('is-on', y > 24 && h > 80);
+      bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, y / h) : 0).toFixed(4) + ')';
+    }
+    if (mobilebar) { mobilebar.classList.toggle('is-stuck', y > 4); }
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
+  }, { passive: true });
+  onScroll();
 })();
