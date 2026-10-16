@@ -137,7 +137,7 @@ final class Services
         $this->updates = new \App\Modules\Maintenance\UpdateService($db, $this->audit, $root, $this->storageRoot, null, function () use ($db, $config): string {
             $pass = $config->get('BACKUP_PASSPHRASE', '');
             return (new \App\Modules\Maintenance\BackupService($db, $this->storageRoot))->create($this->storageRoot . '/backups', $pass === '' ? null : $pass)['path'];
-        });
+        }, null, null, (string) $config->get('APP_URL', ''));
     }
 
     private static function mailer(Config $c): Mailer

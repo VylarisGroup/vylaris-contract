@@ -17,3 +17,6 @@ Tailwind CSS (CSS neu bauen), Composer ist optional (`composer.json` enthält nu
 
 ## Externe Dienste (optional, über Adapter)
 Skribble (Signatur), beliebiger SMTP-Server.
+
+## Schrift (Version 1.3.0)
+- **Inter Variable** (`public/assets/vendor/inter/`, Teilmengen latin und latin-ext), SIL Open Font License 1.1, Lizenztext liegt im Ordner. Lokal ausgeliefert, keine Anfragen an Dritte.

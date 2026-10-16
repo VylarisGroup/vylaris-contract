@@ -42,6 +42,7 @@ abstract class Controller
         $this->x->view->share('csrf', $this->x->session->csrfToken());
         $this->x->view->share('unread', $this->safeUnread());
         $this->x->view->share('path', $this->x->req->path);
+        $this->x->view->share('brand', $this->s()->config->get('BRAND_COLOR', '#4f46e5'));
         $this->x->view->share('sandbox', $this->s()->provider->mode() === 'sandbox');
         return Response::html($this->x->view->render($template, $data, $layout), $status);
     }

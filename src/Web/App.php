@@ -59,6 +59,12 @@ final class App
 
     public function handle(Request $request, ?Config $config): Response
     {
+        if ($request->path === '/brand.css' && $request->method === 'GET') {
+            // Markenfarbe als eigene Stylesheet-Datei (die CSP erlaubt keine Inline-Styles)
+            $hex = $config !== null && $config->has('BRAND_COLOR') ? $config->get('BRAND_COLOR') : '#4f46e5';
+            $hex = preg_match('/^#[0-9a-fA-F]{6}$/', $hex) === 1 ? $hex : '#4f46e5';
+            return new Response(200, ':root{--brand:' . $hex . '}', ['Content-Type' => 'text/css; charset=utf-8', 'Cache-Control' => 'public, max-age=3600']);
+        }
         $installed = is_file($this->root . '/storage/install.lock') && $config !== null;
         $session = new Session(($config?->get('STORAGE_PATH', $this->root . '/storage') ?? $this->root . '/storage') . '/sessions');
         $view = new View($this->root . '/templates');
@@ -72,7 +78,17 @@ final class App
                 return Response::html('Seite nicht gefunden.', 404);
             }
             $flag = ($config->get('STORAGE_PATH', $this->root . '/storage')) . '/maintenance.flag';
-            if (is_file($flag) && time() - (int) @filemtime($flag) < 900) {
+            $maint = is_file($flag) && time() - (int) @filemtime($flag) < 900;
+            if ($maint) {
+                // Selbstprüfung des Updaters darf während der Wartung durch (Einmal-Token aus dem Flag).
+                $fj = json_decode((string) @file_get_contents($flag), true);
+                $tok = is_array($fj) ? (string) ($fj['token'] ?? '') : '';
+                $sent = (string) ($_SERVER['HTTP_X_UPDATE_CHECK'] ?? '');
+                if ($tok !== '' && $sent !== '' && hash_equals($tok, $sent) && in_array($request->path, ['/anmelden', '/assets/app.css'], true)) {
+                    $maint = false;
+                }
+            }
+            if ($maint) {
                 return new Response(503, '<!doctype html><html lang="de"><meta charset="utf-8"><title>Wartung</title><body style="font-family:sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem"><h1>Wartungsarbeiten</h1><p>Das System wird gerade aktualisiert. Bitte in wenigen Minuten erneut versuchen.</p></body></html>', ['Content-Type' => 'text/html; charset=utf-8', 'Retry-After' => '120']);
             }
             $db = Database::connect($config->get('DB_HOST', '127.0.0.1'), $config->int('DB_PORT', 3306), $config->get('DB_NAME'), $config->get('DB_USER'), $config->get('DB_PASS'));
@@ -161,6 +177,7 @@ final class App
         $view->share('unread', 0);
         $view->share('path', '');
         $view->share('sandbox', false);
+        $view->share('brand', $this->services?->config->get('BRAND_COLOR', '#4f46e5') ?? '#4f46e5');
         return Response::html($view->render($tpl, $data, $this->ctx?->p !== null ? 'layout/app' : 'layout/guest'), $status);
     }
 
@@ -329,6 +346,7 @@ final class App
         $r->post('/system/mandanten/{id}/status', $h(C\SystemController::class, 'tenantStatus'), $sys);
         $r->get('/system/aktualisierung', $h(C\SystemController::class, 'updateForm'), $sys);
         $r->post('/system/aktualisierung/pruefen', $h(C\SystemController::class, 'updateCheck'), $sys);
+        $r->post('/system/aktualisierung/rechte', $h(C\SystemController::class, 'updateRepair'), $sys);
         $r->post('/system/aktualisierung/installieren', $h(C\SystemController::class, 'updateInstall'), $sys);
         $r->get('/system/einstellungen', $h(C\SystemController::class, 'settingsForm'), $sys);
         $r->post('/system/einstellungen/testmail', $h(C\SystemController::class, 'mailTest'), $sys);

@@ -44,7 +44,7 @@ Beim End-to-End-Test gefundene und behobene Fehler: **Icon-Schrift fehlte im ZIP
 - Lasttests, externer Penetrationstest, Barrierefreiheitsaudit, juristische Prüfung.
 
 ## Nachtrag: Aktualisierung aus GitHub (Version 1.1.0)
-Automatische Tests (`tests/Integration/UpdateTest.php`, 5 Tests): Erfolgspfad, Rückfall bei Migrationsfehler, Zugriffsschutz, Zip-Slip/Syntax/Versionskonflikt, Host-Allowlist.
+Automatische Tests (`tests/Integration/UpdateTest.php`, 9 Tests, Version 1.4.0): Erfolgspfad, erzwungene Rechte, unveränderter public/-Ordner, Rückfall bei Migrations- und Selbstprüfungsfehler, Manifest-Löschung, SHA-Pin, Reparatur, Zugriffsschutz, Zip-Slip/Syntax/Versionskonflikt, Host-Allowlist. Manuell Ende-zu-Ende gegen lokalen PHP-Server.
 Gesamtstand: 217 Tests grün. GitHub wurde dabei durch Attrappen ersetzt; der echte Netzabruf und Dateirechte unter Plesk sind ungetestet.
 
 ## Nachtrag: Verwaltung über die Oberfläche (Version 1.2.0)

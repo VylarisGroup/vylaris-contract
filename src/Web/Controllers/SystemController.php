@@ -54,7 +54,7 @@ final class SystemController extends Controller
     public function updateForm(Request $r, array $params = []): Response
     {
         $u = $this->s()->updates;
-        return $this->render('system/update', ['current' => $u->currentVersion(), 'latest' => $u->lastCheck(), 'run' => $u->lastRun(), 'repo' => \App\Modules\Maintenance\UpdateService::REPO]);
+        return $this->render('system/update', ['current' => $u->currentVersion(), 'latest' => $u->lastCheck(), 'run' => $u->lastRun(), 'checks' => $u->diagnose(), 'repo' => \App\Modules\Maintenance\UpdateService::REPO]);
     }
 
     /** @param array<string,mixed> $params */
@@ -64,9 +64,14 @@ final class SystemController extends Controller
     }
 
     /** @param array<string,mixed> $params */
+    public function updateRepair(Request $r, array $params = []): Response
+    {
+        return $this->act($r, '/system/aktualisierung', 'Dateirechte repariert.', fn () => $this->s()->updates->repairPermissions($this->p()));
+    }
+
     public function updateInstall(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/system/aktualisierung', 'System erfolgreich aktualisiert.', fn () => $this->s()->updates->install($this->p(), $r->string('version')));
+        return $this->act($r, '/system/aktualisierung', 'System erfolgreich aktualisiert.', fn () => $this->s()->updates->install($this->p(), $r->string('version'), $r->string('sha256')));
     }
 
     // ------------------------------------------------------------ Einstellungen

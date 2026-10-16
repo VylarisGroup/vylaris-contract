@@ -1,3 +1,5 @@
 .env
 SETUP-SCHLUESSEL.txt
 storage/*
+.env.test
+vendor/

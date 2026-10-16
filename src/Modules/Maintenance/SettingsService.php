@@ -25,6 +25,7 @@ final class SettingsService
     {
         return [
             'APP_NAME' => ['group' => 'general', 'label' => 'Anwendungsname', 'type' => 'text', 'default' => 'Vertragsplattform', 'help' => 'Erscheint in Titel und E-Mails.'],
+            'BRAND_COLOR' => ['group' => 'general', 'label' => 'Markenfarbe', 'type' => 'color', 'default' => '#4f46e5', 'help' => 'Färbt Schaltflächen, Navigation und Links; alle Töne werden automatisch abgeleitet. Sehr helle Farben (z. B. Gelb) ergeben zu wenig Kontrast zu weisser Schrift.'],
             'APP_URL' => ['group' => 'general', 'label' => 'Öffentliche Adresse (URL)', 'type' => 'url', 'help' => 'Beginnt mit https://, ohne Pfad am Ende. Wird für Links in E-Mails verwendet.'],
             'MAX_UPLOAD_MB' => ['group' => 'general', 'label' => 'Upload-Limit pro Datei (MB)', 'type' => 'number', 'default' => '20', 'help' => 'Wirksam ist zusätzlich das PHP-Limit des Servers (upload_max_filesize / post_max_size, in Plesk unter »PHP-Einstellungen«).'],
             'TRUSTED_PROXIES' => ['group' => 'general', 'label' => 'Vertrauenswürdige Proxy-IPs', 'type' => 'text', 'help' => 'Nur bei vorgeschaltetem Proxy/Load-Balancer: kommagetrennte IP-Adressen. Falsche Angaben erlauben das Vortäuschen von IP-Adressen.'],
@@ -195,6 +196,8 @@ final class SettingsService
                     return 'Bitte eine https://-Adresse angeben.';
                 }
                 return null;
+            case 'BRAND_COLOR':
+                return preg_match('/^#[0-9a-fA-F]{6}$/', $v) === 1 ? null : 'Farbe im Format #rrggbb.';
             case 'MAX_UPLOAD_MB':
                 return ctype_digit($v) && (int) $v >= 1 && (int) $v <= 500 ? null : 'Zahl zwischen 1 und 500.';
             case 'BACKUP_KEEP':
