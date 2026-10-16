@@ -154,6 +154,7 @@ final class ContractController extends Controller
             'notary' => $this->s()->reads->notaryCasesFor($id, $tid),
             'holds' => $p->can('legalhold.manage') ? array_values(array_filter($this->s()->holds->list($p, true), static fn (array $h): bool => (int) ($h['contract_id'] ?? 0) === $id)) : [],
             'members' => $this->s()->reads->members($tid),
+            'approverOpts' => $this->s()->reads->members($tid, 'approval.decide'),
             'notaries' => $this->s()->reads->notaries($tid),
             'can' => array_combine($acts = ['edit', 'archive', 'export', 'approve', 'request_approval', 'request_signature', 'notary', 'deadline', 'comment', 'download'], array_map(fn (string $a): bool => $this->s()->ac->mayDo($p, $c, $a), $acts)),
             'providerMode' => $this->s()->provider->mode(),

@@ -100,17 +100,20 @@ $latestVersion = $c['versions'][0] ?? null;
     <?php if ($can['request_approval'] && in_array($status, ['draft', 'rejected', 'withdrawn'], true) && $latestVersion): ?>
       <h3 class="h3 mt">Freigabe anfordern</h3>
       <p class="muted small">Mit der Anforderung wird der aktuelle Text <strong>gesperrt</strong>. Wählen Sie je Stufe die freigebenden Personen (Stufen laufen nacheinander; innerhalb einer Stufe müssen alle zustimmen). Vier-Augen-Prinzip: Sie können Ihren eigenen Vertrag nicht selbst freigeben.</p>
-      <form method="post" action="/vertraege/<?= $id ?>/freigabe" class="stack">
+      <form method="post" action="/vertraege/<?= $id ?>/freigabe" class="stack" data-wizard="auto">
         <?= $ui->csrf() ?>
-        <div class="grid-3">
-          <?php foreach ([1, 2, 3] as $n): ?>
-            <div class="field"><label class="label" for="step<?= $n ?>">Stufe <?= $n ?><?= $n > 1 ? ' (optional)' : '' ?></label>
-              <select class="input" id="step<?= $n ?>" name="step<?= $n ?>[]" multiple size="5"<?= $n === 1 ? ' required' : '' ?>>
-                <?php foreach ($approverOpts as $uid => $label): ?><option value="<?= (int) $uid ?>"><?= e($label) ?></option><?php endforeach; ?>
-              </select></div>
-          <?php endforeach; ?>
+        <?php $stageSel = static function (int $n, array $opts) use ($ui): string {
+            $h = '<div class="field"><label class="label" for="step' . $n . '">Stufe ' . $n . ($n > 1 ? ' (optional)' : '') . '</label><select class="input" id="step' . $n . '" name="step' . $n . '[]" multiple size="5"' . ($n === 1 ? ' required' : '') . '>';
+            foreach ($opts as $uid => $label) { $h .= '<option value="' . (int) $uid . '">' . e($label) . '</option>'; }
+            return $h . '</select></div>';
+        }; ?>
+        <div class="wz-step stack" data-title="Erste Stufe" data-intro="Wer muss den Vertrag zuerst freigeben? Mehrere Personen auswählen: alle müssen zustimmen (Strg/Cmd gedrückt halten).">
+          <?= $stageSel(1, $approverOpts) ?>
         </div>
-        <div><button class="btn btn-primary" type="submit" data-confirm="Version sperren und zur Freigabe senden?"><i class="bx bx-send" aria-hidden="true"></i> Zur Freigabe senden</button></div>
+        <div class="wz-step stack" data-title="Weitere Stufen" data-intro="Optional: weitere Stufen, die nacheinander folgen. Ohne Auswahl genügt die erste Stufe.">
+          <div class="grid-2"><?= $stageSel(2, $approverOpts) ?><?= $stageSel(3, $approverOpts) ?></div>
+        </div>
+        <div class="wz-actions"><button class="btn btn-primary" type="submit" data-confirm="Version sperren und zur Freigabe senden?"><i class="bx bx-send" aria-hidden="true"></i> Zur Freigabe senden</button></div>
       </form>
     <?php endif; ?>
     <?php if ($status === 'review' && $can['request_approval']): ?>
@@ -155,16 +158,20 @@ $latestVersion = $c['versions'][0] ?? null;
     <?php endforeach; ?>
     <?php if ($status === 'approved' && $can['request_signature'] && $openSig === []): ?>
       <h3 class="h3 mt">Unterzeichnung anfordern</h3>
-      <form method="post" action="/vertraege/<?= $id ?>/signatur" class="stack">
+      <form method="post" action="/vertraege/<?= $id ?>/signatur" class="stack" data-wizard="auto">
         <?= $ui->csrf() ?>
+        <div class="wz-step stack" data-title="Art der Signatur" data-intro="Welche Signaturstufe wird gebraucht und in welcher Reihenfolge soll unterzeichnet werden?">
         <?= $ui->field('level', 'Signaturstufe', ['type' => 'select', 'options' => $levelOpts, 'help' => 'SES = einfach, AES = fortgeschritten, QES = qualifiziert. Welche Stufe rechtlich erforderlich ist, hängt vom Vertrag ab – bitte fachlich klären.']) ?>
         <?php if ($providerName === 'internal'): ?>
           <?= $ui->field('order', 'Reihenfolge', ['type' => 'select', 'options' => ['parallel' => 'Gleichzeitig – alle erhalten sofort die Einladung', 'sequential' => 'Nacheinander – in der Reihenfolge der Liste'], 'help' => 'Bei «Nacheinander» wird die nächste Person erst eingeladen, wenn die vorherige unterzeichnet hat.']) ?>
         <?php endif; ?>
+        </div>
+        <div class="wz-step stack" data-title="Unterzeichnende" data-intro="Wer soll unterzeichnen? Mindestens eine Person mit Name und E-Mail-Adresse. Bei «Nacheinander» gilt die Reihenfolge der Liste.">
         <?php for ($i = 0; $i < 3; $i++): ?>
           <div class="grid-2"><?= $ui->field('signer_name[]', 'Name Unterzeichner/in ' . ($i + 1), ['maxlength' => 190]) ?><?= $ui->field('signer_email[]', 'E-Mail', ['type' => 'email', 'maxlength' => 190]) ?></div>
         <?php endfor; ?>
-        <div><button class="btn btn-primary" type="submit" data-confirm="Unterzeichnung der freigegebenen Version anfordern?"><i class="bx bx-send" aria-hidden="true"></i> Anfordern</button></div>
+        </div>
+        <div class="wz-actions"><button class="btn btn-primary" type="submit" data-confirm="Unterzeichnung der freigegebenen Version anfordern?"><i class="bx bx-send" aria-hidden="true"></i> Anfordern</button></div>
       </form>
     <?php elseif ($status !== 'approved' && $signatures === []): ?>
       <p class="muted">Eine Unterzeichnung kann erst nach vollständiger Freigabe angefordert werden.</p>
@@ -195,9 +202,10 @@ $latestVersion = $c['versions'][0] ?? null;
       <?php endforeach; ?></ul>
       <p class="muted small">Kündigungs- und Ablauffristen werden automatisch berechnet (ohne Berücksichtigung von Feiertagen/Wochenenden – bitte verbindlich prüfen).</p>
       <?php if ($can['deadline']): ?>
-        <?= $ui->form('/vertraege/' . $id . '/fristen', '<div class="grid-2">' . $ui->field('label', 'Bezeichnung', ['required' => true, 'maxlength' => 255]) . $ui->field('due_date', 'Fällig am', ['type' => 'date', 'required' => true]) . '</div>'
-          . $ui->field('kind', 'Art', ['type' => 'select', 'options' => ['payment' => 'Zahlung', 'performance' => 'Leistung', 'custom' => 'Sonstiges']])
-          . '<button class="btn btn-secondary" type="submit">Frist hinzufügen</button>') ?>
+        <?= $ui->form('/vertraege/' . $id . '/fristen',
+            '<div class="wz-step stack" data-title="Was?" data-intro="Wie soll die Frist heissen, und um was für eine Art Frist handelt es sich?">' . $ui->field('label', 'Bezeichnung', ['required' => true, 'maxlength' => 255]) . $ui->field('kind', 'Art', ['type' => 'select', 'options' => ['payment' => 'Zahlung', 'performance' => 'Leistung', 'custom' => 'Sonstiges']]) . '</div>'
+            . '<div class="wz-step stack" data-title="Wann?" data-intro="An welchem Datum ist die Frist fällig? Sie erhalten vorher eine Erinnerung.">' . $ui->field('due_date', 'Fällig am', ['type' => 'date', 'required' => true]) . '</div>'
+            . '<div class="wz-actions"><button class="btn btn-secondary" type="submit">Frist hinzufügen</button></div>', false, '', 'wizard-auto') ?>
       <?php endif; ?>
     </div>
   </div>
@@ -211,9 +219,10 @@ $latestVersion = $c['versions'][0] ?? null;
           <?php if ($t['status'] === 'open' && $can['edit']): ?><?= $ui->action('/aufgaben/' . (int) $t['id'] . '/erledigen', 'Erledigt', 'bx-check', 'btn btn-ghost btn-sm', null, ['contract_id' => $id]) ?><?php endif; ?></li>
       <?php endforeach; ?></ul>
       <?php if ($can['edit']): ?>
-        <?= $ui->form('/vertraege/' . $id . '/aufgaben', $ui->field('title', 'Aufgabe', ['required' => true, 'maxlength' => 255])
-          . '<div class="grid-2">' . $ui->field('assignee_user_id', 'Zuständig', ['type' => 'select', 'options' => $memberOpts, 'empty' => '–']) . $ui->field('due_date', 'Fällig am', ['type' => 'date']) . '</div>'
-          . '<button class="btn btn-secondary" type="submit">Aufgabe hinzufügen</button>') ?>
+        <?= $ui->form('/vertraege/' . $id . '/aufgaben',
+            '<div class="wz-step stack" data-title="Aufgabe" data-intro="Was ist zu tun?">' . $ui->field('title', 'Aufgabe', ['required' => true, 'maxlength' => 255]) . '</div>'
+            . '<div class="wz-step stack" data-title="Zuständigkeit und Termin" data-intro="Wer erledigt die Aufgabe, und bis wann? Beides ist optional.">' . $ui->field('assignee_user_id', 'Zuständig', ['type' => 'select', 'options' => $memberOpts, 'empty' => '–']) . $ui->field('due_date', 'Fällig am', ['type' => 'date']) . '</div>'
+            . '<div class="wz-actions"><button class="btn btn-secondary" type="submit">Aufgabe hinzufügen</button></div>', false, '', 'wizard-auto') ?>
       <?php endif; ?>
     </div>
 

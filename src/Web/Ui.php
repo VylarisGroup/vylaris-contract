@@ -84,9 +84,11 @@ final class Ui
     }
 
     /** POST-Formular mit CSRF-Feld; $inner ist bereits sicheres HTML. */
-    public function form(string $action, string $inner, bool $multipart = false, string $class = ''): string
+    public function form(string $action, string $inner, bool $multipart = false, string $class = '', string $wizard = ''): string
     {
-        return '<form method="post" action="' . e($action) . '"' . ($multipart ? ' enctype="multipart/form-data"' : '') . ($class !== '' ? ' class="' . e($class) . '"' : '') . '>' . $this->csrf() . $inner . '</form>';
+        // $wizard: 'wizard-auto' = Assistent standardmässig an, 'wizard-on' = verfügbar, aber «Alle Felder» als Standard (Schritte: .wz-step, Aktionen: .wz-actions)
+        $w = $wizard === 'wizard-auto' ? ' data-wizard="auto"' : ($wizard === 'wizard-on' ? ' data-wizard="on"' : '');
+        return '<form method="post" action="' . e($action) . '"' . ($multipart ? ' enctype="multipart/form-data"' : '') . ($class !== '' ? ' class="' . e($class) . '"' : '') . $w . '>' . $this->csrf() . $inner . '</form>';
     }
 
     /** Kleiner Ein-Klick-Button als eigenes Formular; $confirm löst ein Bestätigungsdialog (JS) aus. */

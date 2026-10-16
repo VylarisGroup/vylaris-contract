@@ -22,21 +22,27 @@ foreach (array_keys($types) as $k) {
         <form method="post" action="/verwaltung/mandate/<?= $mid ?>/verlaengern" class="row-gap"><?= $ui->csrf() ?><label class="sr-only" for="ex<?= $mid ?>">Neues Ende</label><input class="input input-sm" id="ex<?= $mid ?>" name="valid_until" type="date" required><button class="btn btn-ghost btn-sm" type="submit">Verlängern</button></form></div><?php endif; ?></td></tr>
   <?php endforeach; ?></tbody></table></div>
   <div class="card"><h2 class="h3">Neues Mandat</h2>
-    <form method="post" action="/verwaltung/mandate" class="stack"><?= $ui->csrf() ?>
+    <form method="post" action="/verwaltung/mandate" class="stack" data-wizard="auto"><?= $ui->csrf() ?>
+      <div class="wz-step stack" data-title="Art und Person" data-intro="Wer erhält zeitlich begrenzten Zugriff, und in welcher Rolle (Gegenpartei, Revision, Notariat)?">
       <div class="grid-2">
         <?= $ui->field('type', 'Art des Zugriffs', ['type' => 'select', 'options' => $typeOpts, 'required' => true, 'help' => 'Höchstdauer: Gegenpartei 365, Revision 120, Notariat 180 Tage.']) ?>
         <?= $ui->field('organization', 'Organisation', ['maxlength' => 190]) ?>
         <?= $ui->field('display_name', 'Name der Person', ['required' => true, 'maxlength' => 190]) ?>
         <?= $ui->field('email', 'E-Mail', ['type' => 'email', 'required' => true, 'maxlength' => 190]) ?>
+      </div></div>
+      <div class="wz-step stack" data-title="Dauer und Verantwortung" data-intro="Wie lange gilt der Zugriff, und wer intern ist verantwortlich?">
+      <div class="grid-2">
         <?= $ui->field('valid_from', 'Gültig ab', ['type' => 'date', 'required' => true, 'value' => gmdate('Y-m-d')]) ?>
         <?= $ui->field('valid_until', 'Gültig bis', ['type' => 'date', 'required' => true]) ?>
         <?= $ui->field('responsible_user_id', 'Interne verantwortliche Person', ['type' => 'select', 'options' => $members, 'empty' => '–']) ?>
-      </div>
+      </div></div>
+      <div class="wz-step stack" data-title="Berechtigungen und Verträge" data-intro="Welche Aktionen sind erlaubt, und für welche Verträge gilt das Mandat?">
       <fieldset class="fieldset"><legend>Erlaubte Aktionen (müssen zur Art passen)</legend>
         <?php foreach ($types as $tk => $spec): ?><p class="small muted"><?= e($typeLabels[$tk] ?? $tk) ?>:</p><div class="row-gap"><?php foreach ($spec['actions'] as $a): ?><label class="check"><input type="checkbox" name="actions[]" value="<?= e($a) ?>"> <span><?= e($actionLabels[$a] ?? $a) ?></span></label><?php endforeach; ?></div><?php endforeach; ?></fieldset>
       <div class="field"><label class="label" for="cids">Verträge (mehrere mit Strg/Cmd wählen)</label>
         <select class="input" id="cids" name="contract_ids[]" multiple size="8" required><?php foreach ($contracts as $c): ?><option value="<?= (int) $c['id'] ?>"><?= e($c['contract_number']) ?> – <?= e($c['title']) ?></option><?php endforeach; ?></select>
         <?php if ($ui->error('contracts')): ?><p class="field-error" role="alert"><?= e($ui->error('contracts')) ?></p><?php endif; ?></div>
-      <div><button class="btn btn-primary" type="submit"><i class="bx bx-user-plus" aria-hidden="true"></i> Mandat anlegen &amp; einladen</button></div>
+      </div>
+      <div class="wz-actions"><button class="btn btn-primary" type="submit"><i class="bx bx-user-plus" aria-hidden="true"></i> Mandat anlegen &amp; einladen</button></div>
     </form></div>
 </section>

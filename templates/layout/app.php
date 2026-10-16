@@ -81,9 +81,24 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
 <aside class="sidebar" id="mainnav">
   <div class="sidebar-head"><a href="/" class="brand"><span class="brand-tile"><i class="bx bx-file" aria-hidden="true"></i></span> <span>Vertragsplattform</span></a></div>
   <nav class="mainnav" aria-label="Hauptnavigation">
-    <?php $lastGroup = null; foreach ($nav as $item): [$href, $label, $icon, $group] = $item; $badge = $item[4] ?? 0; ?>
-      <?php if ($group !== $lastGroup): $lastGroup = $group; ?><div class="section-label"><?= e($group) ?></div><?php endif; ?>
-      <a href="<?= e($href) ?>" class="navlink<?= $isActive($href, $path) ? ' is-active' : '' ?>"<?= $path === $href ? ' aria-current="page"' : '' ?>><i class="bx <?= e($icon) ?>" aria-hidden="true"></i> <span><?= e($label) ?></span><?php if ($badge > 0): ?><span class="count" aria-label="<?= (int) $badge ?> ungelesen"><?= (int) $badge ?></span><?php endif; ?></a>
+    <?php
+    $groups = [];
+    foreach ($nav as $item) { $groups[$item[3]][] = $item; }
+    $groupIcons = ['Hauptbereich' => 'bx-home-alt', 'Verwaltung' => 'bx-cog', 'System' => 'bx-server', 'Einstellungen' => 'bx-slider-alt', 'Betrieb' => 'bx-wrench', 'Hilfe' => 'bx-help-circle'];
+    $groupKey = static fn (string $g): string => strtolower(preg_replace('/[^A-Za-z]/', '', $g) ?? '');
+    foreach ($groups as $gname => $items):
+        $hasActive = false; $sum = 0;
+        foreach ($items as $it) { $hasActive = $hasActive || $isActive($it[0], $path); $sum += (int) ($it[4] ?? 0); }
+        $openDefault = $hasActive || in_array($gname, ['Hauptbereich', 'System'], true);
+    ?>
+      <details class="navgroup" data-navgroup="<?= e($groupKey($gname)) ?>"<?= $hasActive ? ' data-active="1"' : '' ?><?= $openDefault ? ' open' : '' ?>>
+        <summary class="section-label"><i class="bx <?= e($groupIcons[$gname] ?? 'bx-folder') ?>" aria-hidden="true"></i><span><?= e($gname) ?></span><?php if ($sum > 0): ?><span class="count count-collapsed" aria-label="<?= $sum ?> ungelesen"><?= $sum ?></span><?php endif; ?><i class="bx bx-chevron-down navgroup-chev" aria-hidden="true"></i></summary>
+        <div class="navgroup-items">
+        <?php foreach ($items as $item): [$href, $label, $icon] = $item; $badge = $item[4] ?? 0; ?>
+          <a href="<?= e($href) ?>" class="navlink<?= $isActive($href, $path) ? ' is-active' : '' ?>"<?= $path === $href ? ' aria-current="page"' : '' ?>><i class="bx <?= e($icon) ?>" aria-hidden="true"></i> <span><?= e($label) ?></span><?php if ($badge > 0): ?><span class="count" aria-label="<?= (int) $badge ?> ungelesen"><?= (int) $badge ?></span><?php endif; ?></a>
+        <?php endforeach; ?>
+        </div>
+      </details>
     <?php endforeach; ?>
   </nav>
   <div class="sidebar-foot">
@@ -129,6 +144,7 @@ if ($helpSlug !== null && $p !== null && isset(\App\Web\HelpTopics::visibleFor($
 </footer>
 </div>
 <script src="/assets/app.js" defer></script>
+<script src="/assets/wizard.js" defer></script>
 <script src="/assets/passkey.js" defer></script>
 </body>
 </html>

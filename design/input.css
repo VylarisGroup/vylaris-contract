@@ -367,3 +367,44 @@ a:hover{color:var(--brand-800)}
 .changelog-sec h3{@apply m-0 mb-1 flex items-center gap-1.5}
 .changelog-wichtig{@apply rounded-xl p-3;background:color-mix(in oklab,#f59e0b 12%,transparent)}
 }
+
+@layer components{
+.navgroup{@apply mb-1}
+.navgroup>summary{@apply flex cursor-pointer list-none items-center gap-2 rounded-lg px-3 pb-1 pt-3;color:var(--muted)}
+.navgroup>summary::-webkit-details-marker{display:none}
+.navgroup>summary:hover{color:var(--text-strong)}
+.navgroup>summary:focus-visible{outline:2px solid var(--brand-600);outline-offset:2px}
+.navgroup>summary>i:first-child{@apply text-base}
+.navgroup>summary>span:first-of-type{@apply flex-1}
+.navgroup-chev{@apply text-base;transition:transform .25s var(--ease-out)}
+.navgroup:not([open]) .navgroup-chev{transform:rotate(-90deg)}
+.navgroup[open] .count-collapsed{display:none}
+.navgroup-items{@apply flex flex-col gap-0.5}
+.navgroup[open]>.navgroup-items{animation:navin .25s var(--ease-out)}
+@keyframes navin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+.wz-bar{@apply mb-5 flex flex-col gap-3}
+.wz-top{@apply flex flex-wrap items-center justify-between gap-2}
+.wz-steps{@apply m-0 flex list-none flex-wrap gap-2 p-0}
+.wz-pill{@apply inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium;background:var(--surface2);color:var(--muted);box-shadow:0 0 0 1px var(--border);cursor:pointer}
+.wz-pill b{@apply grid h-5 w-5 place-items-center rounded-full text-xs;background:var(--border);color:var(--text-strong)}
+.wz-pill.is-current{background:var(--brand-50);color:var(--brand-700);box-shadow:0 0 0 1px var(--brand-600)}
+.wz-pill.is-current b{background:var(--brand-600);color:#fff}
+.wz-pill.is-done b{background:var(--brand-100);color:var(--brand-700)}
+.wz-progress{@apply h-1.5 w-full overflow-hidden rounded-full;background:var(--border)}
+.wz-progress>div{@apply h-full rounded-full;background:var(--brand-600);transition:width .35s var(--ease-out)}
+.wz-head{@apply mb-3}
+.wz-head h2{@apply m-0 text-xl font-semibold}
+.wz-head p{@apply mt-1 text-sm;color:var(--muted)}
+.wz-on .wz-step:not([hidden]){animation:wizin .3s var(--ease-out)}
+.wz-nav{@apply mt-4 flex justify-between gap-2}
+.wz-nav [hidden]{display:none!important}
+.wz-summary dl{@apply m-0 grid gap-x-4 gap-y-1 text-sm;grid-template-columns:minmax(8rem,14rem) 1fr}
+.wz-summary dt{color:var(--muted)}
+.wz-summary dd{@apply m-0 break-words font-medium}
+.wz-summary h3{@apply mb-1 mt-4 text-sm font-semibold}
+.wz-off .wz-summary,.wz-off .wz-head,.wz-off .wz-nav,.wz-off .wz-progress,.wz-off .wz-steps{display:none}
+.wz-step[hidden],.wz-actions[hidden]{display:none!important}
+.wz-toggle{@apply btn btn-ghost btn-sm}
+}
+@media (prefers-reduced-motion:reduce){.wz-on .wz-step:not([hidden]),.navgroup[open]>.navgroup-items{animation:none}.wz-progress>div{transition:none}}

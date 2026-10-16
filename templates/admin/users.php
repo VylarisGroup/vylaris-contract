@@ -20,10 +20,12 @@
     <?php endforeach; ?></tbody>
   </table></div>
   <div class="card"><h2 class="h3">Benutzer einladen</h2>
-    <form method="post" action="/verwaltung/benutzer" class="stack"><?= $ui->csrf() ?>
-      <div class="grid-2"><?= $ui->field('display_name', 'Name', ['required' => true, 'maxlength' => 190]) ?><?= $ui->field('email', 'E-Mail', ['type' => 'email', 'required' => true, 'maxlength' => 190]) ?>
-      <?= $ui->field('role', 'Rolle', ['type' => 'select', 'options' => $roles, 'value' => 'reader']) ?></div>
-      <?php if ($departments !== []): ?><fieldset class="fieldset"><legend>Abteilungen</legend><?php foreach ($departments as $d): ?><label class="check"><input type="checkbox" name="departments[]" value="<?= (int) $d['id'] ?>"> <span><?= e($d['name']) ?></span></label><?php endforeach; ?></fieldset><?php endif; ?>
-      <div><button class="btn btn-primary" type="submit"><i class="bx bx-mail-send" aria-hidden="true"></i> Einladung senden</button></div></form>
+    <form method="post" action="/verwaltung/benutzer" class="stack" data-wizard="auto"><?= $ui->csrf() ?>
+      <div class="wz-step stack" data-title="Person" data-intro="Wer soll eingeladen werden? Die Person erhält eine E-Mail mit einem Link zum Festlegen des Passworts.">
+      <div class="grid-2"><?= $ui->field('display_name', 'Name', ['required' => true, 'maxlength' => 190]) ?><?= $ui->field('email', 'E-Mail', ['type' => 'email', 'required' => true, 'maxlength' => 190]) ?></div></div>
+      <div class="wz-step stack" data-title="Rolle und Abteilungen" data-intro="Was darf die Person? Eine Rollenänderung beendet bestehende Sitzungen. Abteilungen sind optional.">
+      <?= $ui->field('role', 'Rolle', ['type' => 'select', 'options' => $roles, 'value' => 'reader']) ?>
+      <?php if ($departments !== []): ?><fieldset class="fieldset"><legend>Abteilungen</legend><?php foreach ($departments as $d): ?><label class="check"><input type="checkbox" name="departments[]" value="<?= (int) $d['id'] ?>"> <span><?= e($d['name']) ?></span></label><?php endforeach; ?></fieldset><?php endif; ?></div>
+      <div class="wz-actions"><button class="btn btn-primary" type="submit"><i class="bx bx-mail-send" aria-hidden="true"></i> Einladung senden</button></div></form>
     <p class="muted small mt">Rollen: Mandantenadministration (alle Rechte im Mandanten), Vertragsverwaltung (Verträge, Vorlagen, Fristen), Genehmigungsstelle (Freigaben), Lesender Zugriff (nur zugewiesene Verträge). Eine Rollenänderung beendet bestehende Sitzungen.</p></div>
 </section>

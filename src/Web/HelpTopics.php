@@ -31,7 +31,7 @@ final class HelpTopics
                 'title' => 'Die Plattform in fünf Minuten kennenlernen', 'group' => 'start', 'audience' => 'internal', 'icon' => 'bx-compass', 'time' => '5 Min.',
                 'summary' => 'Wo finde ich was? Ein kurzer Rundgang durch Menü, Übersicht und Suche.',
                 'steps' => [
-                    ['Das Menü links', 'Im Hauptbereich finden Sie Start, Verträge, Freigaben, Vorlagen und Gegenparteien. Unter «Verwaltung» erscheinen nur die Punkte, für die Ihre Rolle berechtigt ist. Auf dem Telefon öffnen Sie das Menü mit dem Symbol oben links.'],
+                    ['Das Menü links', 'Die Einträge sind in Gruppen geordnet (Hauptbereich, Verwaltung, Hilfe). Ein Klick auf den Gruppennamen klappt die Gruppe auf oder zu; die Plattform merkt sich das, und die Gruppe der aktuellen Seite bleibt offen. Im Hauptbereich finden Sie Start, Verträge, Freigaben, Vorlagen und Gegenparteien. Unter «Verwaltung» erscheinen nur die Punkte, für die Ihre Rolle berechtigt ist. Auf dem Telefon öffnen Sie das Menü mit dem Symbol oben links.'],
                     ['Die Übersicht («Start»)', 'Oben sehen Sie, wie viele Verträge in welchem Status sind; ein Klick zeigt die Liste dazu. Darunter stehen Ihre offenen Freigaben, Aufgaben, anstehende Fristen und bald auslaufende Verträge.'],
                     ['Verträge finden', 'Unter «Verträge» suchen Sie nach Titel, Nummer, Text, Gegenpartei oder Tag und filtern nach Status, Art, Abteilung und Vertragsende. Sie sehen nur Verträge, auf die Sie Zugriff haben.'],
                     ['Benachrichtigungen', 'Die Glocke im Menü zeigt neue Hinweise, etwa fällige Fristen oder Freigabeanfragen. Wenn E-Mail eingerichtet ist, erhalten Sie diese zusätzlich per Mail.'],
@@ -39,6 +39,18 @@ final class HelpTopics
                 ],
                 'tips' => ['Die Schaltfläche «Hilfe» im Menü bringt Sie jederzeit hierher zurück.', 'Fehlt Ihnen ein Menüpunkt, fehlt meist nur die Berechtigung – fragen Sie Ihre Administration.'],
                 'related' => ['vertrag-erfassen', 'konto-sicherheit'],
+            ],
+            'assistenten' => [
+                'title' => 'Mit Assistenten Schritt für Schritt eingeben', 'group' => 'start', 'audience' => 'all', 'icon' => 'bx-list-check', 'time' => '2 Min.',
+                'summary' => 'Neue Einträge in kleinen Schritten erfassen – oder wie bisher alle Felder auf einmal.',
+                'steps' => [
+                    ['Assistent starten', 'Formulare zum Anlegen (Vertrag, Gegenpartei, Vorlage, Signatur, Freigabe, Frist, Aufgabe, Benutzer, Mandant u. a.) öffnen als Assistent: oben sehen Sie die Schritte und den Fortschritt, darunter jeweils nur wenige Felder.'],
+                    ['Weiter und Zurück', 'Mit «Weiter» gehen Sie zum nächsten Schritt; Pflichtfelder werden dabei geprüft. Mit «Zurück» oder einem Klick auf einen früheren Schritt korrigieren Sie jederzeit. Die Eingabetaste springt ebenfalls weiter.'],
+                    ['Prüfen und speichern', 'Der letzte Schritt fasst Ihre Angaben zusammen. Erst dort erscheint die Schaltfläche zum Speichern.'],
+                    ['Lieber alles auf einmal?', 'Mit «Alle Felder anzeigen» wechseln Sie zur bisherigen Ansicht; mit «Schritt für Schritt» zurück. Die Wahl wird in diesem Browser gemerkt. Beim Bearbeiten bestehender Einträge ist standardmässig die bisherige Ansicht aktiv.'],
+                ],
+                'tips' => ['Beide Ansichten senden dasselbe Formular – es gelten dieselben Prüfungen und Rechte.', 'Ohne JavaScript zeigt die Plattform immer alle Felder.'],
+                'related' => ['vertrag-erfassen'],
             ],
             'vertrag-erfassen' => [
                 'title' => 'Einen Vertrag erfassen', 'group' => 'vertraege', 'audience' => 'internal', 'icon' => 'bx-file-plus', 'time' => '5 Min.',

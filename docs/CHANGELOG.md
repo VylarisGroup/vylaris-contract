@@ -3,6 +3,20 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.11.0 – 2026-10-16
+Übersichtlichere Seitenleiste und Assistenten für das Anlegen.
+
+### Neu
+- Seitenleiste mit ausklappbaren Gruppen (Hauptbereich, Verwaltung, System, Einstellungen, Betrieb, Hilfe). Der Zustand wird im Browser gemerkt, die Gruppe der aktuellen Seite bleibt offen, ungelesene Hinweise bleiben auch bei eingeklappter Gruppe sichtbar.
+- Assistenten (Schritt für Schritt mit Fortschrittsanzeige und Zusammenfassung) für: Vertrag, Gegenpartei, Vorlage, Freigabe, Signatur, Frist, Aufgabe, Benutzer einladen, Mandant anlegen, Vertragsart, Zusatzfeld, Mandat, Aufbewahrungsregel, Sperre und Datenschutzanfrage.
+- Die bisherigen Formulare bleiben: Mit «Alle Felder anzeigen» wechseln Sie jederzeit zurück; beim Bearbeiten ist die bisherige Ansicht Standard.
+
+### Behoben
+- Beim Anfordern einer Freigabe auf der Vertragsseite fehlte die Auswahl der freigebenden Personen.
+
+### Wichtig
+- Keine Datenbankänderung in dieser Version.
+
 ## 1.10.0 – 2026-10-16
 Unterzeichnen ohne externen Anbieter: die Plattform bringt eine eigene, vollständige Signatur mit.
 
