@@ -36,6 +36,8 @@ final class SystemController extends Controller
             'activeTenants' => count(array_filter($tenants, static fn (array $t): bool => $t['status'] === 'active')),
             'verify' => $this->x->session->get('audit_verify'),
             'jobs' => $s->cron->status(),
+            'mailActive' => $s->config->get('SMTP_HOST', '') !== '',
+            'backupCount' => count(glob($this->backupDir() . '/*') ?: []),
         ]);
     }
 

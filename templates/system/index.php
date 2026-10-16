@@ -1,6 +1,20 @@
 <?php $v->title = 'System'; ?>
 <section class="stack">
   <h1 class="h1">Systemverwaltung</h1>
+  <?php $steps = [
+    [$tenantCount > 0, 'Ersten Mandanten anlegen', '/system/mandanten', 'mandanten-verwalten'],
+    [$mailActive, 'E-Mail-Versand einrichten', '/system/einstellungen/email-server', 'email-einrichten'],
+    [$jobs !== [], 'Cronjob einrichten', '/system/aufgaben', 'cronjob'],
+    [$backupCount > 0, 'Erste Sicherung erstellen', '/system/sicherungen', 'sicherung'],
+  ]; $open = array_filter($steps, static fn (array $x): bool => !$x[0]); ?>
+  <?php if ($open !== []): ?>
+    <div class="card"><h2 class="h3"><i class="bx bx-list-check" aria-hidden="true"></i> Einrichtung: noch <?= count($open) ?> von <?= count($steps) ?> Schritten offen</h2>
+      <ul class="checks">
+        <?php foreach ($steps as [$ok, $label, $href, $guide]): ?>
+          <li><span class="badge <?= $ok ? 'badge-ok' : 'badge-neutral' ?>"><?= $ok ? 'erledigt' : 'offen' ?></span> <?= $ok ? e($label) : '<a href="' . e($href) . '">' . e($label) . '</a> <span class="muted small">– <a href="/hilfe/' . e($guide) . '">Anleitung</a></span>' ?></li>
+        <?php endforeach; ?>
+      </ul></div>
+  <?php endif; ?>
   <div class="grid-3 tiles">
     <a class="tile" href="/system/diagnose"><i class="bx bx-pulse" aria-hidden="true"></i><strong>Diagnose</strong>
       <span class="muted small"><?= (int) $diagCount['ok'] ?> in Ordnung<?= $diagCount['warn'] > 0 ? ', ' . (int) $diagCount['warn'] . ' Hinweise' : '' ?><?= $diagCount['fail'] > 0 ? ', <strong>' . (int) $diagCount['fail'] . ' mit Handlungsbedarf</strong>' : '' ?></span></a>

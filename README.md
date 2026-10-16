@@ -28,4 +28,4 @@ Mandanten, 8 Rollen mit Berechtigungen und Geltungsbereich · Anmeldung mit Argo
 | `tests/` | Automatische Tests (`php tests/run.php`, `php tests/restore_roundtrip.php`) |
 
 ## Dokumentation
-`INSTALLATION_PLESK` · `CRON` · `SMTP` · `SIGNATURE_PROVIDER` · `BACKUP_RESTORE` · `SECURITY` · `ROLES_PERMISSIONS` · `DATA_MODEL` · `KNOWN_LIMITATIONS` · `LEGAL_CHECKLIST` · `DEPENDENCIES` · `TESTBERICHT` (alle in `docs/`), Konfigurationsvorlage `.env.example`.
+`ANLEITUNGEN` (Schritt-für-Schritt, auch in der App unter «Hilfe») · `INSTALLATION_PLESK` · `CRON` · `SMTP` · `SIGNATURE_PROVIDER` · `BACKUP_RESTORE` · `SECURITY` · `ROLES_PERMISSIONS` · `DATA_MODEL` · `KNOWN_LIMITATIONS` · `LEGAL_CHECKLIST` · `DEPENDENCIES` · `TESTBERICHT` (alle in `docs/`), Konfigurationsvorlage `.env.example`.

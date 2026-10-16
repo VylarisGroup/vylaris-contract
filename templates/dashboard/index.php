@@ -1,6 +1,17 @@
 <?php $v->title = 'Start'; $statuses = ['draft', 'review', 'approved', 'signature', 'active', 'expired']; ?>
 <section class="stack">
   <h1 class="h1">Übersicht</h1>
+  <?php if ((int) $data['total'] === 0): ?>
+    <div class="card welcome">
+      <h2 class="h2"><i class="bx bx-hand" aria-hidden="true"></i> Willkommen!</h2>
+      <p>Hier ist noch nichts erfasst. So kommen Sie in wenigen Minuten zum ersten Ergebnis:</p>
+      <ol class="todo">
+        <li><span class="todo-n">1</span><div><strong>Gegenpartei anlegen</strong> – Ihre Vertragspartner einmal erfassen. <a href="/gegenparteien/neu">Neue Gegenpartei</a></div></li>
+        <li><span class="todo-n">2</span><div><strong>Ersten Vertrag erfassen</strong> – mit Laufzeit und Kündigungsfrist. <a href="/vertraege/neu">Neuer Vertrag</a></div></li>
+        <li><span class="todo-n">3</span><div><strong>Anleitungen ansehen</strong> – Schritt für Schritt erklärt. <a href="/hilfe">Hilfe &amp; Anleitungen</a></div></li>
+      </ol>
+    </div>
+  <?php endif; ?>
   <div class="stats">
     <?php foreach ($statuses as $s): ?>
       <a class="stat" href="/vertraege?status=<?= e($s) ?>"><span class="stat-n"><?= (int) ($data['by_status'][$s] ?? 0) ?></span><span class="stat-l"><?= e(fstatus($s)) ?></span></a>

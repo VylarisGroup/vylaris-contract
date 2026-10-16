@@ -312,3 +312,49 @@ a:hover{color:var(--brand-800)}
 .subnav-link:hover{background:var(--brand-50);color:var(--text)}
 .subnav-link.is-active{background:var(--brand-600);color:#fff}
 }
+
+@layer components{
+.wizard-progress{@apply m-0 mb-2 flex list-none items-start justify-between gap-1 p-0}
+.wizard-progress li{@apply flex flex-1 cursor-default flex-col items-center gap-1 text-xs;color:var(--muted)}
+.is-js .wizard-progress li{@apply cursor-pointer}
+.wizard-dot{@apply grid h-8 w-8 place-items-center rounded-full text-sm font-semibold;background:var(--surface);box-shadow:0 0 0 1px var(--border);transition:background-color .3s,color .3s,transform .3s}
+.wizard-progress li.is-current .wizard-dot{background:var(--brand-600);color:#fff;transform:scale(1.1)}
+.wizard-progress li.is-done .wizard-dot{background:var(--brand-100);color:var(--brand-700)}
+.wizard-progress li.is-current{color:var(--text);font-weight:600}
+.wizard-label{@apply hidden sm:inline}
+.wizard-step:not([hidden]){animation:wizin .35s var(--ease-out)}
+@keyframes wizin{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.wizard-nav{@apply flex justify-between gap-2}
+.wizard-nav [hidden],.wizard [hidden]{display:none!important}
+.todo{@apply m-0 mb-4 flex list-none flex-col gap-3 p-0}
+.todo li{@apply flex items-start gap-3}
+.todo-n{@apply grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-semibold;background:var(--brand-100);color:var(--brand-700)}
+.pw-toggle{@apply mt-1 self-start}
+.text-ok{color:var(--ok,#047857)}
+.text-bad{color:var(--danger)}
+.bullets{@apply list-disc pl-6}
+.details{@apply my-2 text-sm}
+.details summary{@apply cursor-pointer font-medium}
+}
+@media (prefers-reduced-motion:reduce){.wizard-step:not([hidden]){animation:none}}
+
+@layer components{
+.guide-head{@apply flex items-start gap-4}
+.guide-icon{@apply grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-3xl;background:var(--brand-100);color:var(--brand-700)}
+.guide-steps{@apply m-0 flex list-none flex-col gap-3 p-0}
+.guide-steps li{@apply flex items-start gap-3}
+.guide-steps p{@apply m-0 mt-1}
+.help-meta{color:var(--muted)}
+.help-search{@apply max-w-xl}
+[data-help-item][hidden],[data-help-group][hidden]{display:none!important}
+.tiles .tile .help-meta{@apply mt-1}
+}
+
+@layer components{
+.help-link{@apply fixed right-4 top-3 z-20 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium no-underline;background:var(--surface);color:var(--muted);box-shadow:0 0 0 1px var(--border);transition:color .2s,box-shadow .2s}
+.help-link:hover{color:var(--brand-700);box-shadow:0 0 0 1px var(--brand-300)}
+.empty{@apply flex flex-col items-center gap-2 py-10 text-center}
+.empty>i{@apply text-5xl;color:var(--brand-300)}
+.empty p{@apply m-0}
+.welcome{background:linear-gradient(135deg,var(--brand-50),var(--surface))}
+}

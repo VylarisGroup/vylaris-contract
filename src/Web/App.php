@@ -223,6 +223,8 @@ final class App
         $r->post('/mandant-waehlen', $h(C\AuthController::class, 'tenantSelect'), $pre);
 
         // Konto
+        $r->get('/hilfe', $h(C\HelpController::class, 'index'), $auth);
+        $r->get('/hilfe/{slug}', $h(C\HelpController::class, 'show'), $auth);
         $r->get('/konto', $h(C\AccountController::class, 'index'), $auth);
         $r->get('/konto/passwort', $h(C\AccountController::class, 'passwordForm'), $auth);
         $r->get('/konto/sitzungen', $h(C\AccountController::class, 'sessions'), $auth);

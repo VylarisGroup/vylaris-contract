@@ -44,7 +44,10 @@ if ($p !== null) {
 if ($int && !$sysCtx) {
     $nav[] = ['/benachrichtigungen', 'Benachrichtigungen', 'bx-bell', 'Hauptbereich', (int) $unread];
 }
-$order = ['Hauptbereich' => 0, 'Verwaltung' => 1, 'System' => 2, 'Einstellungen' => 3, 'Betrieb' => 4];
+if ($p !== null) {
+    $nav[] = ['/hilfe', 'Hilfe & Anleitungen', 'bx-help-circle', 'Hilfe'];
+}
+$order = ['Hauptbereich' => 0, 'Verwaltung' => 1, 'System' => 2, 'Einstellungen' => 3, 'Betrieb' => 4, 'Hilfe' => 5];
 usort($nav, static fn (array $a, array $b): int => ($order[$a[3]] ?? 9) <=> ($order[$b[3]] ?? 9));
 $brandHex = isset($brand) && preg_match('/^#[0-9a-fA-F]{6}$/', (string) $brand) === 1 ? (string) $brand : '#4f46e5';
 $initial = mb_strtoupper(mb_substr(trim((string) ($user['display_name'] ?? '?')), 0, 1)) ?: '?';
@@ -87,6 +90,7 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
     <details class="usermenu">
       <summary><span class="avatar" aria-hidden="true"><?= e($initial) ?></span> <span class="min-w-0"><span class="block truncate text-sm font-semibold"><?= e($user['display_name'] ?? '') ?></span><span class="block truncate text-xs muted"><?= e($user['email'] ?? '') ?></span></span></summary>
       <div class="usermenu-pop">
+        <a href="/hilfe"><i class="bx bx-help-circle" aria-hidden="true"></i> Hilfe &amp; Anleitungen</a>
         <a href="/konto"><i class="bx bx-shield-alt-2" aria-hidden="true"></i> Mein Konto &amp; Sicherheit</a>
         <?php if (($user['user_type'] ?? '') === 'internal'): ?><a href="/mandant-waehlen"><i class="bx bx-transfer" aria-hidden="true"></i> Mandant wechseln</a><?php endif; ?>
         <?= $ui->action('/abmelden', 'Abmelden', 'bx-log-out', 'linklike') ?>
@@ -101,6 +105,18 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
     <div class="alert alert-<?= e($f['type']) ?>" role="<?= $f['type'] === 'error' ? 'alert' : 'status' ?>" data-toast="<?= e($f['type']) ?>"><i class="bx <?= ['success' => 'bx-check-circle', 'error' => 'bx-error-circle', 'warning' => 'bx-error', 'info' => 'bx-info-circle'][$f['type']] ?? 'bx-info-circle' ?> text-lg" aria-hidden="true"></i><span><?= e($f['message']) ?></span><button type="button" class="alert-close" data-toast-close aria-label="Schliessen">&times;</button></div>
   <?php endforeach; ?>
 </div>
+<?php
+$helpMap = ['/vertraege/neu' => 'vertrag-erfassen', '/freigaben' => 'vertrag-freigabe', '/vertraege' => 'vertrag-erfassen', '/vorlagen' => 'vorlagen', '/klauseln' => 'vorlagen', '/gegenparteien' => 'gegenparteien',
+    '/verwaltung/benutzer' => 'benutzer-rollen', '/verwaltung/mandant' => 'mandant-einrichten', '/verwaltung/vertragsarten' => 'mandant-einrichten', '/verwaltung/felder' => 'mandant-einrichten',
+    '/konto' => 'konto-sicherheit', '/system/mandanten' => 'mandanten-verwalten', '/system/aufgaben' => 'cronjob', '/system/sicherungen' => 'sicherung', '/system/aktualisierung' => 'aktualisieren',
+    '/system/einstellungen/email-server' => 'email-einrichten', '/system/einstellungen/absender' => 'email-einrichten', '/system/einstellungen/signatur' => 'signaturanbieter', '/system/einstellungen/skribble' => 'signaturanbieter'];
+$helpSlug = null;
+foreach ($helpMap as $prefix => $slug) {
+    if ($path === $prefix || str_starts_with($path, $prefix . '/')) { $helpSlug = $slug; break; }
+}
+if ($helpSlug !== null && $p !== null && isset(\App\Web\HelpTopics::visibleFor($p->isSystemAdmin, $p->can('user.manage') || $p->can('tenant.manage'), $p->userType === 'internal')[$helpSlug])): ?>
+<a class="help-link" href="/hilfe/<?= e($helpSlug) ?>"><i class="bx bx-help-circle" aria-hidden="true"></i> Anleitung zu dieser Seite</a>
+<?php endif; ?>
 <main id="main" class="page">
   <?= $content ?>
 </main>

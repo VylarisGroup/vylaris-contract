@@ -66,6 +66,19 @@
     dlg.querySelector('[data-yes]').focus();
   });
 
+  // Passwortfelder: Anzeigen/Verbergen (Schaltfläche nur mit JavaScript; der Assistent hat eine eigene Variante)
+  document.querySelectorAll('input[type=password]').forEach(function (inp) {
+    if (inp.closest('#wizard') || inp.autocomplete === 'one-time-code') { return; }
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn btn-ghost btn-sm pw-toggle'; b.textContent = 'Anzeigen';
+    b.setAttribute('aria-label', 'Passwort anzeigen oder verbergen');
+    b.addEventListener('click', function () {
+      var hide = inp.type === 'password';
+      inp.type = hide ? 'text' : 'password'; b.textContent = hide ? 'Verbergen' : 'Anzeigen';
+    });
+    inp.insertAdjacentElement('afterend', b);
+  });
+
   // Doppelklick-Schutz und Ladezustand: Formular nur einmal absenden
   document.querySelectorAll('form').forEach(function (form) {
     form.addEventListener('submit', function (ev) {

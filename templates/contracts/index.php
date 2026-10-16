@@ -22,7 +22,16 @@ $statusOpts = ['' => 'Alle Status'] + \App\Web\Format::STATUS;
   </form>
   <p class="muted" aria-live="polite"><?= (int) $result['total'] ?> Treffer<?= $result['pages'] > 1 ? ' · Seite ' . (int) $result['page'] . ' von ' . (int) $result['pages'] : '' ?>. Es werden nur Verträge angezeigt, auf die Sie Zugriff haben.</p>
   <?php if ($result['rows'] === []): ?>
-    <div class="card"><p>Keine Verträge gefunden.</p></div>
+    <div class="card empty">
+      <i class="bx bx-folder-open" aria-hidden="true"></i>
+      <p><strong>Keine Verträge gefunden.</strong></p>
+      <?php if (array_filter(array_diff_key($f ?? [], ['sort' => 1, 'page' => 1]), static fn ($x): bool => $x !== '' && $x !== null && $x !== 0 && $x !== '0')): ?>
+        <p class="muted">Mit anderen Suchbegriffen oder weniger Filtern finden Sie vielleicht mehr. <a href="/vertraege">Filter zurücksetzen</a></p>
+      <?php else: ?>
+        <p class="muted">Es wurde noch kein Vertrag erfasst, oder Sie haben noch keinen Zugriff auf Verträge.</p>
+        <?php if ($p->can('contract.create')): ?><a class="btn btn-primary" href="/vertraege/neu"><i class="bx bx-plus" aria-hidden="true"></i> Ersten Vertrag erfassen</a><?php endif; ?>
+      <?php endif; ?>
+    </div>
   <?php else: ?>
   <div class="table-wrap"><table class="table">
     <thead><tr><th scope="col">Nummer</th><th scope="col">Titel</th><th scope="col">Art</th><th scope="col">Status</th><th scope="col">Ende</th><th scope="col" class="num">Wert</th></tr></thead>

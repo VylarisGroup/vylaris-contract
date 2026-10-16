@@ -31,12 +31,15 @@ final class SetupController
 
     public function handle(Request $r): Response
     {
-        if ($r->path !== '/setup' && $r->path !== '/') {
+        if ($r->path !== '/setup' && $r->path !== '/setup/db-test' && $r->path !== '/') {
             return Response::redirect('/setup');
         }
         $keyFile = $this->root . '/SETUP-SCHLUESSEL.txt';
         if (!is_file($keyFile)) {
             return $this->page(['fatal' => 'Es ist keine Installation möglich: Die Datei SETUP-SCHLUESSEL.txt fehlt im Projektordner. Laden Sie das Installationspaket erneut hoch.', 'checks' => []], 403);
+        }
+        if ($r->path === '/setup/db-test') {
+            return $r->method === 'POST' ? $this->dbTest($r, trim((string) file_get_contents($keyFile))) : Response::redirect('/setup');
         }
         if ($r->method === 'POST') {
             $token = (string) ($r->post['_csrf'] ?? '');
@@ -46,6 +49,30 @@ final class SetupController
             return $this->install($r, trim((string) file_get_contents($keyFile)));
         }
         return $this->page(['errors' => [], 'old' => $this->defaults($r)]);
+    }
+
+    /** Verbindungstest für Schritt «Datenbank»: nur mit gültiger Sitzung (CSRF) und Setup-Schlüssel, damit kein offener Port-/Zugangs-Scanner entsteht. */
+    private function dbTest(Request $r, string $expectedKey): Response
+    {
+        if (!hash_equals($this->session->csrfToken(), (string) ($r->post['_csrf'] ?? ''))) {
+            return Response::json(['ok' => false, 'message' => 'Sitzung abgelaufen. Bitte die Seite neu laden.'], 419);
+        }
+        if ($expectedKey === '' || !hash_equals($expectedKey, trim((string) ($r->post['setup_key'] ?? '')))) {
+            usleep(1_000_000);
+            return Response::json(['ok' => false, 'message' => 'Bitte zuerst im Schritt «Start» den richtigen Setup-Schlüssel eingeben.'], 403);
+        }
+        $g = static fn (string $k): string => is_string($r->post[$k] ?? null) ? trim((string) $r->post[$k]) : '';
+        try {
+            $db = Database::connect($g('db_host'), (int) $g('db_port') ?: 3306, $g('db_name'), $g('db_user'), $g('db_pass'));
+            $used = (bool) $db->value("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'")
+                && (int) $db->value('SELECT COUNT(*) FROM users') > 0;
+            if ($used) {
+                return Response::json(['ok' => false, 'message' => 'Verbindung klappt, aber die Datenbank enthält schon Benutzer. Bitte eine leere Datenbank verwenden.']);
+            }
+            return Response::json(['ok' => true, 'message' => 'Verbindung erfolgreich. Die Datenbank ist bereit.']);
+        } catch (\Throwable) {
+            return Response::json(['ok' => false, 'message' => 'Verbindung fehlgeschlagen. Bitte Host, Port, Datenbankname, Benutzer und Passwort prüfen (Plesk → Datenbanken).']);
+        }
     }
 
     /** @return array<string,string> */

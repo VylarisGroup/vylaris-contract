@@ -37,3 +37,6 @@ Kommandozeile in eine separate Datenbank (BACKUP_RESTORE.md).
 - Wird `APP_KEY` gewechselt, sind gespeicherte Geheimnisse nicht mehr lesbar; es gilt dann der `.env`-Wert, die Felder neu setzen.
 - Das Upload-Limit wird zusätzlich vom PHP-Limit des Servers begrenzt (Plesk → PHP-Einstellungen).
 - Skribble: Es gibt keinen Verbindungstest in der Oberfläche; Live-Betrieb erst nach dem Test gemäss SIGNATURE_PROVIDER.md.
+
+## Hilfe & Anleitungen
+`/hilfe` zeigt Schritt-für-Schritt-Anleitungen, gefiltert nach Rolle (Mitarbeitende, Administration, Systemadministration). Auf vielen Seiten verweist «Anleitung zu dieser Seite» direkt auf das passende Thema. Die Texte stehen zentral in `src/Web/HelpTopics.php`; `php bin/guides-export.php` erzeugt daraus `docs/ANLEITUNGEN.md`. Die Übersicht der Systemadministration zeigt eine Einrichtungs-Checkliste (Mandant, E-Mail, Cronjob, Sicherung).
