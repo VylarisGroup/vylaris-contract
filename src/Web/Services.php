@@ -88,8 +88,13 @@ final class Services
     public readonly \App\Modules\Maintenance\UpdateService $updates;
     public readonly string $storageRoot;
 
-    public function __construct(public readonly Config $config, public readonly Database $db, string $root)
+    public readonly Config $envConfig;
+    public readonly \App\Modules\Maintenance\SettingsService $settings;
+
+    /** @param ?Config $envConfig nur die .env-Werte (ohne in der Oberfläche gespeicherte); $config ist die wirksame Konfiguration */
+    public function __construct(public readonly Config $config, public readonly Database $db, string $root, ?Config $envConfig = null)
     {
+        $this->envConfig = $envConfig ?? $config;
         $appKey = $config->get('APP_KEY');
         $baseUrl = rtrim($config->get('APP_URL'), '/');
         $this->storageRoot = $config->get('STORAGE_PATH', $root . '/storage');
@@ -128,6 +133,7 @@ final class Services
         $this->provider = self::provider($config, $db);
         $this->signatures = new SignatureService($db, $this->ac, $this->audit, $this->workflow, $this->documents, $this->store, $this->provider);
         $this->diagnostics = new \App\Modules\Maintenance\Diagnostics($db, $config, $root, $this->provider->name(), $this->provider->mode(), $this->storageRoot);
+        $this->settings = new \App\Modules\Maintenance\SettingsService($db, $this->audit, $appKey);
         $this->updates = new \App\Modules\Maintenance\UpdateService($db, $this->audit, $root, $this->storageRoot, null, function () use ($db, $config): string {
             $pass = $config->get('BACKUP_PASSPHRASE', '');
             return (new \App\Modules\Maintenance\BackupService($db, $this->storageRoot))->create($this->storageRoot . '/backups', $pass === '' ? null : $pass)['path'];

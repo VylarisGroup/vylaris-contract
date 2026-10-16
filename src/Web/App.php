@@ -6,6 +6,7 @@ namespace App\Web;
 
 use App\Core\AuthException;
 use App\Core\Config;
+use App\Modules\Maintenance\SettingsService;
 use App\Core\Database;
 use App\Core\DomainException;
 use App\Core\ForbiddenException;
@@ -28,6 +29,8 @@ final class App
         $this->router = new Router();
     }
 
+    private ?Config $envConfig = null;
+
     public function run(): void
     {
         $envFile = getenv('APP_ENV_FILE') ?: $this->root . '/.env';
@@ -37,6 +40,14 @@ final class App
                 $config = Config::fromFile($envFile);
             } catch (\Throwable) {
                 $config = null;
+            }
+        }
+        $this->envConfig = $config;
+        if ($config !== null && is_file($this->root . '/storage/install.lock')) {
+            try {
+                $config = SettingsService::overlay($config, Database::connect($config->get('DB_HOST', '127.0.0.1'), $config->int('DB_PORT', 3306), $config->get('DB_NAME'), $config->get('DB_USER'), $config->get('DB_PASS')));
+            } catch (\Throwable) {
+                // ohne Datenbank gelten die .env-Werte; handle() meldet den Fehler
             }
         }
         $trusted = $config !== null && $config->has('TRUSTED_PROXIES') ? array_values(array_filter(array_map('trim', explode(',', $config->get('TRUSTED_PROXIES'))))) : [];
@@ -65,7 +76,7 @@ final class App
                 return new Response(503, '<!doctype html><html lang="de"><meta charset="utf-8"><title>Wartung</title><body style="font-family:sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem"><h1>Wartungsarbeiten</h1><p>Das System wird gerade aktualisiert. Bitte in wenigen Minuten erneut versuchen.</p></body></html>', ['Content-Type' => 'text/html; charset=utf-8', 'Retry-After' => '120']);
             }
             $db = Database::connect($config->get('DB_HOST', '127.0.0.1'), $config->int('DB_PORT', 3306), $config->get('DB_NAME'), $config->get('DB_USER'), $config->get('DB_PASS'));
-            $this->services = new Services($config, $db, $this->root);
+            $this->services = new Services($config, $db, $this->root, $this->envConfig);
             $this->services->audit->setContext($request->ip(), $request->correlationId);
             $this->ctx = new Ctx($this->services, $session, $view, $request, $this->root);
             $this->routes();
@@ -319,6 +330,15 @@ final class App
         $r->get('/system/aktualisierung', $h(C\SystemController::class, 'updateForm'), $sys);
         $r->post('/system/aktualisierung/pruefen', $h(C\SystemController::class, 'updateCheck'), $sys);
         $r->post('/system/aktualisierung/installieren', $h(C\SystemController::class, 'updateInstall'), $sys);
+        $r->get('/system/einstellungen', $h(C\SystemController::class, 'settingsForm'), $sys);
+        $r->post('/system/einstellungen/testmail', $h(C\SystemController::class, 'mailTest'), $sys);
+        $r->post('/system/einstellungen/{group}', $h(C\SystemController::class, 'settingsSave'), $sys);
+        $r->get('/system/sicherungen', $h(C\SystemController::class, 'backups'), $sys);
+        $r->post('/system/sicherungen', $h(C\SystemController::class, 'backupCreate'), $sys);
+        $r->get('/system/sicherungen/{name}', $h(C\SystemController::class, 'backupDownload'), $sys);
+        $r->post('/system/sicherungen/{name}/pruefen', $h(C\SystemController::class, 'backupVerify'), $sys);
+        $r->post('/system/sicherungen/{name}/loeschen', $h(C\SystemController::class, 'backupDelete'), $sys);
+        $r->post('/system/cron', $h(C\SystemController::class, 'cronRun'), $sys);
         $r->post('/system/pruefen', $h(C\SystemController::class, 'verifyAudit'), $sys);
     }
 

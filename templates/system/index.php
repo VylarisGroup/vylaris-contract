@@ -13,12 +13,19 @@
     <p class="muted small">Neue Versionen aus dem GitHub-Repository einspielen.</p>
     <a class="btn btn-secondary" href="/system/aktualisierung"><i class="bx bx-refresh" aria-hidden="true"></i> Aktualisierung öffnen</a></div>
 
+  <div class="card"><h2 class="h2"><i class="bx bx-slider-alt" aria-hidden="true"></i> Einstellungen &amp; Sicherungen</h2>
+    <p class="muted small">E-Mail, Signaturanbieter, Allgemeines und Sicherungen werden hier gepflegt.</p>
+    <a class="btn btn-secondary" href="/system/einstellungen"><i class="bx bx-cog" aria-hidden="true"></i> Einstellungen</a>
+    <a class="btn btn-secondary" href="/system/sicherungen"><i class="bx bx-data" aria-hidden="true"></i> Sicherungen</a></div>
+
   <div class="card"><h2 class="h2"><i class="bx bx-link-alt" aria-hidden="true"></i> Audit-Kette</h2>
     <p class="muted small">Prüft die Hash-Verkettung aller Protokolleinträge und den letzten Anker. Erkennt nachträgliche Änderungen, nicht jedoch eine vollständige Neuberechnung durch jemanden mit Datenbank-Vollzugriff.</p>
     <?php if (is_array($verify)): ?><p>Letzte Prüfung (<?= e($verify['at']) ?> UTC): <strong><?= $verify['ok'] ? 'konsistent (' . (int) $verify['checked'] . ' Einträge)' : 'NICHT KONSISTENT – ' . e((string) $verify['reason']) ?></strong></p><?php endif; ?>
     <?= $ui->action('/system/pruefen', 'Kette jetzt prüfen', 'bx-check-shield', 'btn btn-secondary') ?></div>
 
   <div class="card"><h2 class="h2"><i class="bx bx-timer" aria-hidden="true"></i> Geplante Aufgaben (Cron)</h2>
+    <p class="muted small">Der automatische Lauf erfolgt über den Plesk-Cron (docs/CRON.md). Hier können die Aufgaben zusätzlich von Hand gestartet werden.</p>
+    <?= $ui->action('/system/cron', 'Jetzt ausführen', 'bx-play', 'btn btn-secondary btn-sm', 'Alle periodischen Aufgaben jetzt ausführen?') ?>
     <?php if ($jobs === []): ?><p class="muted">Noch kein Lauf registriert.</p><?php else: ?>
     <div class="table-wrap"><table class="table table-sm"><thead><tr><th scope="col">Aufgabe</th><th scope="col">Letzter Lauf</th><th scope="col">Ergebnis</th></tr></thead><tbody>
     <?php foreach ($jobs as $j): ?><tr><td><?= e($j['job_name']) ?></td><td><?= e(fdt($j['last_finished_at'] ?? $j['last_started_at'])) ?></td><td><?= e((string) $j['last_status']) ?> – <?= e((string) $j['last_message']) ?></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?></div>

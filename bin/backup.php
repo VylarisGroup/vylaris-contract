@@ -18,6 +18,7 @@ date_default_timezone_set('UTC');
 $root = dirname(__DIR__);
 $config = Config::fromFile(getenv('APP_ENV_FILE') ?: $root . '/.env');
 $db = Database::connect($config->get('DB_HOST', '127.0.0.1'), $config->int('DB_PORT', 3306), $config->get('DB_NAME'), $config->get('DB_USER'), $config->get('DB_PASS'));
+$config = \App\Modules\Maintenance\SettingsService::overlay($config, $db);
 $storage = $config->get('STORAGE_PATH', $root . '/storage');
 $opts = [];
 foreach (array_slice($argv, 1) as $a) {

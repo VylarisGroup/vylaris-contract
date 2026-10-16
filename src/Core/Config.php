@@ -20,6 +20,12 @@ final class Config
         $this->values = array_map('strval', $values);
     }
 
+    /** @param array<string,string> $over überschreibt gleichnamige Werte (z. B. aus den Systemeinstellungen) */
+    public function withOverrides(array $over): self
+    {
+        return new self($over + $this->values);
+    }
+
     public static function fromFile(string $envPath): self
     {
         if (!is_file($envPath) || !is_readable($envPath)) {

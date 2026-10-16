@@ -1,9 +1,14 @@
-# Sicherheitsnetz: Falls der Dokumentenstamm versehentlich auf den Projektordner statt auf public/ zeigt,
-# wird NICHTS ausgeliefert (weder Code noch .env). Richtig ist: Dokumentenstamm = <Projektordner>/public
-<IfModule mod_authz_core.c>
-  Require all denied
+# Funktioniert sowohl mit Dokumentenstamm = <Projektordner>/public (empfohlen) als auch mit Dokumentenstamm = Projektordner:
+# im zweiten Fall wird ausschliesslich public/ ausgeliefert, Code, .env und storage/ bleiben unerreichbar.
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^$ public/ [L]
+  RewriteCond %{REQUEST_URI} !^/public/
+  RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
-<IfModule !mod_authz_core.c>
-  Order allow,deny
-  Deny from all
+<IfModule !mod_rewrite.c>
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
 </IfModule>

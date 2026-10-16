@@ -27,3 +27,9 @@ Neues Paket über den Programmordner entpacken, **`.env` und `storage/` behalten
 - Weisse Seite/500: `storage/logs/app.log` (mit Referenznummer aus der Fehlerseite) und `storage/logs/php-error.log`.
 - »Installation nicht möglich«: `SETUP-SCHLUESSEL.txt` fehlt (Paket erneut entpacken) oder die Installation ist bereits gesperrt.
 - Assets (CSS/Icons) fehlen: Dokumentenstamm zeigt nicht auf `public/`.
+
+## Hinweis zum Dokumentenstamm (HTTP 403)
+Empfohlen ist, in Plesk den Dokumentenstamm auf `<Projektordner>/public` zu setzen. Seit Version 1.1.1 funktioniert die Installation auch mit
+dem Plesk-Standard (Dokumentenstamm = Projektordner): die `.htaccess` im Projektstamm leitet dann ausschliesslich auf `public/` um, Code, `.env`
+und `storage/` bleiben unerreichbar. Frühere Versionen sperrten in diesem Fall alles (403). Voraussetzung: Apache `mod_rewrite` und in Plesk
+»Apache-Direktiven aus .htaccess zulassen« (AllowOverride). Bei reinem nginx ohne Apache müssen die Regeln in »nginx-Direktiven« nachgebildet werden.

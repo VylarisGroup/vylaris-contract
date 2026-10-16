@@ -46,3 +46,8 @@ Beim End-to-End-Test gefundene und behobene Fehler: **Icon-Schrift fehlte im ZIP
 ## Nachtrag: Aktualisierung aus GitHub (Version 1.1.0)
 Automatische Tests (`tests/Integration/UpdateTest.php`, 5 Tests): Erfolgspfad, Rückfall bei Migrationsfehler, Zugriffsschutz, Zip-Slip/Syntax/Versionskonflikt, Host-Allowlist.
 Gesamtstand: 217 Tests grün. GitHub wurde dabei durch Attrappen ersetzt; der echte Netzabruf und Dateirechte unter Plesk sind ungetestet.
+
+## Nachtrag: Verwaltung über die Oberfläche (Version 1.2.0)
+Automatische Tests (SettingsTest, 2 Tests): Überschreiben/Zurücksetzen, Verschlüsselung der Geheimnisse, Validierung, Zugriffsschutz, Ignorieren fremder Schlüssel.
+Zusätzlich manueller HTTP-Durchlauf gegen eine frische Instanz (PHP-Server, MariaDB): Einstellungen speichern/ablehnen, Wirkung auf den Mailversand,
+Sicherung erstellen/prüfen/herunterladen/löschen, Pfadmanipulation (404), Cron von Hand. Gesamtstand 219 Tests grün. Nicht getestet: Optik in Browsern, TLS-Versand.
