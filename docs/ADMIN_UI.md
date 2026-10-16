@@ -1,6 +1,6 @@
 # Verwaltung über die Oberfläche (Systemadministration)
 
-Alles Betriebliche ist unter **Systemverwaltung** erreichbar (nur Systemadministration, MFA-pflichtig):
+Alles Betriebliche ist unter **Systemverwaltung** erreichbar (nur Systemadministration; zweiter Faktor und Passkeys sind freiwillig, siehe PASSKEYS.md):
 
 | Bereich | Seite | Inhalt |
 |---|---|---|

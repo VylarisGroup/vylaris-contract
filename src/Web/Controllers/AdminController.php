@@ -61,7 +61,7 @@ final class AdminController extends Controller
     /** @param array<string,mixed> $params */
     public function resetMfa(Request $r, array $params): Response
     {
-        return $this->act($r, '/verwaltung/benutzer', 'MFA zurückgesetzt. Der Benutzer muss sie neu einrichten.', fn () => $this->s()->tenantAdmin->resetMfa($this->p(), $this->id($params)));
+        return $this->act($r, '/verwaltung/benutzer', 'Zweiter Faktor (TOTP und Passkeys) zurückgesetzt.', fn () => $this->s()->tenantAdmin->resetMfa($this->p(), $this->id($params)));
     }
 
     /** @param array<string,mixed> $params */

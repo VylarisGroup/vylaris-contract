@@ -223,6 +223,11 @@ a:hover{color:var(--brand-800)}
  .guest-card{@apply rounded-2xl p-6 sm:p-8;background:var(--surface);box-shadow:0 0 0 1px var(--border),var(--shadow-lift);animation:fade-up .4s var(--ease-out)}
  .guest-foot{@apply text-center text-xs;color:var(--muted)}
 
+ .passkey-box{@apply mt-4 flex flex-col gap-3}
+ .passkey-box[hidden],[data-passkey-register][hidden],[data-passkey-error][hidden]{display:none}
+ .divider{@apply flex items-center gap-3 text-xs;color:var(--muted)}
+ .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+
  /* ---------- Bestätigungsdialog ---------- */
  dialog.confirm{@apply m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border-0 p-6;background:#fff;color:var(--text);box-shadow:var(--shadow-lift);animation:pop .25s var(--ease-out)}
  dialog.confirm::backdrop{background:rgb(15 23 42/.4);backdrop-filter:blur(3px)}

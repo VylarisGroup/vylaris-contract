@@ -99,5 +99,6 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
 </footer>
 </div>
 <script src="/assets/app.js" defer></script>
+<script src="/assets/passkey.js" defer></script>
 </body>
 </html>

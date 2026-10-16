@@ -37,7 +37,7 @@ Es genügt also, `VERSION` im Repository zu erhöhen und zu pushen; Releases sin
 
 ## Sicherheit (bewusste Vorgabe)
 Keine kryptographische Signaturprüfung (Ihre Vorgabe). Wer das GitHub-Konto/Repository kontrolliert, kann Code auf diesem Server ausführen. Gegenmassnahmen: Host-Allowlist, TLS-Prüfung,
-nur Systemadministration mit MFA, Bestätigung pro Update, optionale SHA-256-Vorgabe, SHA-256/Versionen im Audit-Protokoll (`system.update_*`). Empfehlung: MFA und Branch-Schutz im Repository.
+nur Systemadministration (Passwort, optional zweiter Faktor/Passkey), Bestätigung pro Update, optionale SHA-256-Vorgabe, SHA-256/Versionen im Audit-Protokoll (`system.update_*`). Empfehlung: MFA und Branch-Schutz im Repository.
 
 ## Getestet / nicht getestet
 Getestet (automatisch, 9 Tests): Erfolgspfad, Rechte-Erzwingung (auch bei umask 077 und 0700-Ordnern), unveränderter `public/`-Ordner, Rückfall bei Migrations- und Selbstprüfungsfehler,

@@ -15,7 +15,7 @@ Die Anwendung braucht **kein Composer, kein Node, keinen Build** auf dem Server.
 4. **PHP-Limits** (Plesk → PHP-Einstellungen): `upload_max_filesize` und `post_max_size` mindestens so gross wie »Maximale Dateigrösse« (Standard 20 MB), `memory_limit` ≥ 128M.
 5. **Setup-Schlüssel lesen.** Im Projektordner liegt `SETUP-SCHLUESSEL.txt` (Plesk-Dateimanager). Der Schlüssel ist für **dieses** Paket einmalig erzeugt.
 6. **Assistent öffnen:** `https://IHRE-DOMAIN/setup`. Voraussetzungsprüfung, Setup-Schlüssel, Datenbank, erste Systemadministration (Passwort ≥ 12 Zeichen), optional SMTP. Der Assistent legt `.env` an (Rechte 0600), spielt die Migrationen ein, löscht den Schlüssel und sperrt sich (`storage/install.lock`). Danach ist `/setup` nicht mehr erreichbar.
-7. **Erste Anmeldung:** Systemadministration → Zweiter Faktor (Authenticator-App) wird erzwungen. **Wiederherstellungscodes sofort sicher ablegen.**
+7. **Erste Anmeldung:** Empfohlen: unter »Mein Konto« einen Passkey oder eine Authenticator-App einrichten (freiwillig, nicht erzwungen). **Wiederherstellungscodes sofort sicher ablegen.**
 8. **Cronjob einrichten** (`CRON.md`) und täglich die **Sicherung** (`BACKUP_RESTORE.md`).
 9. *System* → **Diagnose** öffnen und alle Punkte mit »Handlungsbedarf« abarbeiten. *System* → *Mandanten*: ersten Mandanten anlegen (die Mandantenadministration erhält eine Einladungs-E-Mail; dafür muss SMTP funktionieren).
 10. Rechts-/Datenschutzstelle einbinden: `LEGAL_CHECKLIST.md`.

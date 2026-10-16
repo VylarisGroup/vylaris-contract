@@ -1,6 +1,7 @@
 <?php $v->title = 'Zweiter Faktor'; ?>
 <section class="stack narrow">
   <h1 class="h1">Zweiter Faktor (TOTP)</h1>
+  <p class="muted">Freiwillig. Alternativ oder zusätzlich können Sie sich <a href="/konto/passkeys">mit einem Passkey</a> anmelden.</p>
   <?php if ($enrollRequired): ?><div class="alert alert-warning" role="alert">Für Ihr Konto ist ein zweiter Faktor vorgeschrieben. Bis zur Einrichtung ist der Zugriff auf diese Seite beschränkt.</div><?php endif; ?>
   <?php if (is_array($recovery) && $recovery !== []): ?>
     <div class="card">
@@ -12,7 +13,7 @@
   <?php if ($enabled): ?>
     <div class="card">
       <p><span class="badge badge-ok">aktiv</span> Ihr Konto ist mit einem zweiten Faktor geschützt.</p>
-      <?= $ui->form('/konto/mfa/deaktivieren', $ui->field('password', 'Passwort zur Bestätigung', ['type' => 'password', 'required' => true, 'autocomplete' => 'current-password', 'help' => 'Bei Pflicht-MFA (Administration, MFA-Mandanten) müssen Sie den Faktor danach neu einrichten.'])
+      <?= $ui->form('/konto/mfa/deaktivieren', $ui->field('password', 'Passwort zur Bestätigung', ['type' => 'password', 'required' => true, 'autocomplete' => 'current-password'])
         . '<button class="btn btn-danger" type="submit" data-confirm="Zweiten Faktor wirklich deaktivieren?">Deaktivieren</button>') ?>
     </div>
   <?php elseif ($setup !== null): ?>

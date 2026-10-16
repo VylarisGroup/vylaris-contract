@@ -74,6 +74,42 @@ final class AuthController extends Controller
         $s->forget('mfa_enroll');
     }
 
+    /** Startet eine Anmeldung mit Passkey (ohne Benutzername; die Challenge gilt 5 Minuten und einmal). @param array<string,mixed> $params */
+    public function passkeyOptions(Request $r, array $params = []): Response
+    {
+        if (!$this->s()->passkeys->available()) {
+            return Response::json(['ok' => false, 'error' => 'Passkeys sind auf diesem System nicht verfügbar.'], 503);
+        }
+        try {
+            $b = $this->s()->passkeys->beginLogin($r->ip());
+        } catch (TooManyRequestsException $e) {
+            return Response::json(['ok' => false, 'error' => $e->getMessage()], 429);
+        }
+        $this->x->session->set('pk_login', ['c' => $b['challenge'], 'exp' => time() + 300]);
+        return Response::json(['ok' => true, 'options' => $b['options']]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function passkeyLogin(Request $r, array $params = []): Response
+    {
+        $state = $this->x->session->get('pk_login');
+        $this->x->session->forget('pk_login'); // einmalig
+        $cred = json_decode((string) ($r->post['credential'] ?? ''), true);
+        if (!is_array($state) || !is_array($cred) || (int) ($state['exp'] ?? 0) < time()) {
+            return Response::json(['ok' => false, 'error' => 'Die Anmeldung ist abgelaufen. Bitte erneut versuchen.'], 400);
+        }
+        try {
+            $uid = $this->s()->passkeys->finishLogin($cred, (string) $state['c'], $r->ip());
+        } catch (TooManyRequestsException $e) {
+            return Response::json(['ok' => false, 'error' => $e->getMessage()], 429);
+        } catch (AuthException $e) {
+            return Response::json(['ok' => false, 'error' => $e->getMessage()], 401);
+        }
+        $this->x->session->regenerate();
+        $this->establish($uid, true); // Passkey mit Benutzerverifizierung ersetzt Passwort und zweiten Faktor
+        return Response::json(['ok' => true, 'redirect' => $this->safeNext($r)]);
+    }
+
     /** @param array<string,mixed> $params */
     public function mfaForm(Request $r, array $params = []): Response
     {

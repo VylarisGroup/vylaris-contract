@@ -208,6 +208,8 @@ final class App
         $r->post('/anmelden', $h(C\AuthController::class, 'login'));
         $r->get('/anmelden/mfa', $h(C\AuthController::class, 'mfaForm'));
         $r->post('/anmelden/mfa', $h(C\AuthController::class, 'mfa'));
+        $r->post('/anmelden/passkey/optionen', $h(C\AuthController::class, 'passkeyOptions'));
+        $r->post('/anmelden/passkey', $h(C\AuthController::class, 'passkeyLogin'));
         $r->post('/abmelden', $h(C\AuthController::class, 'logout'));
         $r->get('/passwort/vergessen', $h(C\AuthController::class, 'forgotForm'));
         $r->post('/passwort/vergessen', $h(C\AuthController::class, 'forgot'));
@@ -227,6 +229,10 @@ final class App
         $r->post('/konto/mfa/start', $h(C\AccountController::class, 'mfaStart'), $auth);
         $r->post('/konto/mfa/bestaetigen', $h(C\AccountController::class, 'mfaConfirm'), $auth);
         $r->post('/konto/mfa/deaktivieren', $h(C\AccountController::class, 'mfaDisable'), $auth);
+        $r->get('/konto/passkeys', $h(C\AccountController::class, 'passkeys'), $auth);
+        $r->post('/konto/passkeys/optionen', $h(C\AccountController::class, 'passkeyOptions'), $auth);
+        $r->post('/konto/passkeys/registrieren', $h(C\AccountController::class, 'passkeyRegister'), $auth);
+        $r->post('/konto/passkeys/{id}/loeschen', $h(C\AccountController::class, 'passkeyRemove'), $auth);
         $r->post('/konto/alle-abmelden', $h(C\AccountController::class, 'logoutAll'), $auth);
         $r->get('/benachrichtigungen', $h(C\AccountController::class, 'notifications'), $int);
         $r->post('/benachrichtigungen/{id}/gelesen', $h(C\AccountController::class, 'markRead'), $int);

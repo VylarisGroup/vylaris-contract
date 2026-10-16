@@ -51,3 +51,6 @@ Gesamtstand: 217 Tests grün. GitHub wurde dabei durch Attrappen ersetzt; der ec
 Automatische Tests (SettingsTest, 2 Tests): Überschreiben/Zurücksetzen, Verschlüsselung der Geheimnisse, Validierung, Zugriffsschutz, Ignorieren fremder Schlüssel.
 Zusätzlich manueller HTTP-Durchlauf gegen eine frische Instanz (PHP-Server, MariaDB): Einstellungen speichern/ablehnen, Wirkung auf den Mailversand,
 Sicherung erstellen/prüfen/herunterladen/löschen, Pfadmanipulation (404), Cron von Hand. Gesamtstand 219 Tests grün. Nicht getestet: Optik in Browsern, TLS-Versand.
+
+## Passkeys / 2FA freiwillig (1.5.0)
+Tests: `tests/Security/PasskeyTest.php` (9 Tests, simulierter Authenticator, ES256 und RS256) und angepasste `AuthTest` (2FA nirgends Pflicht). Zusätzlich Browserdurchlauf mit virtuellem Authenticator in Chromium. Nicht getestet: echte Geräte/Sicherheitsschlüssel, Safari, Firefox. Siehe docs/PASSKEYS.md.

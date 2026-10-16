@@ -5,7 +5,7 @@ Schema: `database/migrations/001_schema.sql` (Tabellen), `002_seed_roles.sql` (R
 | Bereich | Tabellen |
 |---|---|
 | Mandanten & Benutzer | `tenants`, `users`, `tenant_memberships`, `roles`, `permissions`, `role_permissions`, `departments`, `department_memberships`, `contract_acl` |
-| Anmeldung | `auth_tokens` (gehashte Einmal-Token), `login_attempts` (Rate-Limit), `users.mfa_*` |
+| Anmeldung | `auth_tokens` (gehashte Einmal-Token), `login_attempts` (Rate-Limit), `users.mfa_*`, `passkeys` |
 | Verträge | `contracts`, `contract_versions` (unveränderlich nach Sperre), `contract_types`, `contract_parties`, `contract_tags`/`tags`, `contract_number_sequences`, `custom_field_definitions`, `custom_field_values` |
 | Gegenparteien | `counterparties` |
 | Dokumente | `documents` (Speicherschlüssel, SHA-256, Art, Sichtbarkeit extern) |

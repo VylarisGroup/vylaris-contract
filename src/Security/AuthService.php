@@ -107,18 +107,15 @@ final class AuthService
         $this->audit->log('auth.login', 'success', null, $uid, 'user', $uid, [], null, $ip);
     }
 
-    /** MFA ist Pflicht für Systemadmins, Mandantenadmins, Revision/Notariat (externe mit Einsicht in viele Dokumente) und Mandanten mit mfa_required. */
+    /**
+     * Seit Version 1.5.0 ist keine Zwei-Faktor-Anmeldung mehr verpflichtend (TOTP und Passkeys sind freiwillig).
+     * Die Methode bleibt bestehen, damit der Einrichtungszwang bei Bedarf wieder aktiviert werden kann.
+     *
+     * @param array<string,mixed> $user
+     */
     public function mfaMandatory(array $user): bool
     {
-        if ((int) $user['is_system_admin'] === 1 || in_array($user['user_type'] ?? '', ['auditor', 'notary'], true)) {
-            return true;
-        }
-        $row = $this->db->one(
-            "SELECT 1 AS x FROM tenant_memberships tm JOIN roles r ON r.id = tm.role_id JOIN tenants t ON t.id = tm.tenant_id
-              WHERE tm.user_id = ? AND tm.status = 'active' AND (t.mfa_required = 1 OR r.code = 'tenant_admin') LIMIT 1",
-            [(int) $user['id']],
-        );
-        return $row !== null;
+        return false;
     }
 
     /** @param array<string,mixed> $u */
@@ -290,6 +287,10 @@ final class AuthService
     {
         $this->db->run('UPDATE users SET mfa_secret_enc = NULL, mfa_enabled_at = NULL, mfa_recovery_hashes = NULL, mfa_last_counter = NULL, session_epoch = session_epoch + 1 WHERE id = ?', [$targetUserId]);
         $this->audit->log('auth.mfa_reset_by_admin', 'success', $tenantId, $actorId, 'user', $targetUserId);
+        $n = $this->db->execute('DELETE FROM passkeys WHERE user_id = ?', [$targetUserId]);
+        if ($n > 0) {
+            $this->audit->log('auth.passkeys_reset', 'success', $tenantId, $actorId, 'user', $targetUserId, ['count' => $n]);
+        }
     }
 
     // ------------------------------------------------------------------ Token (Reset / Verifikation / Einladung)

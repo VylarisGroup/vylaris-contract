@@ -8,7 +8,7 @@ Diese Plattform liefert Werkzeuge; die Verantwortung für rechtskonformen Betrie
 - [ ] Datenschutzerklärung und Information der Betroffenen (inkl. Mandate/Externe) bereitgestellt.
 - [ ] Aufbewahrungsregeln je Vertragsart im Modul *Compliance* erfasst, Zweck + **Rechtsgrundlage** eingetragen und als »rechtlich geprüft« bestätigt (die Plattform liefert keine Standardfristen).
 - [ ] Prozess für Auskunfts- und Löschbegehren festgelegt (*Compliance → Anfragen*); Rolle mit `sensitive.access` nur wo nötig.
-- [ ] Rollen/Rechte, MFA-Pflicht, Mandatsdauer für Externe fachlich bestätigt.
+- [ ] Rollen/Rechte, Mandatsdauer für Externe fachlich bestätigt.
 - [ ] Löschkonzept für Sicherungen (Archive enthalten Personendaten bis zu ihrer Löschung; `BACKUP_KEEP`).
 
 ## Verträge & Signaturen

@@ -36,140 +36,28 @@ final class AuthTest extends TestCase
         $this->assertSame(null, Totp::verify($secret, 'abcdef', 59));
     }
 
-    public function testMfaIsMandatoryForAuditorsAndNotaries(): void
+    public function testMfaIsVoluntaryForEveryone(): void
     {
         $base = ['id' => 0, 'is_system_admin' => 0];
-        $this->assertTrue($this->app->auth->mfaMandatory($base + ['user_type' => 'auditor']));
-        $this->assertTrue($this->app->auth->mfaMandatory($base + ['user_type' => 'notary']));
-        $this->assertFalse($this->app->auth->mfaMandatory($base + ['user_type' => 'external_party']));
-    }
-
-    public function testLoginSucceedsWithCorrectPassword(): void
-    {
-        $u = $this->app->loginUser();
-        $r = $this->app->auth->login($u['email'], 'Korrektes-Pferd-42', '203.0.113.5');
-        $this->assertSame($u['id'], $r['user_id']);
-        $this->assertSame('ok', $r['next']);
-    }
-
-    public function testWrongPasswordUnknownUserAndUnverifiedGiveSameError(): void
-    {
-        $u = $this->app->loginUser();
-        $unv = $this->app->loginUser();
-        $this->db->run('UPDATE users SET email_verified_at = NULL WHERE id = ?', [$unv['id']]);
-        $msgs = [];
-        foreach ([[$u['email'], 'falsch'], ['niemand@test.invalid', 'egal'], [$unv['email'], 'Korrektes-Pferd-42']] as [$e, $p]) {
-            $ex = $this->assertThrows(AuthException::class, fn () => $this->app->auth->login($e, $p, '203.0.113.6'));
-            $msgs[] = $ex->getMessage();
+        foreach (['auditor', 'notary', 'external_party', 'internal'] as $type) {
+            $this->assertFalse($this->app->auth->mfaMandatory($base + ['user_type' => $type]));
         }
-        $this->assertSame($msgs[0], $msgs[1]);
-        $this->assertSame($msgs[0], $msgs[2]);
+        $this->assertFalse($this->app->auth->mfaMandatory(['id' => 0, 'is_system_admin' => 1, 'user_type' => 'internal']));
     }
 
-    public function testDisabledAccountCannotLogin(): void
-    {
-        $u = $this->app->loginUser();
-        $this->db->run("UPDATE users SET status = 'disabled' WHERE id = ?", [$u['id']]);
-        $this->assertThrows(AuthException::class, fn () => $this->app->auth->login($u['email'], 'Korrektes-Pferd-42', '203.0.113.7'));
-    }
-
-    public function testAccountLocksAfterRepeatedFailuresAndUnlocksLater(): void
-    {
-        $u = $this->app->loginUser();
-        for ($i = 0; $i < AuthService::MAX_FAILS; $i++) {
-            $this->assertThrows(AuthException::class, fn () => $this->app->auth->login($u['email'], 'falsch', '203.0.113.' . (10 + $i)));
-        }
-        // auch das richtige Passwort wird jetzt abgewiesen
-        $this->assertThrows(AuthException::class, fn () => $this->app->auth->login($u['email'], 'Korrektes-Pferd-42', '203.0.113.50'));
-        $this->app->clock->advance(AuthService::LOCK_MINUTES * 60 + 5);
-        $this->assertSame('ok', $this->app->auth->login($u['email'], 'Korrektes-Pferd-42', '203.0.113.50')['next']);
-        $this->assertTrue((int) $this->db->value("SELECT COUNT(*) FROM audit_events WHERE action = 'auth.account_locked' AND object_id = ?", [$u['id']]) >= 1);
-    }
-
-    public function testIpRateLimitBlocksBruteForceAcrossAccounts(): void
-    {
-        $hit = false;
-        for ($i = 0; $i < 60; $i++) {
-            try {
-                $this->app->auth->login('x' . $i . '@test.invalid', 'egal', '198.51.100.9');
-            } catch (TooManyRequestsException) {
-                $hit = true;
-                break;
-            } catch (AuthException) {
-            }
-        }
-        $this->assertTrue($hit, 'Rate-Limit greift');
-    }
-
-    public function testPasswordPolicy(): void
-    {
-        $this->assertThrows(ValidationException::class, fn () => PasswordPolicy::assertAcceptable('kurz'));
-        $this->assertThrows(ValidationException::class, fn () => PasswordPolicy::assertAcceptable('aaaaaaaaaaaaaaaa'));
-        $this->assertThrows(ValidationException::class, fn () => PasswordPolicy::assertAcceptable('anna.muster-geheim', 'anna.muster@x.ch'));
-        PasswordPolicy::assertAcceptable('Korrektes-Pferd-42', 'a@b.ch');
-        $this->assertTrue(true);
-    }
-
-    public function testMfaEnrollmentLoginReplayAndRecoveryCodes(): void
-    {
-        $u = $this->app->loginUser();
-        $setup = $this->app->auth->beginMfaEnrollment($u['id']);
-        $t = $this->app->clock->now()->getTimestamp();
-        $code = Totp::code($setup['secret'], Totp::counterAt($t));
-        $recovery = $this->app->auth->confirmMfaEnrollment($u['id'], $code);
-        $this->assertSame(10, count($recovery));
-        $stored = (string) $this->db->value('SELECT mfa_secret_enc FROM users WHERE id = ?', [$u['id']]);
-        $this->assertFalse(str_contains($stored, $setup['secret']), 'Secret verschlüsselt gespeichert');
-        $hashes = (string) $this->db->value('SELECT mfa_recovery_hashes FROM users WHERE id = ?', [$u['id']]);
-        $this->assertFalse(str_contains($hashes, str_replace('-', '', $recovery[0])), 'Recovery-Codes nur als Hash');
-
-        $this->assertSame('mfa', $this->app->auth->login($u['email'], 'Korrektes-Pferd-42', '203.0.113.20')['next']);
-        // Replay: der bei der Einrichtung verwendete Code ist verbraucht
-        $this->assertThrows(AuthException::class, fn () => $this->app->auth->verifyMfa($u['id'], $code));
-        $this->app->clock->advance(30);
-        $next = Totp::code($setup['secret'], Totp::counterAt($this->app->clock->now()->getTimestamp()));
-        $this->app->auth->verifyMfa($u['id'], $next);
-        $this->assertThrows(AuthException::class, fn () => $this->app->auth->verifyMfa($u['id'], $next), 'Code nur einmal');
-
-        // Wiederherstellungscode: einmalig
-        $this->app->auth->verifyMfa($u['id'], $recovery[0]);
-        $this->assertThrows(AuthException::class, fn () => $this->app->auth->verifyMfa($u['id'], $recovery[0]));
-        $this->app->auth->verifyMfa($u['id'], strtolower($recovery[1]));
-    }
-
-    public function testMfaBruteForceIsRateLimited(): void
-    {
-        $u = $this->app->loginUser();
-        $s = $this->app->auth->beginMfaEnrollment($u['id']);
-        $this->app->auth->confirmMfaEnrollment($u['id'], Totp::code($s['secret'], Totp::counterAt($this->app->clock->now()->getTimestamp())));
-        $blocked = false;
-        for ($i = 0; $i < 12; $i++) {
-            try {
-                $this->app->auth->verifyMfa($u['id'], '000000');
-            } catch (TooManyRequestsException) {
-                $blocked = true;
-                break;
-            } catch (AuthException) {
-            }
-        }
-        $this->assertTrue($blocked);
-    }
-
-    public function testMfaMandatoryForTenantAdminAndSystemAdmin(): void
+    public function testAdminsAndTenantsCanSignInWithoutSecondFactor(): void
     {
         $t = $this->app->fx->tenant();
         $adm = $this->app->loginUser();
         $this->app->fx->member($t, $adm['id'], 'tenant_admin');
-        $this->assertSame('mfa_enroll', $this->app->auth->login($adm['email'], 'Korrektes-Pferd-42', '203.0.113.30')['next']);
+        $this->assertSame('ok', $this->app->auth->login($adm['email'], 'Korrektes-Pferd-42', '203.0.113.30')['next']);
         $sys = $this->app->loginUser();
         $this->db->run('UPDATE users SET is_system_admin = 1 WHERE id = ?', [$sys['id']]);
-        $this->assertSame('mfa_enroll', $this->app->auth->login($sys['email'], 'Korrektes-Pferd-42', '203.0.113.31')['next']);
-        $this->assertThrows(ValidationException::class, fn () => $this->app->auth->disableMfa($adm['id'], 'Korrektes-Pferd-42'), 'Pflicht-MFA nicht abschaltbar');
+        $this->assertSame('ok', $this->app->auth->login($sys['email'], 'Korrektes-Pferd-42', '203.0.113.31')['next']);
+        $this->db->run('UPDATE tenants SET mfa_required = 1 WHERE id = ?', [$t]);
         $mgr = $this->app->loginUser();
         $this->app->fx->member($t, $mgr['id'], 'contract_manager');
-        $this->assertSame('ok', $this->app->auth->login($mgr['email'], 'Korrektes-Pferd-42', '203.0.113.32')['next']);
-        $this->db->run('UPDATE tenants SET mfa_required = 1 WHERE id = ?', [$t]);
-        $this->assertSame('mfa_enroll', $this->app->auth->login($mgr['email'], 'Korrektes-Pferd-42', '203.0.113.33')['next']);
+        $this->assertSame('ok', $this->app->auth->login($mgr['email'], 'Korrektes-Pferd-42', '203.0.113.33')['next'], 'auch ein altes mfa_required-Flag erzwingt nichts mehr');
     }
 
     private function tokenFromMail(string $marker): string

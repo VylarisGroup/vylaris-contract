@@ -6,3 +6,8 @@
   . '<input type="hidden" name="weiter" value="' . e($next) . '">'
   . '<button class="btn btn-primary w-full" type="submit"><i class="bx bx-log-in" aria-hidden="true"></i> Anmelden</button>') ?>
 <p class="small"><a href="/passwort/vergessen">Passwort vergessen?</a></p>
+<div class="passkey-box" data-passkey-login data-options-url="/anmelden/passkey/optionen" data-login-url="/anmelden/passkey" data-csrf="<?= e($csrf) ?>" data-next="<?= e($next) ?>" hidden>
+  <div class="divider"><span>oder</span></div>
+  <button class="btn btn-secondary w-full" type="button" data-passkey-button><i class="bx bx-fingerprint" aria-hidden="true"></i> Mit Passkey anmelden</button>
+  <p class="field-error" role="alert" data-passkey-error hidden></p>
+</div>

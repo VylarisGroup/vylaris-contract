@@ -9,7 +9,6 @@
       <?= $ui->field('jurisdiction_default', 'Standard-Rechtsgebiet', ['required' => true, 'value' => $settings['jurisdiction_default'], 'maxlength' => 6]) ?>
       <?= $ui->field('contract_number_prefix', 'Präfix der Vertragsnummern', ['required' => true, 'value' => $settings['contract_number_prefix'], 'maxlength' => 8]) ?>
     </div>
-    <?= $ui->field('mfa_required', 'Mehrfaktor-Authentifizierung für alle Benutzer dieses Mandanten verlangen', ['type' => 'checkbox', 'value' => (string) (int) $settings['mfa_required']]) ?>
     <div><button class="btn btn-primary" type="submit">Speichern</button></div>
   </form>
   <div class="grid-2">

@@ -14,7 +14,7 @@ final class AccountController extends Controller
     /** @param array<string,mixed> $params */
     public function index(Request $r, array $params = []): Response
     {
-        return $this->render('account/index', ['profile' => $this->s()->users->profile($this->p()->userId)]);
+        return $this->render('account/index', ['profile' => $this->s()->users->profile($this->p()->userId), 'passkeyCount' => $this->s()->passkeys->count($this->p()->userId)]);
     }
 
     /** @param array<string,mixed> $params */
@@ -74,6 +74,50 @@ final class AccountController extends Controller
             $this->s()->auth->disableMfa($this->p()->userId, (string) ($r->post['password'] ?? ''));
             $this->x->session->set('mfa_ok', false);
         });
+    }
+
+    /** @param array<string,mixed> $params */
+    public function passkeys(Request $r, array $params = []): Response
+    {
+        return $this->render('account/passkeys', ['available' => $this->s()->passkeys->available(), 'items' => $this->s()->passkeys->list($this->p()->userId)]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function passkeyOptions(Request $r, array $params = []): Response
+    {
+        try {
+            $b = $this->s()->passkeys->beginRegistration($this->p()->userId, (string) ($r->post['password'] ?? ''));
+        } catch (ValidationException $e) {
+            return Response::json(['ok' => false, 'error' => (string) (array_values($e->errors)[0] ?? 'Eingabe ungültig.')], 422);
+        } catch (\App\Core\TooManyRequestsException $e) {
+            return Response::json(['ok' => false, 'error' => $e->getMessage()], 429);
+        }
+        $this->x->session->set('pk_reg', ['c' => $b['challenge'], 'exp' => time() + 300]);
+        return Response::json(['ok' => true, 'options' => $b['options']]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function passkeyRegister(Request $r, array $params = []): Response
+    {
+        $state = $this->x->session->get('pk_reg');
+        $this->x->session->forget('pk_reg');
+        $cred = json_decode((string) ($r->post['credential'] ?? ''), true);
+        if (!is_array($state) || !is_array($cred) || (int) ($state['exp'] ?? 0) < time()) {
+            return Response::json(['ok' => false, 'error' => 'Die Einrichtung ist abgelaufen. Bitte erneut starten.'], 400);
+        }
+        try {
+            $this->s()->passkeys->finishRegistration($this->p()->userId, $cred, (string) $state['c'], (string) ($r->post['name'] ?? ''), $r->ip());
+        } catch (ValidationException $e) {
+            return Response::json(['ok' => false, 'error' => (string) (array_values($e->errors)[0] ?? 'Eingabe ungültig.')], 422);
+        }
+        $this->x->session->flash('success', 'Passkey hinzugefügt. Sie können sich nun damit anmelden.');
+        return Response::json(['ok' => true, 'redirect' => '/konto/passkeys']);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function passkeyRemove(Request $r, array $params): Response
+    {
+        return $this->act($r, '/konto/passkeys', 'Passkey entfernt.', fn () => $this->s()->passkeys->remove($this->p()->userId, $this->id($params)));
     }
 
     /** @param array<string,mixed> $params */

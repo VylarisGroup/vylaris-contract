@@ -28,5 +28,6 @@
   <footer class="guest-foot">Diese Software ersetzt keine Rechtsberatung. Elektronische Signaturen werden von externen Anbietern erzeugt.</footer>
 </div>
 <script src="/assets/app.js" defer></script>
+<script src="/assets/passkey.js" defer></script>
 </body>
 </html>

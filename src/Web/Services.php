@@ -82,6 +82,7 @@ final class Services
     public readonly Mailer $mailer;
     public readonly AuthService $auth;
     public readonly RateLimiter $limiter;
+    public readonly \App\Security\PasskeyService $passkeys;
     public readonly \App\Repositories\UserRepository $users;
     public readonly \App\Repositories\ContractReadRepository $reads;
     public readonly \App\Modules\Maintenance\Diagnostics $diagnostics;
@@ -133,6 +134,7 @@ final class Services
         $this->provider = self::provider($config, $db);
         $this->signatures = new SignatureService($db, $this->ac, $this->audit, $this->workflow, $this->documents, $this->store, $this->provider);
         $this->diagnostics = new \App\Modules\Maintenance\Diagnostics($db, $config, $root, $this->provider->name(), $this->provider->mode(), $this->storageRoot);
+        $this->passkeys = new \App\Security\PasskeyService($db, $this->clock, $this->audit, $this->limiter, \App\Security\WebAuthn::fromAppUrl($config->get('APP_URL', ''), $config->get('APP_NAME', 'Vertragsplattform')), $appKey);
         $this->settings = new \App\Modules\Maintenance\SettingsService($db, $this->audit, $appKey);
         $this->updates = new \App\Modules\Maintenance\UpdateService($db, $this->audit, $root, $this->storageRoot, null, function () use ($db, $config): string {
             $pass = $config->get('BACKUP_PASSPHRASE', '');

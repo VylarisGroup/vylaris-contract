@@ -33,7 +33,7 @@ final class TenantAdminService
     {
         $t = $this->tenant($p, 'user.manage');
         return $this->db->all(
-            "SELECT u.id, u.email, u.display_name, u.status AS user_status, u.mfa_enabled_at, u.last_login_at, tm.status AS membership_status, GROUP_CONCAT(r.code ORDER BY r.code) AS roles
+            "SELECT u.id, u.email, u.display_name, u.status AS user_status, u.mfa_enabled_at, (SELECT COUNT(*) FROM passkeys pk WHERE pk.user_id = u.id) AS passkey_count, u.last_login_at, tm.status AS membership_status, GROUP_CONCAT(r.code ORDER BY r.code) AS roles
                FROM tenant_memberships tm JOIN users u ON u.id = tm.user_id JOIN roles r ON r.id = tm.role_id
               WHERE tm.tenant_id = ? AND r.is_external = 0 GROUP BY u.id, u.email, u.display_name, u.status, u.mfa_enabled_at, u.last_login_at, tm.status ORDER BY u.display_name",
             [$t],
