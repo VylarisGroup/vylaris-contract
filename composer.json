@@ -1,0 +1,35 @@
+{
+    "name": "vertragsplattform/app",
+    "description": "Mandantenfähige Vertragsverwaltung für CH und EU (PHP ohne Framework, keine Laufzeit-Abhängigkeiten)",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.3",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-sodium": "*",
+        "ext-openssl": "*",
+        "ext-mbstring": "*",
+        "ext-fileinfo": "*",
+        "ext-zip": "*",
+        "ext-curl": "*",
+        "ext-dom": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "php tests/run.php"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

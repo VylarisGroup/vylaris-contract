@@ -1,0 +1,26 @@
+# Apache (Plesk): alle Anfragen ohne passende Datei gehen an den Front Controller.
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# Versteckte Dateien und Quelltexte nie ausliefern.
+<FilesMatch "^\.|\.(env|sql|md|lock|log|bak|ini|json|lockfile)$">
+  Require all denied
+</FilesMatch>
+<Files "index.php">
+  Require all granted
+</Files>
+
+# Statische Assets: lange Cache-Zeit (Dateien sind versioniert über ?v=).
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|woff2?|svg)$">
+    Header set Cache-Control "public, max-age=604800"
+    Header set X-Content-Type-Options "nosniff"
+  </FilesMatch>
+</IfModule>
