@@ -1,6 +1,7 @@
 <?php $v->title = 'Zweiter Faktor'; ?>
 <section class="stack narrow">
   <h1 class="h1">Zweiter Faktor (TOTP)</h1>
+  <?= $v->partial('partials/account_nav', ['current' => '/konto/mfa']) ?>
   <p class="muted">Freiwillig. Alternativ oder zusätzlich können Sie sich <a href="/konto/passkeys">mit einem Passkey</a> anmelden.</p>
   <?php if ($enrollRequired): ?><div class="alert alert-warning" role="alert">Für Ihr Konto ist ein zweiter Faktor vorgeschrieben. Bis zur Einrichtung ist der Zugriff auf diese Seite beschränkt.</div><?php endif; ?>
   <?php if (is_array($recovery) && $recovery !== []): ?>

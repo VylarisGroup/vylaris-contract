@@ -18,13 +18,25 @@ final class AccountController extends Controller
     }
 
     /** @param array<string,mixed> $params */
+    public function passwordForm(Request $r, array $params = []): Response
+    {
+        return $this->render('account/password', []);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function sessions(Request $r, array $params = []): Response
+    {
+        return $this->render('account/sessions', []);
+    }
+
+    /** @param array<string,mixed> $params */
     public function password(Request $r, array $params = []): Response
     {
         if (($r->post['new_password'] ?? '') !== ($r->post['new_password2'] ?? null)) {
             $this->x->session->putOld([], ['new_password2' => 'Die Passwörter stimmen nicht überein.']);
-            return Response::redirect('/konto');
+            return Response::redirect('/konto/passwort');
         }
-        return $this->act($r, '/konto', 'Passwort geändert. Andere Sitzungen wurden beendet.', function () use ($r): void {
+        return $this->act($r, '/konto/passwort', 'Passwort geändert. Andere Sitzungen wurden beendet.', function () use ($r): void {
             $this->s()->auth->changePassword($this->p()->userId, (string) ($r->post['current_password'] ?? ''), (string) ($r->post['new_password'] ?? ''));
             // Diese Sitzung bleibt gültig, alle anderen werden durch die neue Epoche beendet.
             $this->x->session->set('epoch', $this->s()->auth->sessionEpoch($this->p()->userId));

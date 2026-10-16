@@ -5,7 +5,12 @@ $nav = [];
 if ($p !== null) {
     $nav[] = ['/', 'Start', 'bx-home', 'Hauptbereich'];
     if ($sysCtx) {
-        $nav = [['/system', 'Systemverwaltung', 'bx-server', 'System'], ['/system/einstellungen/allgemein', 'Allgemein', 'bx-cog', 'System'], ['/system/einstellungen/email', 'E-Mail', 'bx-envelope', 'System'], ['/system/einstellungen/signatur', 'Signatur', 'bx-pen', 'System'], ['/system/sicherungen', 'Sicherungen', 'bx-data', 'System'], ['/system/aktualisierung', 'Aktualisierung', 'bx-cloud-download', 'System']];
+        $nav = [];
+        foreach ([['/system', 'Übersicht', 'bx-server', 'System'], ['/system/mandanten', 'Mandanten', 'bx-buildings', 'System'], ['/system/diagnose', 'Diagnose', 'bx-pulse', 'System'], ['/system/audit-kette', 'Audit-Kette', 'bx-link-alt', 'System'], ['/system/aufgaben', 'Aufgaben', 'bx-timer', 'System'],
+            ['/system/einstellungen/darstellung', 'Darstellung', 'bx-palette', 'Einstellungen'], ['/system/einstellungen/adresse', 'Adresse & Netzwerk', 'bx-globe', 'Einstellungen'], ['/system/einstellungen/uploads', 'Uploads', 'bx-upload', 'Einstellungen'], ['/system/einstellungen/email-server', 'E-Mail-Server', 'bx-envelope', 'Einstellungen'], ['/system/einstellungen/absender', 'Absender', 'bx-at', 'Einstellungen'], ['/system/einstellungen/signatur', 'Signatur', 'bx-pen', 'Einstellungen'], ['/system/einstellungen/skribble', 'Skribble', 'bx-edit', 'Einstellungen'],
+            ['/system/sicherungen', 'Sicherungen', 'bx-data', 'Betrieb'], ['/system/aktualisierung', 'Aktualisierung', 'bx-cloud-download', 'Betrieb']] as $n) {
+            $nav[] = $n;
+        }
     } elseif ($int) {
         $nav[] = ['/vertraege', 'Verträge', 'bx-file', 'Hauptbereich'];
         if ($p->can('contract.create')) {
@@ -23,6 +28,11 @@ if ($p !== null) {
         }
         if ($p->can('tenant.manage') || $p->can('user.manage')) {
             $nav[] = ['/verwaltung', 'Verwaltung', 'bx-cog', 'Verwaltung'];
+            if ($p->can('tenant.manage')) {
+                $nav[] = ['/verwaltung/mandant', 'Mandant', 'bx-building-house', 'Verwaltung'];
+                $nav[] = ['/verwaltung/vertragsarten', 'Vertragsarten', 'bx-category', 'Verwaltung'];
+                $nav[] = ['/verwaltung/felder', 'Zusatzfelder', 'bx-list-plus', 'Verwaltung'];
+            }
         }
     } else {
         $nav[] = ['/vertraege', 'Verträge', 'bx-file', 'Hauptbereich'];
@@ -34,13 +44,13 @@ if ($p !== null) {
 if ($int && !$sysCtx) {
     $nav[] = ['/benachrichtigungen', 'Benachrichtigungen', 'bx-bell', 'Hauptbereich', (int) $unread];
 }
-$order = ['Hauptbereich' => 0, 'Verwaltung' => 1, 'System' => 2];
+$order = ['Hauptbereich' => 0, 'Verwaltung' => 1, 'System' => 2, 'Einstellungen' => 3, 'Betrieb' => 4];
 usort($nav, static fn (array $a, array $b): int => ($order[$a[3]] ?? 9) <=> ($order[$b[3]] ?? 9));
 $brandHex = isset($brand) && preg_match('/^#[0-9a-fA-F]{6}$/', (string) $brand) === 1 ? (string) $brand : '#4f46e5';
 $initial = mb_strtoupper(mb_substr(trim((string) ($user['display_name'] ?? '?')), 0, 1)) ?: '?';
-$isActive = static fn (string $href, string $path): bool => $path === $href || ($href !== '/' && str_starts_with($path, $href . '/') && !in_array($href, ['/vertraege', '/system'], true))
+$isActive = static fn (string $href, string $path): bool => $path === $href || ($href !== '/' && str_starts_with($path, $href . '/') && !in_array($href, ['/vertraege', '/system', '/verwaltung'], true))
     || ($href === '/vertraege' && str_starts_with($path, '/vertraege') && !str_starts_with($path, '/vertraege/neu'))
-    || ($href === '/system' && $path === '/system');
+    || ($href === '/system' && $path === '/system') || ($href === '/verwaltung' && $path === '/verwaltung');
 ?>
 <!doctype html>
 <html lang="de">

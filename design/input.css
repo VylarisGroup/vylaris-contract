@@ -280,8 +280,8 @@ a:hover{color:var(--brand-800)}
  .btn-danger:hover{transform:translateY(-1px);box-shadow:0 10px 22px -8px #e11d48}
 
  /* Links: Unterstreichung läuft ein */
- .page a:not(.btn):not(.navlink):not(.brand):not(.tile):not(.card):not(.stat){text-decoration:none;background-image:linear-gradient(var(--brand-400),var(--brand-400));background-size:100% 1.5px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .3s var(--ease-out),color .2s}
- .page a:not(.btn):not(.navlink):not(.brand):not(.tile):not(.card):not(.stat):hover{background-size:100% 100%;background-image:linear-gradient(var(--brand-50),var(--brand-50));color:var(--brand-800)}
+ .page a:not(.btn):not(.subnav-link):not(.navlink):not(.brand):not(.tile):not(.card):not(.stat){text-decoration:none;background-image:linear-gradient(var(--brand-400),var(--brand-400));background-size:100% 1.5px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .3s var(--ease-out),color .2s}
+ .page a:not(.btn):not(.subnav-link):not(.navlink):not(.brand):not(.tile):not(.card):not(.stat):hover{background-size:100% 100%;background-image:linear-gradient(var(--brand-50),var(--brand-50));color:var(--brand-800)}
 
  /* Tabellen: Zeile mit Markierung */
  .table tbody tr{position:relative}
@@ -305,3 +305,10 @@ a:hover{color:var(--brand-800)}
 @media (max-width:639px){dialog.confirm{margin-bottom:0;max-width:none;border-bottom-left-radius:0;border-bottom-right-radius:0}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.btn.is-loading::after{animation-duration:1.5s!important;animation-iteration-count:infinite!important}}
 @media print{.sidebar,.mobilebar,.backdrop,.toasts,.page-foot,.btn{display:none!important}.content{margin-left:0}body{background:#fff;color:#000}.card,.table-wrap{box-shadow:none}}
+
+@layer components{
+.subnav{@apply flex flex-wrap gap-1 rounded-2xl p-1;background:var(--surface);box-shadow:0 0 0 1px var(--border)}
+.subnav-link{@apply inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium no-underline;color:var(--muted);transition:background-color .2s,color .2s}
+.subnav-link:hover{background:var(--brand-50);color:var(--text)}
+.subnav-link.is-active{background:var(--brand-600);color:#fff}
+}

@@ -1,6 +1,7 @@
 <?php $v->title = 'Passkeys'; ?>
 <section class="stack narrow">
   <h1 class="h1">Passkeys</h1>
+  <?= $v->partial('partials/account_nav', ['current' => '/konto/passkeys']) ?>
   <div class="card">
     <p>Mit einem Passkey melden Sie sich ohne Passwort an – per Fingerabdruck, Gesichtserkennung, Geräte-PIN oder Sicherheitsschlüssel. Er ersetzt Passwort <em>und</em> zweiten Faktor, ist an diese Website gebunden und lässt sich nicht abfangen. Passkeys sind freiwillig; die Anmeldung mit Passwort bleibt möglich.</p>
     <?php if (!$available): ?><div class="alert alert-warning" role="status">Passkeys sind auf diesem System nicht verfügbar: Die öffentliche Adresse (APP_URL) muss eine https-Adresse mit Domainnamen sein (System → Einstellungen).</div><?php endif; ?>

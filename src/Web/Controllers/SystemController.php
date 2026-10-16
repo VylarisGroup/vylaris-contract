@@ -22,24 +22,58 @@ final class SystemController extends Controller
         $p = $this->p();
         $s = $this->s();
         $migrator = new Migrator($s->db, $this->x->root . '/database/migrations');
+        $diag = $s->diagnostics->run($migrator);
+        $count = ['ok' => 0, 'warn' => 0, 'fail' => 0];
+        foreach ($diag as $d) {
+            $count[$d['status']] = ($count[$d['status']] ?? 0) + 1;
+        }
+        $tenants = $s->sysAdmin->tenants($p);
         return $this->render('system/index', [
-            'tenants' => $s->sysAdmin->tenants($p),
-            'diag' => $s->diagnostics->run($migrator),
-            'jobs' => $s->cron->status(),
+            'version' => $s->updates->currentVersion(),
+            'latest' => $s->updates->lastCheck(),
+            'diagCount' => $count,
+            'tenantCount' => count($tenants),
+            'activeTenants' => count(array_filter($tenants, static fn (array $t): bool => $t['status'] === 'active')),
             'verify' => $this->x->session->get('audit_verify'),
+            'jobs' => $s->cron->status(),
         ]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function tenants(Request $r, array $params = []): Response
+    {
+        return $this->render('system/tenants', ['tenants' => $this->s()->sysAdmin->tenants($this->p())]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function diagnosis(Request $r, array $params = []): Response
+    {
+        $s = $this->s();
+        return $this->render('system/diagnosis', ['diag' => $s->diagnostics->run(new Migrator($s->db, $this->x->root . '/database/migrations'))]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function auditChain(Request $r, array $params = []): Response
+    {
+        return $this->render('system/audit', ['verify' => $this->x->session->get('audit_verify')]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function jobs(Request $r, array $params = []): Response
+    {
+        return $this->render('system/jobs', ['jobs' => $this->s()->cron->status()]);
     }
 
     /** @param array<string,mixed> $params */
     public function createTenant(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/system', 'Mandant angelegt; die erste Administration wurde eingeladen.', fn () => $this->s()->sysAdmin->createTenant($this->p(), $r->string('name'), $r->string('slug'), $r->string('admin_email'), $r->string('admin_name')));
+        return $this->act($r, '/system/mandanten', 'Mandant angelegt; die erste Administration wurde eingeladen.', fn () => $this->s()->sysAdmin->createTenant($this->p(), $r->string('name'), $r->string('slug'), $r->string('admin_email'), $r->string('admin_name')));
     }
 
     /** @param array<string,mixed> $params */
     public function tenantStatus(Request $r, array $params): Response
     {
-        return $this->act($r, '/system', 'Status des Mandanten geändert.', fn () => $this->s()->sysAdmin->setTenantStatus($this->p(), $this->id($params), $r->string('status')));
+        return $this->act($r, '/system/mandanten', 'Status des Mandanten geändert.', fn () => $this->s()->sysAdmin->setTenantStatus($this->p(), $this->id($params), $r->string('status')));
     }
 
     /** @param array<string,mixed> $params */
@@ -47,7 +81,7 @@ final class SystemController extends Controller
     {
         $res = $this->s()->audit->verify();
         $this->x->session->set('audit_verify', $res + ['at' => gmdate('Y-m-d H:i:s')]);
-        return $this->redirect('/system', $res['ok'] ? 'Audit-Kette konsistent (' . $res['checked'] . ' Einträge).' : 'ACHTUNG: Audit-Kette nicht konsistent – ' . ($res['reason'] ?? ''), $res['ok'] ? 'success' : 'error');
+        return $this->redirect('/system/audit-kette', $res['ok'] ? 'Audit-Kette konsistent (' . $res['checked'] . ' Einträge).' : 'ACHTUNG: Audit-Kette nicht konsistent – ' . ($res['reason'] ?? ''), $res['ok'] ? 'success' : 'error');
     }
 
     /** @param array<string,mixed> $params */
@@ -78,16 +112,24 @@ final class SystemController extends Controller
 
     /** Einstellungsseiten: URL-Name => [Gruppe, Titel, Einleitung]. */
     private const SETTING_PAGES = [
-        'allgemein' => ['general', 'Allgemeine Einstellungen', 'Name, Markenfarbe, öffentliche Adresse, Upload-Limit und Proxy-Angaben.'],
-        'email' => ['mail', 'E-Mail-Versand (SMTP)', 'Zugang zum Mailserver für Einladungen, Passwort-Zurücksetzen und Benachrichtigungen.'],
-        'signatur' => ['signature', 'Signaturanbieter', 'Anbieter und Zugangsdaten für elektronische Unterschriften.'],
+        'darstellung' => ['display', 'Darstellung', 'Name der Anwendung und Markenfarbe.'],
+        'adresse' => ['network', 'Adresse & Netzwerk', 'Öffentliche Adresse der Plattform (auch Grundlage für Passkeys) und vorgeschaltete Proxys.'],
+        'uploads' => ['uploads', 'Uploads', 'Maximale Dateigrösse für Dokumente.'],
+        'email-server' => ['smtp', 'E-Mail-Server', 'Zugang zum Mailserver (SMTP) für Einladungen, Passwort-Zurücksetzen und Benachrichtigungen.'],
+        'absender' => ['sender', 'Absender', 'Absenderadresse und -name der E-Mails.'],
+        'signatur' => ['signature', 'Signaturanbieter', 'Welcher Anbieter elektronische Unterschriften erzeugt.'],
+        'skribble' => ['skribble', 'Skribble', 'Zugangsdaten und Modus für den Anbieter Skribble.'],
     ];
-    private const GROUP_PAGE = ['general' => '/system/einstellungen/allgemein', 'mail' => '/system/einstellungen/email', 'signature' => '/system/einstellungen/signatur', 'backup' => '/system/sicherungen'];
+    private const GROUP_PAGE = [
+        'display' => '/system/einstellungen/darstellung', 'network' => '/system/einstellungen/adresse', 'uploads' => '/system/einstellungen/uploads',
+        'smtp' => '/system/einstellungen/email-server', 'sender' => '/system/einstellungen/absender',
+        'signature' => '/system/einstellungen/signatur', 'skribble' => '/system/einstellungen/skribble', 'backup' => '/system/sicherungen',
+    ];
 
     /** @param array<string,mixed> $params */
     public function settingsIndex(Request $r, array $params = []): Response
     {
-        return Response::redirect('/system/einstellungen/allgemein');
+        return Response::redirect('/system/einstellungen/darstellung');
     }
 
     /** @param array<string,mixed> $params */
@@ -113,7 +155,7 @@ final class SystemController extends Controller
     public function settingsSave(Request $r, array $params): Response
     {
         $group = (string) ($params['group'] ?? '');
-        $back = self::GROUP_PAGE[$group] ?? '/system/einstellungen/allgemein';
+        $back = self::GROUP_PAGE[$group] ?? '/system/einstellungen/darstellung';
         $post = $r->post;
         $reset = is_array($post['reset'] ?? null) ? $post['reset'] : [];
         return $this->act($r, $back, 'Einstellungen gespeichert. Sie gelten ab sofort.', function () use ($group, $post, $reset): void {
@@ -124,7 +166,7 @@ final class SystemController extends Controller
     /** @param array<string,mixed> $params */
     public function mailTest(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/system/einstellungen/email', null, function (): void {
+        return $this->act($r, '/system/einstellungen/email-server', null, function (): void {
             $p = $this->p();
             if (!$p->isSystemAdmin) {
                 throw new ForbiddenException();
@@ -266,7 +308,7 @@ final class SystemController extends Controller
     /** @param array<string,mixed> $params */
     public function cronRun(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/system', null, function (): void {
+        return $this->act($r, '/system/aufgaben', null, function (): void {
             $this->requireSys();
             @set_time_limit(300);
             $res = (new CronTasks($this->s()))->run();

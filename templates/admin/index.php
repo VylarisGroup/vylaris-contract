@@ -5,7 +5,7 @@
     <?php foreach ([
       ['/verwaltung/benutzer', 'bx-group', 'Benutzer & Rollen', 'Einladen, Rollen zuweisen, sperren, zweiten Faktor zurücksetzen'],
       ['/verwaltung/abteilungen', 'bx-sitemap', 'Abteilungen', 'Zugriffsbereiche für Verträge'],
-      ['/verwaltung/einstellungen', 'bx-slider', 'Einstellungen', 'Mandant, Vertragsarten, Zusatzfelder'],
+      ['/verwaltung/mandant', 'bx-slider', 'Mandant & Felder', 'Stammdaten, Vertragsarten, Zusatzfelder'],
       ['/verwaltung/mandate', 'bx-user-voice', 'Externe Zugriffe', 'Gegenparteien, Revisionsstelle, Notariat (befristet)'],
       ['/verwaltung/protokoll', 'bx-list-check', 'Protokoll', 'Sicherheits- und Änderungsprotokoll des Mandanten'],
     ] as [$href, $icon, $t, $d]): ?>

@@ -86,12 +86,25 @@ final class AdminController extends Controller
     /** @param array<string,mixed> $params */
     public function settings(Request $r, array $params = []): Response
     {
-        $p = $this->p();
-        return $this->render('admin/settings', [
-            'settings' => $this->s()->tenantAdmin->settings($p),
-            'types' => $this->s()->reads->contractTypes((int) $p->tenantId),
-            'fields' => $this->s()->reads->customFields((int) $p->tenantId),
-        ]);
+        return Response::redirect('/verwaltung/mandant');
+    }
+
+    /** @param array<string,mixed> $params */
+    public function tenantPage(Request $r, array $params = []): Response
+    {
+        return $this->render('admin/tenant', ['settings' => $this->s()->tenantAdmin->settings($this->p())]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function typesPage(Request $r, array $params = []): Response
+    {
+        return $this->render('admin/types', ['types' => $this->s()->reads->contractTypes((int) $this->p()->tenantId)]);
+    }
+
+    /** @param array<string,mixed> $params */
+    public function fieldsPage(Request $r, array $params = []): Response
+    {
+        return $this->render('admin/fields', ['fields' => $this->s()->reads->customFields((int) $this->p()->tenantId)]);
     }
 
     /** @param array<string,mixed> $params */
@@ -101,21 +114,21 @@ final class AdminController extends Controller
         foreach (['name', 'timezone', 'jurisdiction_default', 'contract_number_prefix'] as $k) {
             $in[$k] = $r->string($k);
         }
-        $in['mfa_required'] = $r->string('mfa_required') === '1' ? 1 : 0;
-        return $this->act($r, '/verwaltung/einstellungen', 'Einstellungen gespeichert.', fn () => $this->s()->tenantAdmin->saveSettings($this->p(), $in));
+        $in['mfa_required'] = 0;
+        return $this->act($r, '/verwaltung/mandant', 'Einstellungen gespeichert.', fn () => $this->s()->tenantAdmin->saveSettings($this->p(), $in));
     }
 
     /** @param array<string,mixed> $params */
     public function saveType(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/verwaltung/einstellungen', 'Vertragsart gespeichert.', fn () => $this->s()->tenantAdmin->saveContractType($this->p(), strtolower($r->string('code')), $r->string('name')));
+        return $this->act($r, '/verwaltung/vertragsarten', 'Vertragsart gespeichert.', fn () => $this->s()->tenantAdmin->saveContractType($this->p(), strtolower($r->string('code')), $r->string('name')));
     }
 
     /** @param array<string,mixed> $params */
     public function saveField(Request $r, array $params = []): Response
     {
         $opts = array_values(array_filter(array_map('trim', explode(',', $r->string('options')))));
-        return $this->act($r, '/verwaltung/einstellungen', 'Feld gespeichert.', fn () => $this->s()->tenantAdmin->saveCustomField($this->p(), strtolower($r->string('code')), $r->string('label'), $r->string('field_type', 'text'), $r->string('required') === '1', $opts));
+        return $this->act($r, '/verwaltung/felder', 'Feld gespeichert.', fn () => $this->s()->tenantAdmin->saveCustomField($this->p(), strtolower($r->string('code')), $r->string('label'), $r->string('field_type', 'text'), $r->string('required') === '1', $opts));
     }
 
     /** @param array<string,mixed> $params */

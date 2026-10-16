@@ -24,23 +24,23 @@ final class SettingsService
     public static function schema(): array
     {
         return [
-            'APP_NAME' => ['group' => 'general', 'label' => 'Anwendungsname', 'type' => 'text', 'default' => 'Vertragsplattform', 'help' => 'Erscheint in Titel und E-Mails.'],
-            'BRAND_COLOR' => ['group' => 'general', 'label' => 'Markenfarbe', 'type' => 'color', 'default' => '#4f46e5', 'help' => 'Färbt Schaltflächen, Navigation und Links; alle Töne werden automatisch abgeleitet. Sehr helle Farben (z. B. Gelb) ergeben zu wenig Kontrast zu weisser Schrift.'],
-            'APP_URL' => ['group' => 'general', 'label' => 'Öffentliche Adresse (URL)', 'type' => 'url', 'help' => 'Beginnt mit https://, ohne Pfad am Ende. Wird für Links in E-Mails verwendet.'],
-            'MAX_UPLOAD_MB' => ['group' => 'general', 'label' => 'Upload-Limit pro Datei (MB)', 'type' => 'number', 'default' => '20', 'help' => 'Wirksam ist zusätzlich das PHP-Limit des Servers (upload_max_filesize / post_max_size, in Plesk unter »PHP-Einstellungen«).'],
-            'TRUSTED_PROXIES' => ['group' => 'general', 'label' => 'Vertrauenswürdige Proxy-IPs', 'type' => 'text', 'help' => 'Nur bei vorgeschaltetem Proxy/Load-Balancer: kommagetrennte IP-Adressen. Falsche Angaben erlauben das Vortäuschen von IP-Adressen.'],
-            'SMTP_HOST' => ['group' => 'mail', 'label' => 'SMTP-Server', 'type' => 'text', 'help' => 'Leer = kein E-Mail-Versand.'],
-            'SMTP_PORT' => ['group' => 'mail', 'label' => 'SMTP-Port', 'type' => 'number', 'default' => '465'],
-            'SMTP_ENCRYPTION' => ['group' => 'mail', 'label' => 'Verschlüsselung', 'type' => 'select', 'default' => 'tls', 'options' => ['tls' => 'TLS (implizit, Port 465)', 'starttls' => 'STARTTLS (Port 587)', 'none' => 'Keine (nur lokale Tests)']],
-            'SMTP_USER' => ['group' => 'mail', 'label' => 'SMTP-Benutzer', 'type' => 'text'],
-            'SMTP_PASS' => ['group' => 'mail', 'label' => 'SMTP-Passwort', 'type' => 'password', 'secret' => true],
-            'MAIL_FROM' => ['group' => 'mail', 'label' => 'Absenderadresse', 'type' => 'email', 'default' => 'noreply@localhost.invalid'],
-            'MAIL_FROM_NAME' => ['group' => 'mail', 'label' => 'Absendername', 'type' => 'text', 'default' => 'Vertragsplattform'],
-            'SIGNATURE_PROVIDER' => ['group' => 'signature', 'label' => 'Signaturanbieter', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox (KEINE rechtsgültigen Signaturen)', 'skribble' => 'Skribble'], 'help' => 'Skribble benötigt die drei Zugangsangaben unten.'],
-            'SKRIBBLE_BASE_URL' => ['group' => 'signature', 'label' => 'Skribble-API-Adresse', 'type' => 'url', 'help' => 'Laut Skribble-Vertrag/Entwicklerkonto.'],
-            'SKRIBBLE_USER' => ['group' => 'signature', 'label' => 'Skribble-Benutzer', 'type' => 'text'],
-            'SKRIBBLE_KEY' => ['group' => 'signature', 'label' => 'Skribble-API-Schlüssel', 'type' => 'password', 'secret' => true],
-            'SKRIBBLE_MODE' => ['group' => 'signature', 'label' => 'Modus', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox/Demo', 'live' => 'Live (rechtsgültig, kostenpflichtig)'], 'help' => 'Live erst nach bestandenem Test gegen die Demo-Umgebung (docs/SIGNATURE_PROVIDER.md).'],
+            'APP_NAME' => ['group' => 'display', 'label' => 'Anwendungsname', 'type' => 'text', 'default' => 'Vertragsplattform', 'help' => 'Erscheint in Titel und E-Mails.'],
+            'BRAND_COLOR' => ['group' => 'display', 'label' => 'Markenfarbe', 'type' => 'color', 'default' => '#4f46e5', 'help' => 'Färbt Schaltflächen, Navigation und Links; alle Töne werden automatisch abgeleitet. Sehr helle Farben (z. B. Gelb) ergeben zu wenig Kontrast zu weisser Schrift.'],
+            'APP_URL' => ['group' => 'network', 'label' => 'Öffentliche Adresse (URL)', 'type' => 'url', 'help' => 'Beginnt mit https://, ohne Pfad am Ende. Wird für Links in E-Mails verwendet.'],
+            'MAX_UPLOAD_MB' => ['group' => 'uploads', 'label' => 'Upload-Limit pro Datei (MB)', 'type' => 'number', 'default' => '20', 'help' => 'Wirksam ist zusätzlich das PHP-Limit des Servers (upload_max_filesize / post_max_size, in Plesk unter »PHP-Einstellungen«).'],
+            'TRUSTED_PROXIES' => ['group' => 'network', 'label' => 'Vertrauenswürdige Proxy-IPs', 'type' => 'text', 'help' => 'Nur bei vorgeschaltetem Proxy/Load-Balancer: kommagetrennte IP-Adressen. Falsche Angaben erlauben das Vortäuschen von IP-Adressen.'],
+            'SMTP_HOST' => ['group' => 'smtp', 'label' => 'SMTP-Server', 'type' => 'text', 'help' => 'Leer = kein E-Mail-Versand.'],
+            'SMTP_PORT' => ['group' => 'smtp', 'label' => 'SMTP-Port', 'type' => 'number', 'default' => '465'],
+            'SMTP_ENCRYPTION' => ['group' => 'smtp', 'label' => 'Verschlüsselung', 'type' => 'select', 'default' => 'tls', 'options' => ['tls' => 'TLS (implizit, Port 465)', 'starttls' => 'STARTTLS (Port 587)', 'none' => 'Keine (nur lokale Tests)']],
+            'SMTP_USER' => ['group' => 'smtp', 'label' => 'SMTP-Benutzer', 'type' => 'text'],
+            'SMTP_PASS' => ['group' => 'smtp', 'label' => 'SMTP-Passwort', 'type' => 'password', 'secret' => true],
+            'MAIL_FROM' => ['group' => 'sender', 'label' => 'Absenderadresse', 'type' => 'email', 'default' => 'noreply@localhost.invalid'],
+            'MAIL_FROM_NAME' => ['group' => 'sender', 'label' => 'Absendername', 'type' => 'text', 'default' => 'Vertragsplattform'],
+            'SIGNATURE_PROVIDER' => ['group' => 'signature', 'label' => 'Signaturanbieter', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox (KEINE rechtsgültigen Signaturen)', 'skribble' => 'Skribble'], 'help' => 'Skribble benötigt Zugangsangaben unter »Skribble«.'],
+            'SKRIBBLE_BASE_URL' => ['group' => 'skribble', 'label' => 'Skribble-API-Adresse', 'type' => 'url', 'help' => 'Laut Skribble-Vertrag/Entwicklerkonto.'],
+            'SKRIBBLE_USER' => ['group' => 'skribble', 'label' => 'Skribble-Benutzer', 'type' => 'text'],
+            'SKRIBBLE_KEY' => ['group' => 'skribble', 'label' => 'Skribble-API-Schlüssel', 'type' => 'password', 'secret' => true],
+            'SKRIBBLE_MODE' => ['group' => 'skribble', 'label' => 'Modus', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox/Demo', 'live' => 'Live (rechtsgültig, kostenpflichtig)'], 'help' => 'Live erst nach bestandenem Test gegen die Demo-Umgebung (docs/SIGNATURE_PROVIDER.md).'],
             'BACKUP_KEEP' => ['group' => 'backup', 'label' => 'Anzahl aufbewahrter Sicherungen', 'type' => 'number', 'default' => '14', 'help' => 'Gilt für Sicherungen per Cron (bin/backup.php) und die Schaltfläche »Aufräumen«.'],
         ];
     }
@@ -151,10 +151,15 @@ final class SettingsService
             }
             $effective[$k] = $v;
         }
-        if (($group === 'signature') && ($effective['SIGNATURE_PROVIDER'] ?? '') === 'skribble') {
+        if (in_array($group, ['signature', 'skribble'], true) && ($effective['SIGNATURE_PROVIDER'] ?? '') === 'skribble') {
             foreach (['SKRIBBLE_BASE_URL' => 'API-Adresse', 'SKRIBBLE_USER' => 'Benutzer', 'SKRIBBLE_KEY' => 'API-Schlüssel'] as $k => $label) {
                 if (($effective[$k] ?? '') === '' && !isset($errors[$k])) {
-                    $errors[$k] = "Für Skribble ist {$label} erforderlich.";
+                    if ($group === 'skribble') {
+                        $errors[$k] = "Solange Skribble aktiv ist, ist {$label} erforderlich.";
+                    } else {
+                        $errors['SIGNATURE_PROVIDER'] = 'Für Skribble zuerst die Zugangsdaten unter »Skribble« eintragen (es fehlt: ' . $label . ').';
+                        break;
+                    }
                 }
             }
         }

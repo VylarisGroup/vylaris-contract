@@ -33,7 +33,7 @@ final class SettingsTest extends TestCase
 
     public function testSaveOverridesEnvEncryptsSecretsAndResets(): void
     {
-        $this->svc->save($this->sys(), 'mail', ['SMTP_HOST' => 'smtp.neu.ch', 'SMTP_PORT' => '587', 'SMTP_ENCRYPTION' => 'starttls', 'SMTP_PASS' => 'Geheim!123', 'MAIL_FROM' => 'a@b.ch'], [], $this->env);
+        $this->svc->save($this->sys(), 'smtp', ['SMTP_HOST' => 'smtp.neu.ch', 'SMTP_PORT' => '587', 'SMTP_ENCRYPTION' => 'starttls', 'SMTP_PASS' => 'Geheim!123'], [], $this->env);
         $eff = SettingsService::overlay($this->env, $this->db);
         $this->assertSame('smtp.neu.ch', $eff->get('SMTP_HOST'));
         $this->assertSame('Geheim!123', $eff->get('SMTP_PASS'));
@@ -44,10 +44,10 @@ final class SettingsTest extends TestCase
         $this->assertSame('', $view['SMTP_PASS']['value'], 'Geheimnis wird nie ausgegeben');
         $this->assertSame('Oberfläche', $view['SMTP_HOST']['source']);
         // leeres Geheimnis = unverändert
-        $this->svc->save($this->sys(), 'mail', ['SMTP_PASS' => ''], [], $this->env);
+        $this->svc->save($this->sys(), 'smtp', ['SMTP_PASS' => ''], [], $this->env);
         $this->assertSame('Geheim!123', SettingsService::overlay($this->env, $this->db)->get('SMTP_PASS'));
         // Zurücksetzen → .env gilt wieder
-        $this->svc->save($this->sys(), 'mail', [], ['SMTP_HOST' => '1', 'SMTP_PASS' => '1'], $this->env);
+        $this->svc->save($this->sys(), 'smtp', [], ['SMTP_HOST' => '1', 'SMTP_PASS' => '1'], $this->env);
         $eff = SettingsService::overlay($this->env, $this->db);
         $this->assertSame('env.example.org', $eff->get('SMTP_HOST'));
         $this->assertSame('env-geheim', $eff->get('SMTP_PASS'));
@@ -57,18 +57,21 @@ final class SettingsTest extends TestCase
 
     public function testValidationAndAccess(): void
     {
-        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'general', ['APP_URL' => 'http://unsicher.ch'], [], $this->env));
-        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'general', ['TRUSTED_PROXIES' => '1.2.3.4, kein-ip'], [], $this->env));
-        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'mail', ['SMTP_PORT' => '99999'], [], $this->env));
-        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'mail', ['SMTP_ENCRYPTION' => 'ssl3'], [], $this->env));
+        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'network', ['APP_URL' => 'http://unsicher.ch'], [], $this->env));
+        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'network', ['TRUSTED_PROXIES' => '1.2.3.4, kein-ip'], [], $this->env));
+        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'smtp', ['SMTP_PORT' => '99999'], [], $this->env));
+        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'smtp', ['SMTP_ENCRYPTION' => 'ssl3'], [], $this->env));
         $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'signature', ['SIGNATURE_PROVIDER' => 'skribble'], [], $this->env), 'Skribble braucht Zugangsdaten');
         $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'unbekannt', [], [], $this->env));
         $t = new Principal(2, 'internal', false, 5, ['tenant_admin'], [], [], true, 'T');
-        $this->assertThrows(ForbiddenException::class, fn () => $this->svc->save($t, 'general', ['APP_NAME' => 'X'], [], $this->env));
+        $this->assertThrows(ForbiddenException::class, fn () => $this->svc->save($t, 'display', ['APP_NAME' => 'X'], [], $this->env));
         // Unbekannte Schlüssel in der Tabelle werden ignoriert, nicht übernommen
         $this->db->run("INSERT INTO system_settings (setting_key, setting_value) VALUES ('cfg.DB_PASS', 'boese')");
         $this->assertFalse(array_key_exists('DB_PASS', $this->svc->overrides()));
-        $ok = $this->svc->save($this->sys(), 'signature', ['SIGNATURE_PROVIDER' => 'skribble', 'SKRIBBLE_BASE_URL' => 'https://api.example.ch', 'SKRIBBLE_USER' => 'u', 'SKRIBBLE_KEY' => 'k', 'SKRIBBLE_MODE' => 'sandbox'], [], $this->env);
+        $this->svc->save($this->sys(), 'signature', ['SIGNATURE_PROVIDER' => 'sandbox'], [], $this->env);
+        $ok = $this->svc->save($this->sys(), 'skribble', ['SKRIBBLE_BASE_URL' => 'https://api.example.ch', 'SKRIBBLE_USER' => 'u', 'SKRIBBLE_KEY' => 'k', 'SKRIBBLE_MODE' => 'sandbox'], [], $this->env);
         $this->assertTrue(in_array('SKRIBBLE_KEY', $ok, true));
+        $this->svc->save($this->sys(), 'signature', ['SIGNATURE_PROVIDER' => 'skribble'], [], $this->env);
+        $this->assertThrows(ValidationException::class, fn () => $this->svc->save($this->sys(), 'skribble', ['SKRIBBLE_USER' => ''], ['SKRIBBLE_KEY' => '1'], $this->env), 'Aktiver Skribble braucht Zugangsdaten');
     }
 }

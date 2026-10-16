@@ -2,16 +2,25 @@
 
 Alles Betriebliche ist unter **Systemverwaltung** erreichbar (nur Systemadministration; zweiter Faktor und Passkeys sind freiwillig, siehe PASSKEYS.md):
 
-| Bereich | Seite | Inhalt |
+| Menü | Seite | Inhalt |
 |---|---|---|
-| Allgemein | /system/einstellungen/allgemein | Name, Markenfarbe, URL, Upload-Limit, Proxy-IPs |
-| E-Mail | /system/einstellungen/email | SMTP-Zugang inkl. Testmail |
-| Signatur | /system/einstellungen/signatur | Signaturanbieter (Sandbox/Skribble) |
-| Sicherungen | /system/sicherungen | Sicherungen erstellen/prüfen/herunterladen; Aufbewahrung (Anzahl) |
-| Sicherungen | /system/sicherungen | Erstellen (mit automatischer Prüfung und Aufräumen), Prüfen, Herunterladen, Löschen |
-| Aktualisierung | /system/aktualisierung | Aus GitHub, siehe UPDATE.md |
-| Cron | /system | Aufgaben von Hand ausführen; Status je Aufgabe |
-| Mandanten, Diagnose, Audit-Kette | /system | wie bisher |
+| System › Übersicht | /system | Kacheln mit Kurzstatus |
+| System › Mandanten | /system/mandanten | Mandanten anlegen, sperren/aktivieren |
+| System › Diagnose | /system/diagnose | Zustand von PHP, DB, Rechten, Schlüsseln |
+| System › Audit-Kette | /system/audit-kette | Integrität des Protokolls prüfen |
+| System › Aufgaben | /system/aufgaben | Cron-Aufgaben von Hand ausführen, Status |
+| Einstellungen › Darstellung | /system/einstellungen/darstellung | Name, Markenfarbe |
+| Einstellungen › Adresse & Netzwerk | …/adresse | APP_URL (nur lesbar), vertrauenswürdige Proxys |
+| Einstellungen › Uploads | …/uploads | Upload-Limit |
+| Einstellungen › E-Mail-Server | …/email-server | SMTP-Zugang inkl. Testmail |
+| Einstellungen › Absender | …/absender | Absenderadresse und -name |
+| Einstellungen › Signatur | …/signatur | Signaturanbieter (Sandbox/Skribble) |
+| Einstellungen › Skribble | …/skribble | Zugangsdaten Skribble |
+| Betrieb › Sicherungen | /system/sicherungen | Erstellen, prüfen, herunterladen, löschen; Aufbewahrung |
+| Betrieb › Aktualisierung | /system/aktualisierung | Aus GitHub, siehe UPDATE.md |
+
+Mandanten-Verwaltung: `/verwaltung` (Hub), `/verwaltung/mandant`, `/verwaltung/vertragsarten`, `/verwaltung/felder`.
+Konto: `/konto` (Profil), `/konto/passwort`, `/konto/mfa`, `/konto/passkeys`, `/konto/sitzungen`.
 
 ## Speicherung
 Einstellungen liegen in der Tabelle `system_settings` (Schlüssel `cfg.NAME`). Geheimnisse (SMTP-Passwort, Skribble-Schlüssel) werden mit `APP_KEY`

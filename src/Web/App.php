@@ -224,6 +224,8 @@ final class App
 
         // Konto
         $r->get('/konto', $h(C\AccountController::class, 'index'), $auth);
+        $r->get('/konto/passwort', $h(C\AccountController::class, 'passwordForm'), $auth);
+        $r->get('/konto/sitzungen', $h(C\AccountController::class, 'sessions'), $auth);
         $r->post('/konto/passwort', $h(C\AccountController::class, 'password'), $auth);
         $r->get('/konto/mfa', $h(C\AccountController::class, 'mfa'), $auth);
         $r->post('/konto/mfa/start', $h(C\AccountController::class, 'mfaStart'), $auth);
@@ -312,6 +314,9 @@ final class App
         $r->post('/verwaltung/abteilungen', $h(C\AdminController::class, 'saveDepartment'), $int);
         $r->post('/verwaltung/abteilungen/{id}/mitglied', $h(C\AdminController::class, 'departmentMember'), $int);
         $r->get('/verwaltung/einstellungen', $h(C\AdminController::class, 'settings'), $int);
+        $r->get('/verwaltung/mandant', $h(C\AdminController::class, 'tenantPage'), $int);
+        $r->get('/verwaltung/vertragsarten', $h(C\AdminController::class, 'typesPage'), $int);
+        $r->get('/verwaltung/felder', $h(C\AdminController::class, 'fieldsPage'), $int);
         $r->post('/verwaltung/einstellungen', $h(C\AdminController::class, 'saveSettings'), $int);
         $r->post('/verwaltung/vertragsarten', $h(C\AdminController::class, 'saveType'), $int);
         $r->post('/verwaltung/felder', $h(C\AdminController::class, 'saveField'), $int);
@@ -348,6 +353,10 @@ final class App
 
         // Systemverwaltung
         $r->get('/system', $h(C\SystemController::class, 'index'), $sys);
+        $r->get('/system/mandanten', $h(C\SystemController::class, 'tenants'), $sys);
+        $r->get('/system/diagnose', $h(C\SystemController::class, 'diagnosis'), $sys);
+        $r->get('/system/audit-kette', $h(C\SystemController::class, 'auditChain'), $sys);
+        $r->get('/system/aufgaben', $h(C\SystemController::class, 'jobs'), $sys);
         $r->post('/system/mandanten', $h(C\SystemController::class, 'createTenant'), $sys);
         $r->post('/system/mandanten/{id}/status', $h(C\SystemController::class, 'tenantStatus'), $sys);
         $r->get('/system/aktualisierung', $h(C\SystemController::class, 'updateForm'), $sys);
