@@ -70,10 +70,11 @@ final class HelpTopics
                 'summary' => 'Signaturvorgang starten und verfolgen – und was der Testmodus bedeutet.',
                 'steps' => [
                     ['Signatur starten', 'Ist der Vertrag freigegeben, starten Sie auf der Vertragsseite den Signaturvorgang und legen fest, wer unterzeichnet.'],
-                    ['Status verfolgen', 'Der Stand wird beim Signaturanbieter regelmässig abgefragt (Cronjob). Mit «Aktualisieren» fragen Sie ihn sofort ab. Ein laufender Vorgang lässt sich abbrechen.'],
+                    ['Status verfolgen', 'Der Stand wird regelmässig abgefragt (Cronjob). Mit «Status abfragen» aktualisieren Sie sofort. Bei der eigenen Signatur sehen Sie je Person, ob sie eingeladen ist, wartet oder unterzeichnet hat, und können mit «Einladung erneut senden» einen neuen Link verschicken (der alte wird ungültig). Ein laufender Vorgang lässt sich zurückziehen.'],
+                    ['Eigene Signatur (ohne externen Anbieter)', 'Die Unterzeichnenden erhalten eine E-Mail mit persönlichem Link, bestätigen mit einem Einmalcode an dieselbe Adresse und unterzeichnen mit ihrem Namen. Sie wählen, ob alle gleichzeitig oder nacheinander eingeladen werden. Am Ende erhält das PDF ein Signaturprotokoll und ein Siegel der Plattform.'],
                     ['Abschluss', 'Sind alle Unterschriften da, wird der Vertrag «Aktiv» und das signierte Dokument liegt beim Vertrag.'],
                 ],
-                'tips' => ['Zeigt die Plattform einen Hinweis «Testmodus», sind Signaturen NICHT rechtsgültig. Die Systemadministration stellt den Anbieter bewusst um (siehe Anleitung «Signaturanbieter»).', 'Ob eine Signaturart für Ihren Vertrag rechtlich genügt, klären Sie bitte mit Ihrer Rechtsberatung.'],
+                'tips' => ['Zeigt die Plattform einen Hinweis «Testmodus», sind Signaturen NICHT rechtsgültig. Die Systemadministration stellt den Anbieter bewusst um (siehe Anleitung «Signaturanbieter»).', 'Ob eine Signaturart für Ihren Vertrag rechtlich genügt, klären Sie bitte mit Ihrer Rechtsberatung.', 'Die eigene Signatur ist eine einfache elektronische Signatur (SES), keine qualifizierte (QES). Verlangt das Gesetz oder Ihr Vertrag mehr, nutzen Sie einen Anbieter mit entsprechender Stufe.'],
                 'related' => ['vertrag-freigabe'],
             ],
             'fristen' => [
@@ -225,8 +226,9 @@ final class HelpTopics
             ],
             'signaturanbieter' => [
                 'title' => 'Signaturanbieter umstellen', 'group' => 'system', 'audience' => 'system', 'icon' => 'bx-edit', 'time' => '5 Min.',
-                'summary' => 'Vom Testmodus zu einem echten Anbieter – bewusst und in zwei Schritten.',
+                'summary' => 'Vom Testmodus zur eigenen Signatur oder zu einem externen Anbieter – bewusst und in zwei Schritten.',
                 'steps' => [
+                    ['Variante A: Eigene Signatur', 'Unter «Einstellungen → Signatur» den Anbieter auf «Eigene Signatur» stellen. Voraussetzung sind funktionierender E-Mail-Versand und eine https-Adresse. Es ist eine einfache Signatur (SES); das Siegel stammt von der Plattform selbst.'],
                     ['Zugangsdaten eintragen', 'Unter «Einstellungen → Skribble» Adresse, Benutzer, Schlüssel und Modus (zuerst Sandbox/Demo) eintragen.'],
                     ['Anbieter aktivieren', 'Unter «Einstellungen → Signatur» den Anbieter auf Skribble stellen. Fehlen Zugangsdaten, weist die Plattform darauf hin.'],
                     ['Testen', 'Mit der Demo-Umgebung einen Testvorgang durchspielen. Erst danach «Live» wählen (rechtsgültig, kostenpflichtig).'],

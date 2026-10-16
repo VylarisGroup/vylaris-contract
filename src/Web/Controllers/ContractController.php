@@ -148,7 +148,7 @@ final class ContractController extends Controller
         }
         $data += [
             'approvals' => $this->s()->reads->approvalsFor($id, $tid),
-            'signatures' => array_map(fn (array $s): array => $s + ['display' => \App\Modules\Signatures\SignatureService::describe($s)], $this->s()->reads->signaturesFor($id, $tid)),
+            'signatures' => array_map(fn (array $s): array => $s + ['display' => \App\Modules\Signatures\SignatureService::describe($s)] + $this->s()->signatures->signerInfo($p, (int) $s['id'], (string) $s['status']), $this->s()->reads->signaturesFor($id, $tid)),
             'deadlines' => $this->s()->deadlines->forContract($p, $id),
             'tasks' => $this->s()->tasks->forContract($p, $id),
             'notary' => $this->s()->reads->notaryCasesFor($id, $tid),

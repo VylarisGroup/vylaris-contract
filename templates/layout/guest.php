@@ -25,7 +25,7 @@
     <?php endforeach; ?>
     <?= $content ?>
   </main>
-  <footer class="guest-foot">Diese Software ersetzt keine Rechtsberatung. Elektronische Signaturen werden von externen Anbietern erzeugt.</footer>
+  <footer class="guest-foot">Diese Software ersetzt keine Rechtsberatung. Ob eine elektronische Signatur für einen Vertrag genügt, ist fachlich zu prüfen.</footer>
 </div>
 <script src="/assets/app.js" defer></script>
 <script src="/assets/passkey.js" defer></script>

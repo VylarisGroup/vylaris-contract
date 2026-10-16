@@ -158,6 +158,37 @@ final class SignatureService
         return $out;
     }
 
+    /** Für den öffentlichen Unterzeichnungslink: Ergebnis des Anbieters ohne angemeldete Person übernehmen. */
+    public function syncRequest(int $requestId): void
+    {
+        $r = $this->db->one('SELECT * FROM signature_requests WHERE id = ?', [$requestId]);
+        if ($r !== null && $r['provider'] === $this->provider->name() && $r['mode'] === $this->provider->mode()) {
+            $this->refreshRow($r, null);
+        }
+    }
+
+    /** Schickt den aktuell Einladenen einen neuen Link (nur Anbieter, die selbst einladen). */
+    public function remind(Principal $p, int $requestId): int
+    {
+        $r = $this->load($requestId, $p);
+        $this->ac->contract($p, (int) $r['contract_id'], 'request_signature');
+        if (!($this->provider instanceof SupportsReminders)) {
+            throw new BusinessRuleException('Dieser Anbieter unterstützt keine Erinnerungen über die Plattform.');
+        }
+        if (!in_array($r['status'], ['submitted', 'partially_signed'], true) || $r['external_transaction_id'] === null) {
+            throw new BusinessRuleException('Der Vorgang ist nicht offen.');
+        }
+        $this->assertProvider($r);
+        try {
+            $n = $this->provider->remind((string) $r['external_transaction_id']);
+        } catch (ProviderException $e) {
+            throw new BusinessRuleException($e->getMessage());
+        }
+        $this->event($requestId, 'reminded', null, $n . ' Einladung(en) erneut versendet');
+        $this->audit->log('signature.reminded', 'success', (int) $r['tenant_id'], $p->userId, 'signature_request', $requestId, ['count' => $n]);
+        return $n;
+    }
+
     public function cancel(Principal $p, int $requestId, string $reason): void
     {
         $r = $this->load($requestId, $p);
@@ -182,6 +213,25 @@ final class SignatureService
     }
 
     /** @return array<string,mixed> */
+    /**
+     * Teilnehmerstatus (nur Anbieter, die ihn melden) und Erinnerungsmöglichkeit für die Vertragsansicht.
+     * @return array{signer_status:list<array<string,mixed>>,can_remind:bool}
+     */
+    public function signerInfo(Principal $p, int $requestId, string $status): array
+    {
+        $r = $this->load($requestId, $p);
+        $out = ['signer_status' => [], 'can_remind' => false];
+        if (!$this->provider instanceof ReportsSignerStatus || $r['external_transaction_id'] === null || $r['provider'] !== $this->provider->name()) {
+            return $out;
+        }
+        try {
+            $out['signer_status'] = $this->provider->signerStatus((string) $r['external_transaction_id']);
+        } catch (\Throwable) {
+        }
+        $out['can_remind'] = $this->provider instanceof SupportsReminders && in_array($status, ['submitted', 'partially_signed'], true);
+        return $out;
+    }
+
     public function get(Principal $p, int $requestId): array
     {
         $r = $this->load($requestId, $p);
@@ -189,7 +239,7 @@ final class SignatureService
         $r['events'] = $this->db->all('SELECT event_type, detail, created_at FROM signature_events WHERE signature_request_id = ? ORDER BY id', [$requestId]);
         $r['evidence'] = $this->db->all('SELECT evidence_type, document_id, achieved_level, validation_status, provider_reference, is_sandbox, created_at FROM signature_evidence WHERE signature_request_id = ? ORDER BY id', [$requestId]);
         $r['display'] = self::describe($r);
-        return $r;
+        return $r + $this->signerInfo($p, $requestId, (string) $r['status']);
     }
 
     /**
@@ -209,7 +259,9 @@ final class SignatureService
         };
         $notice = $sandbox
             ? 'TESTMODUS – keine rechtsgültige Signatur.'
-            : ($r['status'] === 'signed' ? 'Gemeldet vom Anbieter; die Signatur wurde von dieser Plattform nicht unabhängig geprüft.' : '');
+            : ($r['provider'] === 'internal'
+                ? ($r['status'] === 'signed' ? 'Einfache elektronische Signatur (SES) der Plattform mit Siegel und Signaturprotokoll; keine qualifizierte Signatur. Ob sie für diesen Vertrag genügt, ist fachlich zu prüfen.' : '')
+                : ($r['status'] === 'signed' ? 'Gemeldet vom Anbieter; die Signatur wurde von dieser Plattform nicht unabhängig geprüft.' : ''));
         return ['label' => $label, 'legal_valid' => false, 'notice' => $notice];
     }
 

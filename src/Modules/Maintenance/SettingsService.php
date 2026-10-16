@@ -36,7 +36,7 @@ final class SettingsService
             'SMTP_PASS' => ['group' => 'smtp', 'label' => 'SMTP-Passwort', 'type' => 'password', 'secret' => true],
             'MAIL_FROM' => ['group' => 'sender', 'label' => 'Absenderadresse', 'type' => 'email', 'default' => 'noreply@localhost.invalid'],
             'MAIL_FROM_NAME' => ['group' => 'sender', 'label' => 'Absendername', 'type' => 'text', 'default' => 'Vertragsplattform'],
-            'SIGNATURE_PROVIDER' => ['group' => 'signature', 'label' => 'Signaturanbieter', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox (KEINE rechtsgültigen Signaturen)', 'skribble' => 'Skribble'], 'help' => 'Skribble benötigt Zugangsangaben unter »Skribble«.'],
+            'SIGNATURE_PROVIDER' => ['group' => 'signature', 'label' => 'Signaturanbieter', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox (KEINE rechtsgültigen Signaturen)', 'internal' => 'Eigene Signatur der Plattform (einfache elektronische Signatur, SES)', 'skribble' => 'Skribble'], 'help' => 'Eigene Signatur: Unterzeichnen per E-Mail-Link und Einmalcode, keine qualifizierte Signatur; braucht den E-Mail-Server. Skribble benötigt Zugangsangaben unter »Skribble«.'],
             'SKRIBBLE_BASE_URL' => ['group' => 'skribble', 'label' => 'Skribble-API-Adresse', 'type' => 'url', 'help' => 'Laut Skribble-Vertrag/Entwicklerkonto.'],
             'SKRIBBLE_USER' => ['group' => 'skribble', 'label' => 'Skribble-Benutzer', 'type' => 'text'],
             'SKRIBBLE_KEY' => ['group' => 'skribble', 'label' => 'Skribble-API-Schlüssel', 'type' => 'password', 'secret' => true],
@@ -161,6 +161,13 @@ final class SettingsService
                         break;
                     }
                 }
+            }
+        }
+        if ($group === 'signature' && ($effective['SIGNATURE_PROVIDER'] ?? '') === 'internal' && !isset($errors['SIGNATURE_PROVIDER'])) {
+            if (($effective['SMTP_HOST'] ?? '') === '') {
+                $errors['SIGNATURE_PROVIDER'] = 'Die eigene Signatur verschickt Einladungen und Codes per E-Mail. Bitte zuerst den E-Mail-Server einrichten.';
+            } elseif (!str_starts_with((string) ($effective['APP_URL'] ?? ''), 'https://') && !in_array(parse_url((string) ($effective['APP_URL'] ?? ''), PHP_URL_HOST), ['localhost', '127.0.0.1'], true)) {
+                $errors['SIGNATURE_PROVIDER'] = 'Die Links für Unterzeichnende brauchen eine https-Adresse der Plattform (Adresse & Netzwerk).';
             }
         }
         if ($errors !== []) {

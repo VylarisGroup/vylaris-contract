@@ -1,0 +1,47 @@
+-- Migration 006: Eigener Signaturdienst der Plattform (einfache elektronische Signatur, SES). Rein additiv.
+CREATE TABLE signing_sessions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    external_id CHAR(32) NOT NULL,
+    request_ref BIGINT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NULL,
+    pdf_sha256 CHAR(64) NOT NULL,
+    state ENUM('open','signed','declined','cancelled','expired') NOT NULL DEFAULT 'open',
+    expires_at DATETIME(6) NOT NULL,
+    final_pdf LONGBLOB NULL,
+    final_sha256 CHAR(64) NULL,
+    original_length INT UNSIGNED NULL,
+    seal_signature VARCHAR(128) NULL,
+    seal_public_key CHAR(64) NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    completed_at DATETIME(6) NULL,
+    UNIQUE KEY uq_ss_ext (external_id),
+    UNIQUE KEY uq_ss_final (final_sha256),
+    KEY ix_ss_ref (request_ref)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE signing_signers (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    session_id BIGINT UNSIGNED NOT NULL,
+    position TINYINT UNSIGNED NOT NULL,
+    order_no TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    name VARCHAR(190) NOT NULL,
+    email VARCHAR(190) NOT NULL,
+    status ENUM('waiting','invited','signed','declined') NOT NULL DEFAULT 'waiting',
+    token_hash CHAR(64) NULL,
+    invited_at DATETIME(6) NULL,
+    viewed_at DATETIME(6) NULL,
+    otp_hash CHAR(64) NULL,
+    otp_expires_at DATETIME(6) NULL,
+    otp_sent_at DATETIME(6) NULL,
+    otp_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    signed_at DATETIME(6) NULL,
+    signed_name VARCHAR(190) NULL,
+    ip VARCHAR(45) NULL,
+    user_agent VARCHAR(190) NULL,
+    consent_version VARCHAR(20) NULL,
+    decline_reason VARCHAR(500) NULL,
+    UNIQUE KEY uq_sg_token (token_hash),
+    KEY ix_sg_session (session_id, order_no),
+    CONSTRAINT fk_sg_session FOREIGN KEY (session_id) REFERENCES signing_sessions(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

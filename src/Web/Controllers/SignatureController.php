@@ -21,12 +21,13 @@ final class SignatureController extends Controller
             $emails = $r->post['signer_email'] ?? [];
             $names = $r->post['signer_name'] ?? [];
             $signers = [];
+            $sequential = $r->string('order') === 'sequential';
             if (is_array($emails)) {
                 foreach ($emails as $i => $mail) {
                     if (!is_string($mail) || trim($mail) === '') {
                         continue;
                     }
-                    $signers[] = new SignerSpec(strtolower(trim($mail)), is_array($names) && is_string($names[$i] ?? null) ? trim($names[$i]) : '', count($signers) + 1);
+                    $signers[] = new SignerSpec(strtolower(trim($mail)), is_array($names) && is_string($names[$i] ?? null) ? trim($names[$i]) : '', $sequential ? count($signers) + 1 : 1);
                 }
             }
             $this->s()->signatures->request($this->p(), $id, $r->string('level', 'SES'), $signers, $r->string('message'));
@@ -43,6 +44,16 @@ final class SignatureController extends Controller
     public function refresh(Request $r, array $params): Response
     {
         return $this->act($r, $this->back($r), 'Status beim Anbieter abgefragt.', fn () => $this->s()->signatures->refresh($this->p(), $this->id($params)));
+    }
+
+    /** @param array<string,mixed> $params */
+    public function remind(Request $r, array $params): Response
+    {
+        return $this->act($r, $this->back($r), null, function () use ($params): string {
+            $n = $this->s()->signatures->remind($this->p(), $this->id($params));
+            $this->x->session->flash('success', $n > 0 ? 'Neue Einladung an ' . $n . ' Person(en) gesendet; der bisherige Link ist ungültig.' : 'Zurzeit ist niemand eingeladen.');
+            return '';
+        });
     }
 
     /** @param array<string,mixed> $params */

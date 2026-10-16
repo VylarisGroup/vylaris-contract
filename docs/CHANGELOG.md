@@ -3,6 +3,20 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.10.0 – 2026-10-16
+Unterzeichnen ohne externen Anbieter: die Plattform bringt eine eigene, vollständige Signatur mit.
+
+### Neu
+- Eigene Signatur («Einstellungen → Signatur → Eigene Signatur»): Unterzeichnende erhalten einen persönlichen Link per E-Mail, bestätigen mit Einmalcode und unterzeichnen mit Namen und Einwilligung – ohne Konto.
+- Reihenfolge wählbar (gleichzeitig oder nacheinander), Ablehnen mit Begründung, Erinnern mit neuem Link, Zurückziehen.
+- Am Ende erhält das PDF ein Signaturprotokoll (Personen, Zeitpunkte, IP-Adresse, Einwilligung) und ein Siegel der Plattform; der Vertrag wird automatisch aktiv.
+- Vertragsseite zeigt je Unterzeichner den Stand.
+
+### Wichtig
+- Es handelt sich um eine **einfache elektronische Signatur (SES)**, nicht um eine qualifizierte (QES). Ob sie für einen Vertrag genügt, ist fachlich zu prüfen. Details: docs/SIGNATURE_PROVIDER.md.
+- Voraussetzung: funktionierender E-Mail-Versand und https-Adresse.
+- Beim Update wird eine Datenbankänderung ausgeführt (zwei neue Tabellen). Sie ist rein additiv.
+
 ## 1.9.0 – 2026-10-16
 Nach einem Update zeigt die Plattform den Administrationen beim ersten Login, was sich geändert hat.
 

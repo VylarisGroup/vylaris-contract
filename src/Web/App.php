@@ -222,7 +222,15 @@ final class App
         $r->get('/mandant-waehlen', $h(C\AuthController::class, 'tenantForm'), $pre);
         $r->post('/mandant-waehlen', $h(C\AuthController::class, 'tenantSelect'), $pre);
 
-        // Konto
+        // Unterzeichnung durch Externe (öffentlicher persönlicher Link, ohne Anmeldung)
+        $r->get('/unterschreiben/{token}', $h(C\SigningController::class, 'show'));
+        $r->get('/unterschreiben/{token}/dokument', $h(C\SigningController::class, 'document'));
+        $r->post('/unterschreiben/{token}/code', $h(C\SigningController::class, 'code'));
+        $r->post('/unterschreiben/{token}/ablehnen', $h(C\SigningController::class, 'decline'));
+        $r->post('/unterschreiben/{token}', $h(C\SigningController::class, 'sign'));
+        $r->post('/signaturen/{id}/erinnern', $h(C\SignatureController::class, 'remind'), $int);
+
+        // Neuigkeiten, Hilfe, Konto
         $r->get('/neuigkeiten', $h(C\ChangelogController::class, 'show'), $auth);
         $r->post('/neuigkeiten/gelesen', $h(C\ChangelogController::class, 'seen'), $auth);
         $r->get('/hilfe', $h(C\HelpController::class, 'index'), $auth);

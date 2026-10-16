@@ -212,6 +212,7 @@ a:hover{color:var(--brand-800)}
  code{background:var(--surface2);border-radius:.375rem;padding:.1rem .35rem}
  .pre{@apply overflow-auto rounded-xl p-3 text-xs;background:var(--surface2);max-height:24rem}
  .checks{@apply m-0 mb-4 flex list-none flex-col gap-1 p-0}
+ .quote{@apply my-3 rounded-lg border-l-4 border-indigo-500 bg-slate-50 px-4 py-2 text-sm text-slate-700}
  .steps{@apply mb-4 flex list-decimal flex-col gap-2 pl-6}
  hr{border:0;border-top:1px solid var(--border);margin:1.25rem 0}
 

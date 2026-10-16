@@ -60,6 +60,7 @@ final class Services
     public readonly DocumentStore $store;
     public readonly ContractDocumentService $documents;
     public readonly SignatureProvider $provider;
+    public readonly \App\Modules\Signatures\InternalSigningService $signing;
     public readonly SignatureService $signatures;
     public readonly MandateService $mandates;
     public readonly CommentService $comments;
@@ -132,8 +133,11 @@ final class Services
         $this->counterparties = new CounterpartyService($db, $this->ac, $this->audit);
         $this->tenantAdmin = new TenantAdminService($db, $this->ac, $this->audit, $this->auth);
         $this->sysAdmin = new SystemAdminService($db, $this->audit, $this->auth);
-        $this->provider = self::provider($config, $db);
+        // Immer vorhanden: bereits versendete Unterzeichnungslinks bleiben auch nach einem Anbieterwechsel bedienbar.
+        $this->signing = new \App\Modules\Signatures\InternalSigningService($db, $this->clock, $this->audit, $this->mailer, $this->limiter, $this->store, $appKey, $baseUrl, $config->get('APP_NAME', 'Vertragsplattform'));
+        $this->provider = self::provider($config, $db, $config->get('SIGNATURE_PROVIDER', 'sandbox') === 'internal' ? $this->signing : null);
         $this->signatures = new SignatureService($db, $this->ac, $this->audit, $this->workflow, $this->documents, $this->store, $this->provider);
+        $this->signing->onComplete(fn (int $requestId) => $this->signatures->syncRequest($requestId));
         $this->diagnostics = new \App\Modules\Maintenance\Diagnostics($db, $config, $root, $this->provider->name(), $this->provider->mode(), $this->storageRoot);
         $this->passkeys = new \App\Security\PasskeyService($db, $this->clock, $this->audit, $this->limiter, \App\Security\WebAuthn::fromAppUrl($config->get('APP_URL', ''), $config->get('APP_NAME', 'Vertragsplattform')), $appKey);
         $this->settings = new \App\Modules\Maintenance\SettingsService($db, $this->audit, $appKey);
@@ -161,8 +165,11 @@ final class Services
         );
     }
 
-    private static function provider(Config $c, Database $db): SignatureProvider
+    private static function provider(Config $c, Database $db, ?\App\Modules\Signatures\InternalSigningService $internal = null): SignatureProvider
     {
+        if ($internal !== null) {
+            return new \App\Modules\Signatures\InternalSignatureProvider($internal);
+        }
         if ($c->get('SIGNATURE_PROVIDER', 'sandbox') === 'skribble') {
             return new SkribbleProvider(
                 new CurlTransport(),

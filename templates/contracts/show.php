@@ -122,6 +122,8 @@ $latestVersion = $c['versions'][0] ?? null;
     <h2 class="h2"><i class="bx bx-pen" aria-hidden="true"></i> Elektronische Unterzeichnung</h2>
     <?php if ($providerMode === 'sandbox'): ?>
       <div class="alert alert-warning" role="note"><strong>TESTMODUS</strong> (Anbieter: <?= e($providerName) ?>) – es entstehen <strong>keine rechtsgültigen Signaturen</strong> und der Vertrag wird dadurch nicht aktiviert.</div>
+    <?php elseif ($providerName === 'internal'): ?>
+      <p class="muted small"><i class="bx bx-info-circle" aria-hidden="true"></i> <strong>Eigene Signatur der Plattform (SES):</strong> Die Unterzeichnenden erhalten einen persönlichen Link per E-Mail, bestätigen mit einem Einmalcode und unterzeichnen mit Namen und Einwilligung. Am Ende erhält das PDF ein Signaturprotokoll und ein Siegel der Plattform. Das ist eine <em>einfache</em> elektronische Signatur, <strong>keine</strong> qualifizierte (QES) – ob sie für diesen Vertrag genügt, ist fachlich zu prüfen.</p>
     <?php else: ?>
       <p class="muted small">Anbieter: <?= e($providerName) ?> (Livemodus). Die Plattform meldet, was der Anbieter berichtet; sie prüft Signaturen nicht selbst. Qualifizierte Signaturen erfordern einen Anbieter mit entsprechender Zertifizierung und Identifikation der Unterzeichner.</p>
     <?php endif; ?>
@@ -131,10 +133,17 @@ $latestVersion = $c['versions'][0] ?? null;
           <span class="badge <?= $s['status'] === 'signed' ? 'badge-info' : (in_array($s['status'], ['declined', 'failed', 'expired', 'cancelled'], true) ? 'badge-bad' : 'badge-warn') ?>"><?= e($d['label']) ?></span></div>
         <?php if ($s['mode'] === 'sandbox'): ?><p class="small"><strong>TESTMODUS</strong> – nicht rechtsgültig.</p><?php elseif ($d['notice']): ?><p class="small muted"><?= e($d['notice']) ?></p><?php endif; ?>
         <p class="small muted">Unterzeichnende: <?= e(implode(', ', array_map(static fn (array $x): string => $x['name'] . ' <' . $x['email'] . '>', $s['signers']))) ?> · Aktualisiert <?= e(fdt($s['updated_at'])) ?></p>
+        <?php if (!empty($s['signer_status'])): ?>
+          <ul class="checks"><?php foreach ($s['signer_status'] as $g): ?>
+            <li><span class="badge <?= $g['status'] === 'signed' ? 'badge-ok' : ($g['status'] === 'declined' ? 'badge-bad' : ($g['status'] === 'invited' ? 'badge-warn' : 'badge-neutral')) ?>"><?= e(['signed' => 'unterzeichnet', 'declined' => 'abgelehnt', 'invited' => 'eingeladen', 'waiting' => 'wartet'][$g['status']] ?? $g['status']) ?></span>
+              <?= e($g['name']) ?> <span class="muted small">&lt;<?= e($g['email']) ?>&gt;<?= $g['at'] ? ' · ' . e(fdt($g['at'])) : '' ?></span></li>
+          <?php endforeach; ?></ul>
+        <?php endif; ?>
         <?php if ($s['last_error']): ?><p class="small field-error"><?= e($s['last_error']) ?></p><?php endif; ?>
         <?php if (in_array($s['status'], ['submitted', 'partially_signed'], true) && $can['request_signature']): ?>
           <div class="row-gap">
             <?= $ui->action('/signaturen/' . (int) $s['id'] . '/aktualisieren', 'Status abfragen', 'bx-refresh', 'btn btn-secondary btn-sm', null, ['contract_id' => $id]) ?>
+            <?php if (!empty($s['can_remind'])): ?><?= $ui->action('/signaturen/' . (int) $s['id'] . '/erinnern', 'Einladung erneut senden', 'bx-bell', 'btn btn-secondary btn-sm', 'Allen aktuell Eingeladenen einen neuen Link senden? Der bisherige Link wird ungültig.', ['contract_id' => $id]) ?><?php endif; ?>
             <?= $ui->action('/signaturen/' . (int) $s['id'] . '/abbrechen', 'Zurückziehen', 'bx-x', 'btn btn-ghost btn-sm', 'Signaturvorgang wirklich zurückziehen?', ['contract_id' => $id]) ?>
             <?php if ($s['mode'] === 'sandbox'): ?>
               <?= $ui->action('/signaturen/' . (int) $s['id'] . '/simulieren', 'Test: „unterzeichnet“ simulieren', 'bx-test-tube', 'btn btn-ghost btn-sm', null, ['contract_id' => $id, 'state' => 'signed']) ?>
@@ -149,6 +158,9 @@ $latestVersion = $c['versions'][0] ?? null;
       <form method="post" action="/vertraege/<?= $id ?>/signatur" class="stack">
         <?= $ui->csrf() ?>
         <?= $ui->field('level', 'Signaturstufe', ['type' => 'select', 'options' => $levelOpts, 'help' => 'SES = einfach, AES = fortgeschritten, QES = qualifiziert. Welche Stufe rechtlich erforderlich ist, hängt vom Vertrag ab – bitte fachlich klären.']) ?>
+        <?php if ($providerName === 'internal'): ?>
+          <?= $ui->field('order', 'Reihenfolge', ['type' => 'select', 'options' => ['parallel' => 'Gleichzeitig – alle erhalten sofort die Einladung', 'sequential' => 'Nacheinander – in der Reihenfolge der Liste'], 'help' => 'Bei «Nacheinander» wird die nächste Person erst eingeladen, wenn die vorherige unterzeichnet hat.']) ?>
+        <?php endif; ?>
         <?php for ($i = 0; $i < 3; $i++): ?>
           <div class="grid-2"><?= $ui->field('signer_name[]', 'Name Unterzeichner/in ' . ($i + 1), ['maxlength' => 190]) ?><?= $ui->field('signer_email[]', 'E-Mail', ['type' => 'email', 'maxlength' => 190]) ?></div>
         <?php endfor; ?>

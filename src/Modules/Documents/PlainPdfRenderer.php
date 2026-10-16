@@ -82,6 +82,24 @@ final class PlainPdfRenderer
         return $out;
     }
 
+    /**
+     * Seiteninhalte (unkomprimierte Inhaltsströme inkl. Fusszeile) für Anhangseiten, die an ein bestehendes PDF angehängt werden
+     * (siehe PdfAppender). Verwendet dieselben Schriften /F1 (Helvetica) und /F2 (Helvetica-Bold) wie render().
+     *
+     * @param list<array{type:string,text:string,n:?int}> $blocks
+     * @return list<string>
+     */
+    public function appendixContents(string $title, array $blocks, string $footerLeft): array
+    {
+        $pages = $this->layout($title, $blocks);
+        $total = count($pages);
+        $out = [];
+        foreach ($pages as $i => $ops) {
+            $out[] = implode("\n", $ops) . "\n" . $this->footerOps($footerLeft, '', $i + 1, $total, false);
+        }
+        return $out;
+    }
+
     /** @return list<list<string>> Seiten, jeweils Liste von Zeichenoperatoren */
     private function layout(string $title, array $blocks): array
     {
