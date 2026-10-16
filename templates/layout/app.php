@@ -91,6 +91,7 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
       <summary><span class="avatar" aria-hidden="true"><?= e($initial) ?></span> <span class="min-w-0"><span class="block truncate text-sm font-semibold"><?= e($user['display_name'] ?? '') ?></span><span class="block truncate text-xs muted"><?= e($user['email'] ?? '') ?></span></span></summary>
       <div class="usermenu-pop">
         <a href="/hilfe"><i class="bx bx-help-circle" aria-hidden="true"></i> Hilfe &amp; Anleitungen</a>
+        <?php if ($p !== null && ($p->isSystemAdmin || $p->can('tenant.manage') || $p->can('user.manage'))): ?><a href="/neuigkeiten"><i class="bx bx-gift" aria-hidden="true"></i> Neuigkeiten</a><?php endif; ?>
         <a href="/konto"><i class="bx bx-shield-alt-2" aria-hidden="true"></i> Mein Konto &amp; Sicherheit</a>
         <?php if (($user['user_type'] ?? '') === 'internal'): ?><a href="/mandant-waehlen"><i class="bx bx-transfer" aria-hidden="true"></i> Mandant wechseln</a><?php endif; ?>
         <?= $ui->action('/abmelden', 'Abmelden', 'bx-log-out', 'linklike') ?>
@@ -105,6 +106,9 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
     <div class="alert alert-<?= e($f['type']) ?>" role="<?= $f['type'] === 'error' ? 'alert' : 'status' ?>" data-toast="<?= e($f['type']) ?>"><i class="bx <?= ['success' => 'bx-check-circle', 'error' => 'bx-error-circle', 'warning' => 'bx-error', 'info' => 'bx-info-circle'][$f['type']] ?? 'bx-info-circle' ?> text-lg" aria-hidden="true"></i><span><?= e($f['message']) ?></span><button type="button" class="alert-close" data-toast-close aria-label="Schliessen">&times;</button></div>
   <?php endforeach; ?>
 </div>
+<?php if (!empty($changelogUnseen)): ?>
+<div class="update-banner" role="status"><i class="bx bx-gift" aria-hidden="true"></i> <span>Die Plattform wurde auf <strong>Version <?= e($changelogUnseen) ?></strong> aktualisiert.</span> <a href="/neuigkeiten">Neuigkeiten ansehen</a></div>
+<?php endif; ?>
 <?php
 $helpMap = ['/vertraege/neu' => 'vertrag-erfassen', '/freigaben' => 'vertrag-freigabe', '/vertraege' => 'vertrag-erfassen', '/vorlagen' => 'vorlagen', '/klauseln' => 'vorlagen', '/gegenparteien' => 'gegenparteien',
     '/verwaltung/benutzer' => 'benutzer-rollen', '/verwaltung/mandant' => 'mandant-einrichten', '/verwaltung/vertragsarten' => 'mandant-einrichten', '/verwaltung/felder' => 'mandant-einrichten',

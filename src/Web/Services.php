@@ -87,6 +87,7 @@ final class Services
     public readonly \App\Repositories\ContractReadRepository $reads;
     public readonly \App\Modules\Maintenance\Diagnostics $diagnostics;
     public readonly \App\Modules\Maintenance\UpdateService $updates;
+    public readonly \App\Modules\Maintenance\ChangelogService $changelog;
     public readonly string $storageRoot;
 
     public readonly Config $envConfig;
@@ -136,6 +137,7 @@ final class Services
         $this->diagnostics = new \App\Modules\Maintenance\Diagnostics($db, $config, $root, $this->provider->name(), $this->provider->mode(), $this->storageRoot);
         $this->passkeys = new \App\Security\PasskeyService($db, $this->clock, $this->audit, $this->limiter, \App\Security\WebAuthn::fromAppUrl($config->get('APP_URL', ''), $config->get('APP_NAME', 'Vertragsplattform')), $appKey);
         $this->settings = new \App\Modules\Maintenance\SettingsService($db, $this->audit, $appKey);
+        $this->changelog = new \App\Modules\Maintenance\ChangelogService($root . '/docs/CHANGELOG.md');
         $this->updates = new \App\Modules\Maintenance\UpdateService($db, $this->audit, $root, $this->storageRoot, null, function () use ($db, $config): string {
             $pass = $config->get('BACKUP_PASSPHRASE', '');
             return (new \App\Modules\Maintenance\BackupService($db, $this->storageRoot))->create($this->storageRoot . '/backups', $pass === '' ? null : $pass)['path'];

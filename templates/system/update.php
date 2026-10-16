@@ -2,7 +2,7 @@
 <section class="stack">
   <h1 class="h1">Systemaktualisierung</h1>
   <div class="card">
-    <p>Installierte Version: <strong><?= e($current) ?></strong> · Quelle: <code>github.com/<?= e($repo) ?></code> (neueste Release oder Hauptzweig »main«, fest hinterlegt)</p>
+    <p>Installierte Version: <strong><?= e($current) ?></strong> · Quelle: <code>github.com/<?= e($repo) ?></code> (neueste Release oder Hauptzweig »main«, fest hinterlegt) · <a href="/neuigkeiten">Änderungsverlauf</a></p>
     <?= $ui->action('/system/aktualisierung/pruefen', 'Auf neue Version prüfen', 'bx-refresh', 'btn btn-secondary') ?>
   </div>
 

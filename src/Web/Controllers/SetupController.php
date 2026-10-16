@@ -219,8 +219,8 @@ final class SetupController
 
             $hash = AuthService::hashPassword($in['admin_password']);
             $db->run(
-                "INSERT INTO users (email, display_name, password_hash, is_system_admin, user_type, status, email_verified_at) VALUES (?,?,?,1,'internal','active', UTC_TIMESTAMP(6))",
-                [strtolower($in['admin_email']), $in['admin_name'], $hash],
+                "INSERT INTO users (email, display_name, password_hash, is_system_admin, user_type, status, email_verified_at, last_seen_version) VALUES (?,?,?,1,'internal','active', UTC_TIMESTAMP(6), ?)",
+                [strtolower($in['admin_email']), $in['admin_name'], $hash, is_file($this->root . '/VERSION') ? trim((string) file_get_contents($this->root . '/VERSION')) : null],
             );
             $uid = $db->lastId();
             $audit = new \App\Modules\Audit\AuditLogger($db, hash('sha256', 'audit-ip|' . $appKey));

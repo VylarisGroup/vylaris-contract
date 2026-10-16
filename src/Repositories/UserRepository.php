@@ -19,6 +19,29 @@ final class UserRepository
         return $this->db->one('SELECT id, display_name, email, user_type, is_system_admin, mfa_enabled_at FROM users WHERE id = ?', [$id]);
     }
 
+    /**
+     * Zuletzt angezeigte Programmversion. false = Spalte nicht lesbar (z. B. Migration noch nicht eingespielt): dann nichts anzeigen,
+     * damit ein Update nie wegen des Änderungsverlaufs eine Seite blockiert.
+     */
+    public function lastSeenVersion(int $id): string|null|false
+    {
+        try {
+            $v = $this->db->value('SELECT last_seen_version FROM users WHERE id = ?', [$id]);
+            return $v === null || $v === false ? null : (string) $v;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    public function markVersionSeen(int $id, string $version): void
+    {
+        try {
+            $this->db->run('UPDATE users SET last_seen_version = ? WHERE id = ?', [$version, $id]);
+        } catch (\Throwable) {
+            // Spalte fehlt: ignorieren
+        }
+    }
+
     /** @return list<array<string,mixed>> aktive Mandate des Benutzers */
     public function activeTenants(int $userId): array
     {

@@ -72,6 +72,7 @@ final class AuthController extends Controller
         $s->set('mfa_ok', $mfaOk);
         $s->forget('tenant_id');
         $s->forget('mfa_enroll');
+        $s->set('changelog_check', true); // erster Seitenaufruf nach der Anmeldung: Neuigkeiten anzeigen, falls neu
     }
 
     /** Startet eine Anmeldung mit Passkey (ohne Benutzername; die Challenge gilt 5 Minuten und einmal). @param array<string,mixed> $params */

@@ -43,8 +43,25 @@ abstract class Controller
         $this->x->view->share('unread', $this->safeUnread());
         $this->x->view->share('path', $this->x->req->path);
         $this->x->view->share('brand', $this->s()->config->get('BRAND_COLOR', '#4f46e5'));
+        $this->x->view->share('changelogUnseen', $this->changelogUnseen());
         $this->x->view->share('sandbox', $this->s()->provider->mode() === 'sandbox');
         return Response::html($this->x->view->render($template, $data, $layout), $status);
+    }
+
+    /** Version, deren Neuigkeiten die angemeldete Administration noch nicht gesehen hat – sonst null. */
+    private function changelogUnseen(): ?string
+    {
+        $p = $this->x->p;
+        if ($p === null || !($p->isSystemAdmin || $p->can('tenant.manage') || $p->can('user.manage')) || str_starts_with($this->x->req->path, '/neuigkeiten')) {
+            return null;
+        }
+        try {
+            $cur = $this->s()->updates->currentVersion();
+            $seen = $this->s()->users->lastSeenVersion($p->userId);
+            return $seen !== false && \App\Modules\Maintenance\ChangelogService::isUnseen($seen, $cur) ? $cur : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function safeUnread(): int

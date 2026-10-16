@@ -217,6 +217,7 @@ final class HelpTopics
                     ['Vorher sichern', 'Unter «Betrieb → Sicherungen» eine Sicherung erstellen.'],
                     ['Nach Updates suchen', 'Unter «Betrieb → Aktualisierung» «Auf neue Version prüfen» drücken. Die installierte und die neueste Version werden angezeigt.'],
                     ['Installieren', 'Bei einer neueren Version «Auf … aktualisieren» wählen und bestätigen. Die Plattform ersetzt Dateien, führt Datenbankänderungen aus und prüft sich selbst; bei einem Fehler wird der alte Stand wiederhergestellt.'],
+                    ['Neuigkeiten lesen', 'Nach dem Update sehen Administrationen beim ersten Login die Seite «Neuigkeiten» mit allen Änderungen seit ihrem letzten Besuch. Sie ist jederzeit im Benutzermenü erreichbar.'],
                     ['Bei Problemen', 'Dateirechte lassen sich mit «Rechte reparieren» in Ordnung bringen. Als letzte Hilfe gibt es auf der Kommandozeile «php bin/repair.php». Details: docs/UPDATE.md.'],
                 ],
                 'tips' => ['Updates, die den Updater selbst ändern, müssen einmal von Hand eingespielt werden.'],

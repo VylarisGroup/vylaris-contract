@@ -223,6 +223,8 @@ final class App
         $r->post('/mandant-waehlen', $h(C\AuthController::class, 'tenantSelect'), $pre);
 
         // Konto
+        $r->get('/neuigkeiten', $h(C\ChangelogController::class, 'show'), $auth);
+        $r->post('/neuigkeiten/gelesen', $h(C\ChangelogController::class, 'seen'), $auth);
         $r->get('/hilfe', $h(C\HelpController::class, 'index'), $auth);
         $r->get('/hilfe/{slug}', $h(C\HelpController::class, 'show'), $auth);
         $r->get('/konto', $h(C\AccountController::class, 'index'), $auth);
@@ -438,6 +440,15 @@ final class App
             return Response::redirect('/anmelden');
         }
         $x->p = $p;
+        if ($x->session->get('changelog_check') === true && $req->method === 'GET' && !str_starts_with($req->path, '/neuigkeiten') && !in_array($req->path, ['/konto/mfa', '/abmelden', '/mandant-waehlen'], true)) {
+            $x->session->forget('changelog_check');
+            if ($p->isSystemAdmin || $p->can('tenant.manage') || $p->can('user.manage')) {
+                $seen = $x->s->users->lastSeenVersion($uid);
+                if ($seen !== false && \App\Modules\Maintenance\ChangelogService::isUnseen($seen, $x->s->updates->currentVersion()) && $x->s->changelog->since($seen, $x->s->updates->currentVersion()) !== []) {
+                    return Response::redirect('/neuigkeiten?weiter=' . rawurlencode($req->path));
+                }
+            }
+        }
         if ($kind === 'internal' && ($p->isExternal() || $p->tenantId === null)) {
             return $p->isExternal() ? Response::redirect('/') : Response::redirect('/system');
         }

@@ -43,3 +43,6 @@ nur Systemadministration (Passwort, optional zweiter Faktor/Passkey), Bestätigu
 Getestet (automatisch, 9 Tests): Erfolgspfad, Rechte-Erzwingung (auch bei umask 077 und 0700-Ordnern), unveränderter `public/`-Ordner, Rückfall bei Migrations- und Selbstprüfungsfehler,
 Manifest-Löschung, SHA-Pin, Zip-Slip, Syntaxfehler, Versionskonflikt, Hostprüfung. Zusätzlich manuell Ende-zu-Ende gegen einen lokalen PHP-Server (echtes Backup, echte Selbstprüfung inkl. Wartungs-Token).
 **Nicht getestet:** der echte Abruf von GitHub (in der Entwicklungsumgebung gesperrt), echtes Plesk/nginx-Verhalten.
+
+## Änderungsverlauf («Neuigkeiten»)
+Zu jeder Version gehört ein Eintrag in `docs/CHANGELOG.md` (Format siehe Kopf der Datei). Nach einem Update sehen Administrationen (Systemadministration, Mandanten-Administration) beim ersten Login die Seite «Neuigkeiten» mit allen Änderungen seit der zuletzt gesehenen Version; mit «Verstanden, weiter» wird sie als gelesen markiert. Bei laufender Sitzung erscheint stattdessen ein Hinweisband. Der Verlauf ist jederzeit im Benutzermenü abrufbar. Der Merker liegt je Benutzer in `users.last_seen_version` (Migration 005); Neuinstallationen setzen ihn für die erste Administration auf die installierte Version. Ein Test (`ChangelogTest`) schlägt fehl, wenn für die Version in `VERSION` kein Eintrag existiert.
