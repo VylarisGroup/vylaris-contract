@@ -1,6 +1,6 @@
 <?php /** Parteienblock des Vertragsformulars (Teil von form.php) */ ?>
     <fieldset class="fieldset"><legend>Vertragsparteien</legend>
-      <?php if ($counterparties === []): ?><p class="muted">Noch keine Gegenparteien erfasst. <a href="/gegenparteien/neu">Gegenpartei anlegen</a>.</p><?php endif; ?>
+      <?php if ($counterparties === []): ?><p class="muted">Noch keine verbundenen Gegenparteien. <a href="/gegenparteien#verbinden">Mit einem Mandanten verbinden</a> (Mandanten-Code).</p><?php endif; ?>
       <?php for ($i = 0; $i < $rows; $i++): $pp = $parties[$i] ?? null; ?>
         <div class="grid-3 party-row">
           <div class="field"><label class="label" for="pcp<?= $i ?>">Partei <?= $i + 1 ?></label>

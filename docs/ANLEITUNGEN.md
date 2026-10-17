@@ -10,9 +10,10 @@
   - [Freigabe beantragen und erteilen](#vertrag-freigabe)
   - [Einen Vertrag unterzeichnen lassen](#vertrag-signieren)
   - [Fristen, Aufgaben und Erinnerungen](#fristen)
-  - [Gegenparteien verwalten](#gegenparteien)
+  - [Gegenparteien und Mandanten-Code](#gegenparteien)
   - [Mit Vorlagen und Klauseln arbeiten](#vorlagen)
 - **Verwaltung eines Mandanten**
+  - [Single Sign-on (SSO) einrichten](#sso)
   - [Benutzer einladen und Rollen vergeben](#benutzer-rollen)
   - [Den eigenen Mandanten einrichten](#mandant-einrichten)
 - **Mein Konto**
@@ -124,17 +125,20 @@ Dauer: ca. 3 Min. · für Mitarbeitende
 > - Laufen Fristen nicht, meldet die Diagnose der Systemadministration, dass der Cronjob fehlt.
 
 <a id="gegenparteien"></a>
-### Gegenparteien verwalten
+### Gegenparteien und Mandanten-Code
 
-_Vertragspartner einmal anlegen und in vielen Verträgen verwenden._  
-Dauer: ca. 2 Min. · für Mitarbeitende
+_Gegenparteien werden nicht mehr angelegt, sondern über den Mandanten-Code verbunden._  
+Dauer: ca. 3 Min. · für Mitarbeitende
 
-1. **Neue Gegenpartei** – Unter «Gegenparteien» auf «Neue Gegenpartei» klicken und Name, Anschrift und Kontaktangaben eintragen.
-2. **In Verträgen verwenden** – Beim Erfassen eines Vertrags wählen Sie die Gegenpartei aus der Liste.
-3. **Archivieren statt löschen** – Nicht mehr benötigte Gegenparteien archivieren Sie; bestehende Verträge bleiben unverändert.
+1. **Eigenen Code weitergeben** – Unter «Gegenparteien» sehen Sie den Mandanten-Code Ihrer Organisation (Format XXXX-XXXX-XXXX). Geben Sie ihn an Vertragspartner weiter, die die Plattform ebenfalls nutzen. Mit dem Code allein geschieht nichts – jede Anfrage muss bestätigt werden.
+2. **Mit Code verbinden** – Haben Sie den Code einer anderen Organisation erhalten, tragen Sie ihn unter «Mit einer Gegenseite verbinden» ein. Ihre Anfrage erscheint dort als ausstehend.
+3. **Anfrage bestätigen** – Die Mandantenadministration der Gegenseite bestätigt oder lehnt ab. Nach der Bestätigung erscheint die andere Organisation bei beiden als Gegenpartei und kann in Verträgen gewählt werden.
+4. **Verträge teilen** – Verbundene Gegenparteien sehen Verträge, in denen sie Partei sind, ab dem Status «Freigegeben» schreibgeschützt unter «Geteilte Verträge». Entwürfe, interne Notizen und Kommentare bleiben privat.
+5. **Verbindung beenden** – Eine Verbindung kann jederzeit beendet werden; die Freigabe endet sofort. Bestehende Verträge bleiben unverändert.
 
 > **Gut zu wissen**
-> - Prüfen Sie vor dem Anlegen kurz die Liste – Doppelte erschweren die Suche.
+> - Ältere, von Hand angelegte Gegenparteien bleiben als «Altbestand» sichtbar, lassen sich aber nicht mehr neu auswählen.
+> - Einen neuen Code erzeugen Sie, wenn der alte weitergegeben wurde, den Sie nicht mehr verwenden möchten.
 
 <a id="vorlagen"></a>
 ### Mit Vorlagen und Klauseln arbeiten
@@ -143,7 +147,7 @@ _Wiederkehrende Verträge aus geprüften Vorlagen erstellen._
 Dauer: ca. 4 Min. · für Mitarbeitende
 
 1. **Vorlage wählen** – Unter «Vorlagen» sehen Sie die freigegebenen Vorlagen. Die Vorschau zeigt den Text vor der Verwendung.
-2. **Vertrag aus Vorlage erstellen** – Auf der Vorlagenseite lässt sich daraus ein neuer Vertrags-Entwurf erstellen mit dem Vorlagentext, den Sie anschliessend anpassen.
+2. **Vertrag aus Vorlage erstellen** – Auf der Vorlagenseite führt Sie ein Fragebogen Schritt für Schritt durch die Angaben (eine Frage pro Schritt, mit Hinweisen). Daraus entsteht ein Entwurf, den Sie anschliessend anpassen. Wer Vorlagen pflegt, kann bei jedem Feld eigene Fragen und Hinweise hinterlegen.
 3. **Eigene Vorlagen pflegen** – Wer Vorlagen verwalten darf, legt neue an und erstellt Versionen. Neue Versionen werden geprüft und erst nach Entscheid verwendbar.
 4. **Klauseln** – Wiederverwendbare Textbausteine (Klauseln) pflegen Sie in der Klauselbibliothek.
 
@@ -151,6 +155,22 @@ Dauer: ca. 4 Min. · für Mitarbeitende
 > - Vorlagen sind ein Hilfsmittel – die rechtliche Prüfung ersetzen sie nicht.
 
 ## Verwaltung eines Mandanten
+
+<a id="sso"></a>
+### Single Sign-on (SSO) einrichten
+
+_Mitarbeitende melden sich mit dem Identitätsanbieter Ihrer Organisation an (OpenID Connect)._  
+Dauer: ca. 5 Min. · für Administration
+
+1. **Beim Anbieter vorbereiten** – Legen Sie beim Identitätsanbieter eine Web-Anwendung an. Redirect-URI und Kürzel zeigt «Verwaltung → Single Sign-on». Notieren Sie Issuer-Adresse, Client-ID und (falls vorhanden) Client-Geheimnis.
+2. **Hier eintragen** – Tragen Sie die Angaben im Assistenten ein. Das Geheimnis wird verschlüsselt gespeichert.
+3. **Zugang festlegen** – Mit erlaubten E-Mail-Domains finden Mitarbeitende ihren Mandanten über die E-Mail-Adresse. Neue Konten entstehen nur, wenn Sie die automatische Anlage ausdrücklich einschalten; Administratorrechte werden nie automatisch vergeben.
+4. **Aktivieren und testen** – Beim Speichern mit aktiviertem SSO wird der Anbieter geprüft. Testen Sie die Anmeldung zuerst mit einem Testkonto («Mit SSO anmelden» auf der Anmeldeseite).
+
+> **Gut zu wissen**
+> - Passwort- und Passkey-Anmeldung bleiben immer möglich.
+> - Eine SSO-Sitzung gilt nur für Ihren Mandanten.
+> - Unterstützt wird RS256; getestet wurde gegen einen simulierten Anbieter.
 
 <a id="benutzer-rollen"></a>
 ### Benutzer einladen und Rollen vergeben

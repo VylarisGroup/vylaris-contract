@@ -360,7 +360,12 @@ final class TemplateService
                     throw new ValidationException(['fields' => 'Auswahlfeld ' . $code . ' braucht 1–50 Optionen.']);
                 }
             }
-            $out[] = ['code' => $code, 'label' => $label, 'type' => $type, 'required' => !empty($f['required']), 'options' => $opts];
+            $q = trim((string) ($f['question'] ?? ''));
+            $hlp = trim((string) ($f['help'] ?? ''));
+            if (mb_strlen($q) > 200 || mb_strlen($hlp) > 400) {
+                throw new ValidationException(['fields' => 'Frage (max. 200) oder Hinweis (max. 400 Zeichen) zu lang bei ' . $code]);
+            }
+            $out[] = ['code' => $code, 'label' => $label, 'type' => $type, 'required' => !empty($f['required']), 'options' => $opts, 'question' => $q, 'help' => $hlp];
         }
         return $out;
     }

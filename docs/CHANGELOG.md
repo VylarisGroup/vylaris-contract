@@ -3,6 +3,21 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.12.0 – 2026-10-17
+Verbinden statt anlegen, Single Sign-on, Zeitstempel, Auswertungen und Fragebogen für Vorlagen.
+
+### Neu
+- **Mandanten-Code:** Gegenparteien werden nicht mehr von Hand angelegt, sondern über den Code des anderen Mandanten verbunden (Anfrage, Bestätigung durch die Gegenseite). Verbundene Mandanten sehen Verträge, in denen sie Partei sind, ab «Freigegeben» schreibgeschützt unter «Geteilte Verträge». Ältere Gegenparteien bleiben als «Altbestand» erhalten.
+- **Single Sign-on (OpenID Connect)** pro Mandant: Einrichtung unter «Verwaltung → Single Sign-on», Anmeldung über «Mit SSO anmelden». Passwort und Passkey bleiben möglich; eine SSO-Sitzung gilt nur für den Mandanten.
+- **Zeitstempel (RFC 3161)** für die eigene Signatur: Unter «Einstellungen → Signatur» eine Zeitstempelstelle (https) eintragen; versiegelte Dokumente erhalten zusätzlich deren Zeitstempel (Hash-Abgleich und Token-Signatur werden geprüft). Fehlende Zeitstempel holt der Cron nach.
+- **Auswertungen** auf der Startseite: Ablauf in 30/60/90 Tagen, Vertragswerte je Vertragsart und Währung, Dauer der Freigaben, offene Signaturen, Neuerfassungen pro Monat; Export als CSV.
+- **Fragebogen** beim Erstellen eines Vertrags aus einer Vorlage: eine Frage pro Schritt, mit Hinweisen. Vorlagenfelder haben dafür die optionalen Angaben «Frage» und «Hinweis».
+
+### Wichtig
+- Datenbankänderung: Migration 007 (wird beim Update automatisch ausgeführt). Rein additiv.
+- Die Zertifikatskette der Zeitstempelstelle wird in der Plattform nicht geprüft; das gespeicherte Token lässt sich extern mit `openssl ts -verify` prüfen.
+- SSO wurde gegen einen simulierten Anbieter getestet, nicht gegen einen echten. Bitte zuerst mit einem Testkonto prüfen.
+
 ## 1.11.0 – 2026-10-16
 Übersichtlichere Seitenleiste und Assistenten für das Anlegen.
 

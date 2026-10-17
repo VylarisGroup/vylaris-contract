@@ -219,6 +219,9 @@ final class App
         $r->post('/email/bestaetigen/{token}', $h(C\AuthController::class, 'verify'));
         $r->get('/einladung/{token}', $h(C\AuthController::class, 'inviteForm'));
         $r->post('/einladung/{token}', $h(C\AuthController::class, 'invite'));
+        $r->post('/anmelden/sso', $h(C\SsoController::class, 'start'));
+        $r->get('/anmelden/sso/rueckkehr', $h(C\SsoController::class, 'callback'));
+        $r->get('/anmelden/sso/{slug}', $h(C\SsoController::class, 'direct'));
         $r->get('/mandant-waehlen', $h(C\AuthController::class, 'tenantForm'), $pre);
         $r->post('/mandant-waehlen', $h(C\AuthController::class, 'tenantSelect'), $pre);
 
@@ -254,6 +257,7 @@ final class App
         // Start / Suche
         $r->get('/', $h(C\DashboardController::class, 'index'), $auth);
         $r->get('/vertraege', $h(C\ContractController::class, 'index'), $auth);
+        $r->get('/uebersicht/export.csv', $h(C\DashboardController::class, 'exportCsv'), $int);
         $r->get('/vertraege/export.csv', $h(C\ContractController::class, 'exportCsv'), $int);
         $r->get('/vertraege/vorschlaege', $h(C\ContractController::class, 'suggest'), $int);
 
@@ -308,8 +312,15 @@ final class App
 
         // Gegenparteien
         $r->get('/gegenparteien', $h(C\CounterpartyController::class, 'index'), $int);
-        $r->get('/gegenparteien/neu', $h(C\CounterpartyController::class, 'form'), $int);
-        $r->post('/gegenparteien/neu', $h(C\CounterpartyController::class, 'save'), $int);
+        $r->get('/gegenparteien/neu', $h(C\CounterpartyController::class, 'neu'), $int);
+        $r->post('/gegenparteien/verbinden', $h(C\CounterpartyController::class, 'connect'), $int);
+        $r->post('/gegenparteien/code-neu', $h(C\CounterpartyController::class, 'newCode'), $int);
+        $r->post('/verbindungen/{id}/entscheiden', $h(C\CounterpartyController::class, 'decide'), $int);
+        $r->post('/verbindungen/{id}/beenden', $h(C\CounterpartyController::class, 'end'), $int);
+        $r->post('/verbindungen/{id}/zurueckziehen', $h(C\CounterpartyController::class, 'withdraw'), $int);
+        $r->get('/geteilt', $h(C\SharedController::class, 'index'), $int);
+        $r->get('/geteilt/{id}', $h(C\SharedController::class, 'show'), $int);
+        $r->get('/geteilt/{id}/dokument/{doc}', $h(C\SharedController::class, 'document'), $int);
         $r->get('/gegenparteien/{id}', $h(C\CounterpartyController::class, 'form'), $int);
         $r->post('/gegenparteien/{id}', $h(C\CounterpartyController::class, 'save'), $int);
         $r->post('/gegenparteien/{id}/archivieren', $h(C\CounterpartyController::class, 'archive'), $int);
@@ -327,6 +338,10 @@ final class App
         $r->post('/verwaltung/abteilungen/{id}/mitglied', $h(C\AdminController::class, 'departmentMember'), $int);
         $r->get('/verwaltung/einstellungen', $h(C\AdminController::class, 'settings'), $int);
         $r->get('/verwaltung/mandant', $h(C\AdminController::class, 'tenantPage'), $int);
+        $r->get('/verwaltung/sso', $h(C\SsoController::class, 'settings'), $int);
+        $r->post('/verwaltung/sso', $h(C\SsoController::class, 'save'), $int);
+        $r->post('/verwaltung/sso/entfernen', $h(C\SsoController::class, 'remove'), $int);
+        $r->post('/verwaltung/sso/verknuepfung/{id}/loesen', $h(C\SsoController::class, 'unlink'), $int);
         $r->get('/verwaltung/vertragsarten', $h(C\AdminController::class, 'typesPage'), $int);
         $r->get('/verwaltung/felder', $h(C\AdminController::class, 'fieldsPage'), $int);
         $r->post('/verwaltung/einstellungen', $h(C\AdminController::class, 'saveSettings'), $int);
@@ -422,6 +437,11 @@ final class App
             $chosen = $x->session->get('tenant_id');
             $ids = array_map(static fn (array $t): int => (int) $t['id'], $tenants);
             $isSys = (int) $user['is_system_admin'] === 1;
+            $ssoT = $x->session->get('sso_tenant');
+            if (is_int($ssoT)) { // SSO-Sitzung: nur der Mandant, über den die Anmeldung lief
+                $ids = array_values(array_intersect($ids, [$ssoT]));
+                $isSys = false;
+            }
             if ($chosen === 0 && $isSys) {
                 $tenantId = null;
             } elseif (is_int($chosen) && in_array($chosen, $ids, true)) {

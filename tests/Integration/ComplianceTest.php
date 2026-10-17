@@ -134,7 +134,7 @@ final class ComplianceTest extends TestCase
 
     public function testHoldOnCounterpartyBlocksItsContracts(): void
     {
-        $cp = $this->app->counterparties->save($this->mgr, ['name' => 'Streit AG']);
+        $cp = $this->app->fx->counterparty($this->tenant, 'Streit AG');
         $c = $this->archivedContract();
         $this->db->run("INSERT INTO contract_parties (tenant_id, contract_id, counterparty_id, role_label) VALUES (?,?,?,'Kunde')", [$this->tenant, $c, $cp]);
         $this->app->holds->place($this->admin, null, $cp, 'Rechtsstreit');
@@ -191,8 +191,8 @@ final class ComplianceTest extends TestCase
 
     private function party(bool $sensitive = false): int
     {
-        return $this->app->counterparties->save($this->admin, [
-            'name' => 'Max Muster', 'party_type' => 'person', 'contact_email' => 'max@example.com', 'address_line' => 'Gasse 1', 'city' => 'Bern', 'country' => 'ch', 'sensitive_data' => $sensitive ? '1' : '',
+        return $this->app->fx->counterparty($this->tenant, 'Max Muster', [
+            'party_type' => 'person', 'contact_email' => 'max@example.com', 'address_line' => 'Gasse 1', 'city' => 'Bern', 'country' => 'CH', 'sensitive_data' => $sensitive ? 1 : 0,
         ]);
     }
 
@@ -263,11 +263,11 @@ final class ComplianceTest extends TestCase
         $seen = $this->app->counterparties->get($this->mgr, $cp);
         $this->assertNull($seen['contact_email']);
         $this->assertTrue($seen['masked']);
-        $this->assertThrows(ForbiddenException::class, fn () => $this->app->counterparties->save($this->mgr, ['name' => 'Neu', 'sensitive_data' => '1']));
+        $this->assertThrows(\App\Core\BusinessRuleException::class, fn () => $this->app->counterparties->save($this->mgr, ['name' => 'Neu', 'sensitive_data' => '1']), 'Anlegen von Hand ist nicht mehr möglich');
         $this->assertThrows(ForbiddenException::class, fn () => $this->app->counterparties->save($this->mgr, ['name' => 'Neu2'], $cp));
         $other = $this->app->actor($this->app->fx->tenant(), 'contract_manager');
         $this->assertThrows(NotFoundException::class, fn () => $this->app->counterparties->get($other, $cp));
         $this->assertSame([], $this->app->counterparties->list($other));
-        $this->assertThrows(ValidationException::class, fn () => $this->app->counterparties->save($this->admin, ['name' => '', 'contact_email' => 'kaputt']));
+        $this->assertThrows(ValidationException::class, fn () => $this->app->counterparties->save($this->admin, ['name' => '', 'contact_email' => 'kaputt'], $cp));
     }
 }

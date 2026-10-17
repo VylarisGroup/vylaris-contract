@@ -23,6 +23,7 @@ if ($p !== null) {
             $nav[] = ['/vorlagen', 'Vorlagen', 'bx-layout', 'Hauptbereich'];
         }
         $nav[] = ['/gegenparteien', 'Gegenparteien', 'bx-buildings', 'Hauptbereich'];
+        $nav[] = ['/geteilt', 'Geteilte Verträge', 'bx-share-alt', 'Hauptbereich'];
         if ($p->can('legalhold.manage') || $p->can('retention.manage') || $p->can('privacy.manage')) {
             $nav[] = ['/compliance', 'Compliance', 'bx-shield-quarter', 'Verwaltung'];
         }
@@ -32,6 +33,7 @@ if ($p !== null) {
                 $nav[] = ['/verwaltung/mandant', 'Mandant', 'bx-building-house', 'Verwaltung'];
                 $nav[] = ['/verwaltung/vertragsarten', 'Vertragsarten', 'bx-category', 'Verwaltung'];
                 $nav[] = ['/verwaltung/felder', 'Zusatzfelder', 'bx-list-plus', 'Verwaltung'];
+                $nav[] = ['/verwaltung/sso', 'Single Sign-on', 'bx-key', 'Verwaltung'];
             }
         }
     } else {
@@ -126,7 +128,7 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
 <?php endif; ?>
 <?php
 $helpMap = ['/vertraege/neu' => 'vertrag-erfassen', '/freigaben' => 'vertrag-freigabe', '/vertraege' => 'vertrag-erfassen', '/vorlagen' => 'vorlagen', '/klauseln' => 'vorlagen', '/gegenparteien' => 'gegenparteien',
-    '/verwaltung/benutzer' => 'benutzer-rollen', '/verwaltung/mandant' => 'mandant-einrichten', '/verwaltung/vertragsarten' => 'mandant-einrichten', '/verwaltung/felder' => 'mandant-einrichten',
+    '/verwaltung/benutzer' => 'benutzer-rollen', '/verwaltung/mandant' => 'mandant-einrichten', '/verwaltung/vertragsarten' => 'mandant-einrichten', '/verwaltung/felder' => 'mandant-einrichten', '/verwaltung/sso' => 'sso',
     '/konto' => 'konto-sicherheit', '/system/mandanten' => 'mandanten-verwalten', '/system/aufgaben' => 'cronjob', '/system/sicherungen' => 'sicherung', '/system/aktualisierung' => 'aktualisieren',
     '/system/einstellungen/email-server' => 'email-einrichten', '/system/einstellungen/absender' => 'email-einrichten', '/system/einstellungen/signatur' => 'signaturanbieter', '/system/einstellungen/skribble' => 'signaturanbieter'];
 $helpSlug = null;

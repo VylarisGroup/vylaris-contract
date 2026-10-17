@@ -37,6 +37,7 @@ final class SettingsService
             'MAIL_FROM' => ['group' => 'sender', 'label' => 'Absenderadresse', 'type' => 'email', 'default' => 'noreply@localhost.invalid'],
             'MAIL_FROM_NAME' => ['group' => 'sender', 'label' => 'Absendername', 'type' => 'text', 'default' => 'Vertragsplattform'],
             'SIGNATURE_PROVIDER' => ['group' => 'signature', 'label' => 'Signaturanbieter', 'type' => 'select', 'default' => 'sandbox', 'options' => ['sandbox' => 'Sandbox (KEINE rechtsgültigen Signaturen)', 'internal' => 'Eigene Signatur der Plattform (einfache elektronische Signatur, SES)', 'skribble' => 'Skribble'], 'help' => 'Eigene Signatur: Unterzeichnen per E-Mail-Link und Einmalcode, keine qualifizierte Signatur; braucht den E-Mail-Server. Skribble benötigt Zugangsangaben unter »Skribble«.'],
+            'TSA_URL' => ['group' => 'signature', 'label' => 'Zeitstempelstelle (RFC 3161)', 'type' => 'url', 'help' => 'Optional, nur https. Versiegelte Dokumente der eigenen Signatur erhalten dann zusätzlich einen Zeitstempel dieser Stelle. Leer = kein Zeitstempel. Die Stelle sieht nur den Hash, nie das Dokument.'],
             'SKRIBBLE_BASE_URL' => ['group' => 'skribble', 'label' => 'Skribble-API-Adresse', 'type' => 'url', 'help' => 'Laut Skribble-Vertrag/Entwicklerkonto.'],
             'SKRIBBLE_USER' => ['group' => 'skribble', 'label' => 'Skribble-Benutzer', 'type' => 'text'],
             'SKRIBBLE_KEY' => ['group' => 'skribble', 'label' => 'Skribble-API-Schlüssel', 'type' => 'password', 'secret' => true],

@@ -55,6 +55,19 @@ final class InternalSigningService
     ) {
     }
 
+    private ?TimestampService $timestamps = null;
+
+    public function setTimestamps(?TimestampService $t): void
+    {
+        $this->timestamps = $t;
+    }
+
+    /** Holt fehlende Zeitstempel nach (Cron). @return int Anzahl */
+    public function timestampMissing(): int
+    {
+        return $this->timestamps?->stampMissing() ?? 0;
+    }
+
     /** @param \Closure(int):void $fn */
     public function onComplete(\Closure $fn): void
     {
@@ -156,6 +169,13 @@ final class InternalSigningService
             'siegel' => 'Ed25519', 'siegel_signatur' => $s['seal_signature'], 'oeffentlicher_schluessel' => $s['seal_public_key'],
             'dokument_sha256' => $s['final_sha256'], 'urspruengliches_dokument_sha256' => $s['pdf_sha256'], 'urspruengliche_laenge' => (int) $s['original_length'],
         ])];
+        if ($s['tsa_token'] !== null) {
+            $out[] = new EvidenceItem('timestamp', $externalId, [
+                'zeitstempel_utc' => $s['tsa_gen_time'], 'zeitstempelstelle' => $s['tsa_url'], 'seriennummer' => $s['tsa_serial'],
+                'norm' => 'RFC 3161 über den SHA-256 des versiegelten Dokuments', 'dokument_sha256' => $s['final_sha256'],
+                'hinweis' => 'Token-Signatur geprüft; Zertifikatskette der Zeitstempelstelle nicht in der Plattform geprüft.',
+            ], (string) $s['tsa_token']);
+        }
         foreach ($this->signers((int) $s['id']) as $g) {
             $out[] = new EvidenceItem('provider_receipt', $externalId . '#' . $g['position'], [
                 'unterzeichner' => $g['name'], 'email' => $g['email'], 'eingetragener_name' => $g['signed_name'], 'zeit_utc' => $g['signed_at'],
@@ -465,6 +485,7 @@ final class InternalSigningService
             );
             $this->audit->log('signing.sealed', 'success', null, null, 'signature_request', (int) $s['request_ref'], ['document_sha256' => hash('sha256', $final), 'key' => $fingerprint]);
         });
+        $this->timestamps?->stamp($sid); // ausserhalb der Transaktion; Fehler blockieren nie
     }
 
     /**

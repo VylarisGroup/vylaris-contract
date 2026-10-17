@@ -32,3 +32,8 @@ Diese Liste ist vollständig im Sinne dessen, was beim Bau erkannt wurde. Sie er
 ## Aktualisierung aus GitHub
 - Keine Integritätsprüfung des Pakets (Vorgabe des Betreibers), siehe docs/UPDATE.md. Der echte GitHub-Abruf wurde nicht live getestet.
 - Rückfall stellt nur Programmdateien wieder her, keine Datenbank-Migrationen.
+
+## Neu in 1.12.0
+- SSO: nur RS256-signierte ID-Tokens; getestet gegen einen simulierten Anbieter, nicht gegen einen echten. Kein Single Logout, keine Gruppen-/Rollenübernahme vom Anbieter.
+- Zeitstempel: Zertifikatskette der Zeitstempelstelle wird nicht in der Plattform geprüft.
+- Auswertungen: Summen je Währung, nicht umgerechnet.

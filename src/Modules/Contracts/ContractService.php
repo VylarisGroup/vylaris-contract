@@ -66,7 +66,7 @@ final class ContractService
     {
         $c = $this->ac->contract($p, $contractId, 'edit');
         $tenantId = (int) $c['tenant_id'];
-        $data = $this->validate($p, $tenantId, $in + $this->currentAsInput($c), false);
+        $data = $this->validate($p, $tenantId, $in + $this->currentAsInput($c), false, $contractId);
 
         $this->db->transaction(function () use ($p, $tenantId, $contractId, $data, $in): void {
             $c = $this->db->one('SELECT * FROM contracts WHERE id = ? FOR UPDATE', [$contractId]);
@@ -296,7 +296,7 @@ final class ContractService
      * @param array<string,mixed> $in
      * @return array<string,mixed>
      */
-    private function validate(Principal $p, int $tenantId, array $in, bool $isCreate): array
+    private function validate(Principal $p, int $tenantId, array $in, bool $isCreate, ?int $contractId = null): array
     {
         $err = [];
         $str = static function (mixed $v, int $max): ?string {
@@ -389,6 +389,12 @@ final class ContractService
             $role = $str($row['role_label'] ?? null, 80);
             if ($role === null || $this->db->one('SELECT id FROM counterparties WHERE id = ? AND tenant_id = ? AND archived_at IS NULL', [$cpId, $tenantId]) === null) {
                 $err["parties.{$i}"] = 'Ungültiger Vertragspartner oder fehlende Rolle.';
+                continue;
+            }
+            // Neue Parteien nur aus aktiven Verbindungen; bereits eingetragene Parteien eines bestehenden Vertrags bleiben bestehen
+            $keep = $contractId !== null && $this->db->value('SELECT 1 FROM contract_parties WHERE contract_id = ? AND tenant_id = ? AND counterparty_id = ?', [$contractId, $tenantId, $cpId]) !== null;
+            if (!$keep && $this->db->value("SELECT 1 FROM counterparties cp JOIN tenant_connections n ON n.status = 'active' AND ((n.requester_tenant_id = cp.tenant_id AND n.target_tenant_id = cp.linked_tenant_id) OR (n.target_tenant_id = cp.tenant_id AND n.requester_tenant_id = cp.linked_tenant_id)) WHERE cp.id = ? AND cp.tenant_id = ? AND cp.linked_tenant_id IS NOT NULL", [$cpId, $tenantId]) === null) {
+                $err["parties.{$i}"] = 'Vertragspartner müssen über den Mandanten-Code verbunden sein.';
                 continue;
             }
             $parties[] = ['counterparty_id' => $cpId, 'role_label' => $role, 'must_sign' => !empty($row['must_sign']) ? 1 : 0, 'sign_order' => max(1, (int) ($row['sign_order'] ?? 1))];

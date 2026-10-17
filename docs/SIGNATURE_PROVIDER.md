@@ -44,3 +44,8 @@ Unterzeichnen ohne externen Anbieter. Einstellen unter «Einstellungen → Signa
 | Signaturbericht/Prüfung der Gültigkeit | nicht angebunden (»nicht validiert«) |
 
 **Vor dem Produktivbetrieb ist ein Test gegen die Skribble-Demo zwingend.** Passen Statuswerte oder Felder nicht, ist die Anpassung auf `src/Modules/Signatures/SkribbleProvider.php` begrenzt.
+
+## Zeitstempel (RFC 3161) für die eigene Signatur
+Unter «Einstellungen → Signatur» lässt sich eine Zeitstempelstelle (`TSA_URL`, nur https) eintragen. Nach dem Siegeln wird der SHA-256 des versiegelten Dokuments (nie das Dokument) an die Stelle gesendet. Gespeichert wird das Token (`signing_sessions.tsa_*`) und als Nachweis «timestamp» abgelegt.
+
+Geprüft wird in der Plattform: Status der Antwort, Hash-Abgleich, Nonce, Zeitangabe und die CMS-Signatur des Tokens (OpenSSL). **Nicht** geprüft wird die Zertifikatskette der Zeitstempelstelle (Vertrauensanker, Widerruf). Das Token kann extern geprüft werden: `openssl ts -verify -in token.tst -token_in -digest <sha256> -sha256 -CAfile ca.pem`. Fällt die Stelle aus, bleibt die Signatur gültig; der Cron holt fehlende Zeitstempel nach. Ein Zeitstempel einer beliebigen Stelle macht die Signatur nicht zur qualifizierten Signatur.

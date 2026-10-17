@@ -76,6 +76,8 @@ final class TestApp
     public DashboardService $dashboard;
     public TemplateService $templates;
     public ArrayMailer $mailer;
+    public \App\Modules\Connections\ConnectionService $connections;
+    public \App\Modules\Connections\SharedContractService $shared;
     public AuthService $auth;
     public RateLimiter $limiter;
     public string $storageDir;
@@ -100,7 +102,7 @@ final class TestApp
         $this->tasks = new TaskService($db, $this->ac, $this->audit);
         $this->cron = new CronRunner($db, $this->clock);
         $this->search = new SearchService($db, $this->ac, $this->audit);
-        $this->dashboard = new DashboardService($db, $this->ac, $this->clock);
+        $this->dashboard = new DashboardService($db, $this->ac, $this->clock, $this->audit);
         $this->templates = new TemplateService($db, $this->ac, $this->audit, $this->contracts);
         $this->limiter = new RateLimiter($db, $this->clock);
         $this->auth = new AuthService($db, $this->clock, $this->audit, $this->mailer, $this->limiter, \App\Core\Crypto::generateKey(), 'https://test.invalid');
@@ -115,6 +117,8 @@ final class TestApp
         $this->counterparties = new CounterpartyService($db, $this->ac, $this->audit);
         $this->tenantAdmin = new TenantAdminService($db, $this->ac, $this->audit, $this->auth);
         $this->sysAdmin = new SystemAdminService($db, $this->audit, $this->auth);
+        $this->connections = new \App\Modules\Connections\ConnectionService($db, $this->ac, $this->audit, $this->limiter, $this->clock, $this->notifications);
+        $this->shared = new \App\Modules\Connections\SharedContractService($db, $this->ac, $this->audit, $this->store);
         $this->sandbox = new SandboxProvider();
         $this->signatures = new SignatureService($db, $this->ac, $this->audit, $this->workflow, $this->documents, $this->store, $this->sandbox);
     }

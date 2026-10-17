@@ -23,3 +23,8 @@
 - Rate-Limits liegen in der Datenbank (kein Redis); verteilte Angriffe mit vielen IPs werden nur pro Konto gebremst (Kontosperre).
 - Auf Shared Hosting hat der Hoster/Administrator des Servers prinzipiell Zugriff auf Dateien und Datenbank.
 - Es wurde **kein externer Penetrationstest** durchgeführt. Eigene Prüfungen siehe `TESTBERICHT.md`.
+
+## Single Sign-on (OIDC) und Verbindungen zwischen Mandanten
+- SSO: Authorization Code mit PKCE (S256), state und nonce in der Sitzung (einmalig, 10 Minuten), ID-Token nur mit RS256 (Signatur gegen JWKS, iss, aud/azp, exp, iat, nonce). Adressen des Anbieters müssen https sein und öffentlich auflösen (Schutz vor Zugriffen auf interne Dienste; DNS-Rebinding ist damit nicht vollständig ausgeschlossen).
+- Verknüpfung nur über `email_verified = true` mit einem bereits aktiven, internen Mitglied des Mandanten; Systemadministratoren sind ausgeschlossen. Eine SSO-Sitzung ist auf den Mandanten beschränkt (`sso_tenant`), damit ein fremder Identitätsanbieter keinen Zugriff auf weitere Mandanten desselben Kontos erhält. Neue Konten nur bei ausdrücklicher Freigabe und Domain-Liste, nie mit Administratorrolle. Das Client-Geheimnis wird mit APP_KEY verschlüsselt.
+- Mandanten-Code: Anfrage und Bestätigung, Rate-Limit, neutrale Fehlermeldungen. Geteilte Verträge sind für die Gegenseite schreibgeschützt, erst ab «Freigegeben», ohne interne Daten; jeder Zugriff wird protokolliert.

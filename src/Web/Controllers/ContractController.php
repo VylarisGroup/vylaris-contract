@@ -74,7 +74,7 @@ final class ContractController extends Controller
             'departments' => $this->s()->reads->departments($tid),
             'members' => $this->s()->reads->members($tid),
             'approverOpts' => $this->s()->reads->members($tid, 'approval.decide'),
-            'counterparties' => $this->s()->counterparties->list($this->p()),
+            'counterparties' => $this->s()->counterparties->selectable($this->p(), array_map(static fn (array $x): int => (int) $x['counterparty_id'], (array) ($c['parties'] ?? []))),
             'customFields' => $this->s()->reads->customFields($tid),
             'c' => $c,
         ];

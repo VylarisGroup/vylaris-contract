@@ -40,6 +40,16 @@ final class Fixtures
         );
     }
 
+    /** Gegenpartei direkt per SQL (der Service legt keine von Hand mehr an). $linkedTenant = verbundener Mandant. */
+    public function counterparty(int $tenantId, string $name = 'Muster Partner', array $extra = [], ?int $linkedTenant = null): int
+    {
+        $this->db->run(
+            'INSERT INTO counterparties (tenant_id, party_type, name, contact_email, address_line, city, country, sensitive_data, linked_tenant_id) VALUES (?,?,?,?,?,?,?,?,?)',
+            [$tenantId, $extra['party_type'] ?? 'company', $name, $extra['contact_email'] ?? null, $extra['address_line'] ?? null, $extra['city'] ?? null, $extra['country'] ?? null, (int) ($extra['sensitive_data'] ?? 0), $linkedTenant],
+        );
+        return $this->db->lastId();
+    }
+
     public function department(int $tenantId, string $name = 'Einkauf'): int
     {
         $this->db->run('INSERT INTO departments (tenant_id, name) VALUES (?, ?)', [$tenantId, $name . $this->seq++]);

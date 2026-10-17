@@ -14,7 +14,7 @@
       'help' => 'Platzhalter: {{feld}} · Klausel: {{clause:CODE}} · Bedingung: {{#if feld}}…{{else}}…{{/if}}, {{#if feld == "wert"}}…{{/if}}, {{#unless feld}}…{{/unless}}. Eingesetzte Werte werden immer als Text maskiert.']) ?>
     </div>
     <div class="wz-step stack" data-title="Felder" data-intro="Welche Angaben sollen beim Verwenden der Vorlage abgefragt werden? Optional – ohne Felder bleibt der Text unverändert.">
-    <?= $ui->field('fields', 'Felder (eine Zeile je Feld)', ['type' => 'textarea', 'rows' => 6, 'help' => 'Format: code|Beschriftung|typ|pflicht(1/0)|optionen (Komma). Typen: text, number, date, boolean, select. Beispiel: auftraggeber|Auftraggeber|text|1']) ?>
+    <?= $ui->field('fields', 'Felder (eine Zeile je Feld)', ['type' => 'textarea', 'rows' => 6, 'help' => 'Format: code|Beschriftung|typ|pflicht(1/0)|optionen (Komma)|Frage|Hinweis (die letzten drei Angaben sind optional; Frage und Hinweis erscheinen im Fragebogen beim Erstellen eines Vertrags). Typen: text, number, date, boolean, select. Beispiel: auftraggeber|Auftraggeber|text|1']) ?>
     </div>
     <div class="wz-actions"><button class="btn btn-primary" type="submit"><i class="bx bx-save" aria-hidden="true"></i> Anlegen</button></div>
   </form>

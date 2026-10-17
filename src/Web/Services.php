@@ -71,6 +71,10 @@ final class Services
     public readonly PurgeService $purge;
     public readonly PrivacyService $privacy;
     public readonly CounterpartyService $counterparties;
+    public readonly \App\Modules\Connections\ConnectionService $connections;
+    public readonly \App\Modules\Connections\SharedContractService $shared;
+    public readonly \App\Modules\Sso\SsoService $sso;
+    public readonly string $baseUrl;
     public readonly TenantAdminService $tenantAdmin;
     public readonly SystemAdminService $sysAdmin;
     public readonly NotificationService $notifications;
@@ -118,7 +122,7 @@ final class Services
         $this->tasks = new TaskService($db, $this->ac, $this->audit);
         $this->cron = new CronRunner($db, $this->clock);
         $this->search = new SearchService($db, $this->ac, $this->audit);
-        $this->dashboard = new DashboardService($db, $this->ac, $this->clock);
+        $this->dashboard = new DashboardService($db, $this->ac, $this->clock, $this->audit);
         $this->templates = new TemplateService($db, $this->ac, $this->audit, $this->contracts);
         $this->limiter = new RateLimiter($db, $this->clock);
         $this->auth = new AuthService($db, $this->clock, $this->audit, $this->mailer, $this->limiter, $appKey, $baseUrl, $config->get('APP_NAME', 'Vertragsplattform'));
@@ -131,10 +135,15 @@ final class Services
         $this->purge = new PurgeService($db, $this->ac, $this->audit, $this->retention, $this->store);
         $this->privacy = new PrivacyService($db, $this->ac, $this->audit, $this->holds, $this->retention);
         $this->counterparties = new CounterpartyService($db, $this->ac, $this->audit);
+        $this->connections = new \App\Modules\Connections\ConnectionService($db, $this->ac, $this->audit, $this->limiter, $this->clock, $this->notifications);
+        $this->shared = new \App\Modules\Connections\SharedContractService($db, $this->ac, $this->audit, $this->store);
+        $this->baseUrl = $baseUrl;
+        $this->sso = new \App\Modules\Sso\SsoService($db, $this->ac, $this->audit, $this->clock, $this->limiter, new \App\Security\Oidc\OidcClient(new \App\Modules\Signatures\CurlTransport(15, 1_000_000)), $appKey);
         $this->tenantAdmin = new TenantAdminService($db, $this->ac, $this->audit, $this->auth);
         $this->sysAdmin = new SystemAdminService($db, $this->audit, $this->auth);
         // Immer vorhanden: bereits versendete Unterzeichnungslinks bleiben auch nach einem Anbieterwechsel bedienbar.
         $this->signing = new \App\Modules\Signatures\InternalSigningService($db, $this->clock, $this->audit, $this->mailer, $this->limiter, $this->store, $appKey, $baseUrl, $config->get('APP_NAME', 'Vertragsplattform'));
+        $this->signing->setTimestamps(new \App\Modules\Signatures\TimestampService($db, $this->clock, $this->audit, new \App\Modules\Signatures\CurlTransport(20, 2_000_000), $config->get('TSA_URL', '')));
         $this->provider = self::provider($config, $db, $config->get('SIGNATURE_PROVIDER', 'sandbox') === 'internal' ? $this->signing : null);
         $this->signatures = new SignatureService($db, $this->ac, $this->audit, $this->workflow, $this->documents, $this->store, $this->provider);
         $this->signing->onComplete(fn (int $requestId) => $this->signatures->syncRequest($requestId));

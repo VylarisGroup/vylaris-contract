@@ -206,6 +206,7 @@ final class TenantAdminService
         }
         $mfa = !empty($in['mfa_required']) ? 1 : 0;
         $this->db->run('UPDATE tenants SET name=?, timezone=?, jurisdiction_default=?, contract_number_prefix=?, mfa_required=? WHERE id=?', [$name, $tz, $jur, $prefix, $mfa, $t]);
+        $this->db->run('UPDATE counterparties SET name = ? WHERE linked_tenant_id = ?', [mb_substr($name, 0, 255), $t]); // Mandantenname bei verbundenen Gegenparteien nachführen
         $this->audit->log('tenant.settings_saved', 'success', $t, $p->userId, 'tenant', $t, ['mfa_required' => $mfa]);
     }
 

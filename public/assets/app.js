@@ -155,3 +155,6 @@
   }, { passive: true });
   onScroll();
 })();
+
+// SSO: Weiterleitungsseite klickt den Link selbst (Formular-Weiterleitungen nach aussen sind per CSP gesperrt)
+(function () { var a = document.querySelector('[data-autoclick]'); if (a) { setTimeout(function () { a.click(); }, 300); } })();

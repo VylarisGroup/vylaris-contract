@@ -53,6 +53,20 @@ final class TemplateServiceTest extends TestCase
         $this->app->templates->decideReview($rev, $tid, true);
     }
 
+    public function testQuestionnaireTextsArePersistedAndLimited(): void
+    {
+        $schema = $this->schema();
+        $schema[0]['question'] = 'Wer ist der Kunde?';
+        $schema[0]['help'] = 'Vollständiger Firmenname laut Handelsregister.';
+        $id = $this->app->templates->create($this->mgr, 'Mit Fragen', $this->typeId, 'CH', '<p>{{kunde}} {{start}}</p>', $schema);
+        $f = $this->app->templates->get($this->mgr, $id)['current']['field_schema'];
+        $this->assertSame('Wer ist der Kunde?', $f[0]['question']);
+        $this->assertSame('Vollständiger Firmenname laut Handelsregister.', $f[0]['help']);
+        $this->assertSame('', $f[1]['question'], 'ohne Frage bleibt leer (Beschriftung wird verwendet)');
+        $schema[0]['question'] = str_repeat('x', 201);
+        $this->assertThrows(\App\Core\ValidationException::class, fn () => $this->app->templates->addVersion($this->mgr, $id, '<p>{{kunde}} {{start}}</p>', $schema));
+    }
+
     public function testCreateStartsUnreviewedWithVersionOne(): void
     {
         $id = $this->tpl();

@@ -30,6 +30,8 @@ final class TemplateController extends Controller
                 'type' => ($c[2] ?? '') !== '' ? $c[2] : 'text',
                 'required' => ($c[3] ?? '0') === '1',
                 'options' => ($c[4] ?? '') !== '' ? array_map('trim', explode(',', $c[4])) : [],
+                'question' => $c[5] ?? '',
+                'help' => $c[6] ?? '',
             ];
         }
         return $out;
@@ -40,7 +42,11 @@ final class TemplateController extends Controller
     {
         $lines = [];
         foreach ($schema as $f) {
-            $lines[] = implode('|', [$f['code'], $f['label'], $f['type'], !empty($f['required']) ? '1' : '0', implode(',', (array) ($f['options'] ?? []))]);
+            $cols = [$f['code'], $f['label'], $f['type'], !empty($f['required']) ? '1' : '0', implode(',', (array) ($f['options'] ?? [])), (string) ($f['question'] ?? ''), (string) ($f['help'] ?? '')];
+            while (count($cols) > 5 && end($cols) === '') {
+                array_pop($cols);
+            }
+            $lines[] = implode('|', $cols);
         }
         return implode("\n", $lines);
     }

@@ -11,3 +11,12 @@
   <button class="btn btn-secondary w-full" type="button" data-passkey-button><i class="bx bx-fingerprint" aria-hidden="true"></i> Mit Passkey anmelden</button>
   <p class="field-error" role="alert" data-passkey-error hidden></p>
 </div>
+
+<?php if (!empty($ssoAvailable)): ?>
+<div class="divider"><span>oder</span></div>
+<details class="sso-box">
+  <summary class="btn btn-secondary w-full"><i class="bx bx-buildings" aria-hidden="true"></i> Mit SSO anmelden</summary>
+  <?= $ui->form('/anmelden/sso', $ui->field('hint', 'Kürzel des Mandanten oder E-Mail-Adresse', ['required' => true, 'maxlength' => 190, 'autocomplete' => 'off', 'help' => 'Das Kürzel erhalten Sie von Ihrer Administration.'])
+    . '<button class="btn btn-primary w-full" type="submit">Weiter</button>', false, 'stack mt') ?>
+</details>
+<?php endif; ?>

@@ -33,7 +33,7 @@ final class AuthController extends Controller
             return Response::redirect('/');
         }
         $msg = $this->x->session->wasExpired() ? 'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.' : null;
-        return $this->guest('auth/login', ['next' => $this->safeNext($r), 'notice' => $msg]);
+        return $this->guest('auth/login', ['next' => $this->safeNext($r), 'notice' => $msg, 'ssoAvailable' => (int) $this->s()->db->value('SELECT COUNT(*) FROM tenant_sso WHERE enabled = 1') > 0]);
     }
 
     /** @param array<string,mixed> $params */
@@ -72,6 +72,7 @@ final class AuthController extends Controller
         $s->set('mfa_ok', $mfaOk);
         $s->forget('tenant_id');
         $s->forget('mfa_enroll');
+        $s->forget('sso_tenant'); // normale Anmeldung: nicht auf einen Mandanten beschränkt
         $s->set('changelog_check', true); // erster Seitenaufruf nach der Anmeldung: Neuigkeiten anzeigen, falls neu
     }
 
@@ -269,6 +270,8 @@ final class AuthController extends Controller
     /** @return list<array<string,mixed>> */
     private function tenants(int $uid): array
     {
-        return $this->s()->users->activeTenants($uid);
+        $all = $this->s()->users->activeTenants($uid);
+        $only = $this->x->session->get('sso_tenant');
+        return is_int($only) ? array_values(array_filter($all, static fn (array $t): bool => (int) $t['id'] === $only)) : $all;
     }
 }

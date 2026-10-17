@@ -408,3 +408,11 @@ a:hover{color:var(--brand-800)}
 .wz-toggle{@apply btn btn-ghost btn-sm}
 }
 @media (prefers-reduced-motion:reduce){.wz-on .wz-step:not([hidden]),.navgroup[open]>.navgroup-items{animation:none}.wz-progress>div{transition:none}}
+
+@layer components{
+.code-big{@apply rounded-lg px-2 py-1 text-base font-semibold tracking-widest;background:var(--surface);box-shadow:0 0 0 1px var(--border)}
+}
+
+.code-big { white-space: nowrap; }
+.bar { @apply w-40 h-2 align-middle; accent-color: #4f46e5; }
+.sso-box > summary { @apply cursor-pointer list-none text-center; }

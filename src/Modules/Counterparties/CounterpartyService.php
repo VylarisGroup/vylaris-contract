@@ -19,6 +19,9 @@ use App\Services\AccessControl;
  */
 final class CounterpartyService
 {
+    /** Zustand der Anbindung: connected | ended | legacy (von Hand angelegter Altbestand). */
+    private const LINK_SQL = "CASE WHEN cp.linked_tenant_id IS NULL THEN 'legacy' WHEN EXISTS (SELECT 1 FROM tenant_connections n WHERE n.status = 'active' AND ((n.requester_tenant_id = cp.tenant_id AND n.target_tenant_id = cp.linked_tenant_id) OR (n.target_tenant_id = cp.tenant_id AND n.requester_tenant_id = cp.linked_tenant_id))) THEN 'connected' ELSE 'ended' END";
+
     public function __construct(private readonly Database $db, private readonly AccessControl $ac, private readonly AuditLogger $audit)
     {
     }
@@ -28,6 +31,12 @@ final class CounterpartyService
     {
         $tenantId = $this->tenant($p);
         $this->ac->require($p, $id === null ? 'contract.create' : 'contract.edit');
+        if ($id === null) {
+            throw new BusinessRuleException('Gegenparteien werden nicht mehr von Hand angelegt, sondern über den Mandanten-Code verbunden (Gegenparteien → Mit Mandant verbinden).');
+        }
+        if ($this->db->value('SELECT linked_tenant_id FROM counterparties WHERE id = ? AND tenant_id = ?', [$id, $tenantId]) !== null) {
+            throw new BusinessRuleException('Verbundene Gegenparteien werden vom verbundenen Mandanten selbst gepflegt und können hier nicht geändert werden.');
+        }
         $type = (string) ($in['party_type'] ?? 'company');
         $name = trim((string) ($in['name'] ?? ''));
         $err = [];
@@ -54,7 +63,7 @@ final class CounterpartyService
             throw new ValidationException($err);
         }
         $vals = [$type, $name, $opt('legal_form', 80), $opt('registration_id', 80), $email !== '' ? $email : null, $opt('address_line', 255), $opt('postal_code', 20), $opt('city', 120), $country !== '' ? $country : null, $sensitive];
-        if ($id === null) {
+        if (false) {
             $this->db->run('INSERT INTO counterparties (tenant_id, party_type, name, legal_form, registration_id, contact_email, address_line, postal_code, city, country, sensitive_data) VALUES (?,?,?,?,?,?,?,?,?,?,?)', [$tenantId, ...$vals]);
             $id = $this->db->lastId();
             $this->audit->log('counterparty.created', 'success', $tenantId, $p->userId, 'counterparty', $id);
@@ -77,7 +86,7 @@ final class CounterpartyService
     {
         $tenantId = $this->tenant($p);
         $this->ac->require($p, 'contract.view');
-        $r = $this->db->one('SELECT * FROM counterparties WHERE id = ? AND tenant_id = ?', [$id, $tenantId]);
+        $r = $this->db->one('SELECT cp.*, ' . self::LINK_SQL . ' AS link_state FROM counterparties cp WHERE cp.id = ? AND cp.tenant_id = ?', [$id, $tenantId]);
         if ($r === null) {
             throw new NotFoundException();
         }
@@ -89,13 +98,23 @@ final class CounterpartyService
     {
         $tenantId = $this->tenant($p);
         $this->ac->require($p, 'contract.view');
-        $sql = 'SELECT * FROM counterparties WHERE tenant_id = ? AND archived_at IS NULL';
+        $sql = 'SELECT cp.*, ' . self::LINK_SQL . ' AS link_state FROM counterparties cp WHERE cp.tenant_id = ? AND cp.archived_at IS NULL';
         $params = [$tenantId];
         if (trim($q) !== '') {
-            $sql .= ' AND name LIKE ?';
+            $sql .= ' AND cp.name LIKE ?';
             $params[] = '%' . addcslashes(trim($q), '\\%_') . '%';
         }
-        return array_map(fn (array $r): array => $this->mask($p, $r), $this->db->all($sql . ' ORDER BY name LIMIT 200', $params));
+        return array_map(fn (array $r): array => $this->mask($p, $r), $this->db->all($sql . ' ORDER BY cp.name LIMIT 200', $params));
+    }
+
+    /**
+     * Auswahl für neue Vertragsparteien: nur aktiv verbundene Mandanten (plus bereits eingetragene Parteien des bearbeiteten Vertrags).
+     * @param list<int> $keepIds
+     * @return list<array<string,mixed>>
+     */
+    public function selectable(Principal $p, array $keepIds = []): array
+    {
+        return array_values(array_filter($this->list($p), static fn (array $r): bool => $r['link_state'] === 'connected' || in_array((int) $r['id'], $keepIds, true)));
     }
 
     public function archive(Principal $p, int $id): void

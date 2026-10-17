@@ -22,6 +22,7 @@ final class CronTasks
             'Fristen melden' => static fn (): string => json_encode($s->deadlines->scanAndNotify(), JSON_UNESCAPED_UNICODE),
             'Verträge ablaufen lassen' => static fn (): string => 'abgelaufen: ' . $s->deadlines->expireContracts(),
             'E-Mail-Warteschlange' => static fn (): string => json_encode($s->notifications->processEmailQueue(50), JSON_UNESCAPED_UNICODE),
+            'Zeitstempel nachholen' => static fn (): string => (string) $s->signing->timestampMissing(),
             'Signaturstatus' => static fn (): string => json_encode($s->signatures->refreshOpen(50), JSON_UNESCAPED_UNICODE),
         ];
         $failed = [];

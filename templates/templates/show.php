@@ -11,13 +11,18 @@ $approved = ($cur['review_status'] ?? '') === 'approved';
   <?php if (!$approved): ?><div class="alert alert-warning" role="note">Diese Vorlage ist nicht fachlich freigegeben. Verträge daraus entstehen nur mit ausdrücklicher Bestätigung. Prüfen Sie Vorlagen vor dem Einsatz durch eine fachkundige Person (Vier-Augen-Prinzip).</div><?php endif; ?>
 
   <div class="card"><h2 class="h2">Vertrag aus Vorlage erstellen</h2>
-    <form method="post" action="/vorlagen/<?= $id ?>/verwenden" class="stack">
+    <p class="muted small">Der Fragebogen führt Sie Frage für Frage durch die Angaben. Über «Alle Felder anzeigen» sehen Sie alles auf einmal.</p>
+    <form method="post" action="/vorlagen/<?= $id ?>/verwenden" class="stack" data-wizard="auto">
       <?= $ui->csrf() ?>
-      <div class="grid-2">
+      <div class="wz-step stack" data-title="Grunddaten" data-intro="Wie soll der Vertrag heissen, und für welchen Bereich ist er?">
         <?= $ui->field('title', 'Titel des Vertrags', ['required' => true, 'maxlength' => 255, 'value' => $t['name']]) ?>
         <?= $ui->field('department_id', 'Abteilung', ['type' => 'select', 'options' => $departments, 'empty' => 'Mandantenweit']) ?>
-        <?= $ui->field('start_date', 'Beginn', ['type' => 'date']) ?>
-        <?= $ui->field('end_date', 'Ende', ['type' => 'date']) ?>
+      </div>
+      <div class="wz-step stack" data-title="Laufzeit" data-intro="Wann beginnt und endet der Vertrag? Beides kann später noch ergänzt werden.">
+        <div class="grid-2">
+          <?= $ui->field('start_date', 'Beginn', ['type' => 'date']) ?>
+          <?= $ui->field('end_date', 'Ende', ['type' => 'date']) ?>
+        </div>
       </div>
       <?php foreach ($cur['field_schema'] as $f):
           $o = ['required' => !empty($f['required']), 'value' => $values[$f['code']] ?? ''];
@@ -25,10 +30,13 @@ $approved = ($cur['review_status'] ?? '') === 'approved';
           if ($f['type'] === 'date') { $o['type'] = 'date'; }
           if ($f['type'] === 'select') { $o['type'] = 'select'; $o['options'] = array_combine($f['options'], $f['options']); $o['empty'] = '–'; }
           if ($f['type'] === 'boolean') { $o['type'] = 'select'; $o['options'] = ['1' => 'Ja', '0' => 'Nein']; $o['empty'] = '–'; }
-          echo str_replace('name="v_' . $f['code'] . '"', 'name="v[' . e($f['code']) . ']"', $ui->field('v_' . $f['code'], $f['label'], $o));
-      endforeach; ?>
-      <?php if (!$approved): ?><?= $ui->field('allow_unreviewed', 'Ich bestätige: Die Vorlage ist nicht freigegeben, ich verwende sie auf eigene Verantwortung.', ['type' => 'checkbox']) ?><?php endif; ?>
-      <div class="row-gap">
+          $q = trim((string) ($f['question'] ?? '')) !== '' ? (string) $f['question'] : (string) $f['label']; ?>
+      <div class="wz-step stack" data-title="<?= e($q) ?>" data-intro="<?= e((string) ($f['help'] ?? '')) ?>">
+        <?= str_replace('name="v_' . $f['code'] . '"', 'name="v[' . e($f['code']) . ']"', $ui->field('v_' . $f['code'], $f['label'], $o)) ?>
+      </div>
+      <?php endforeach; ?>
+      <?php if (!$approved): ?><div class="wz-step stack" data-title="Bestätigung" data-intro="Diese Vorlage wurde fachlich noch nicht freigegeben."><?= $ui->field('allow_unreviewed', 'Ich bestätige: Die Vorlage ist nicht freigegeben, ich verwende sie auf eigene Verantwortung.', ['type' => 'checkbox']) ?></div><?php endif; ?>
+      <div class="wz-actions row-gap">
         <button class="btn btn-primary" type="submit"><i class="bx bx-file-plus" aria-hidden="true"></i> Vertragsentwurf erstellen</button>
         <button class="btn btn-secondary" type="submit" formaction="/vorlagen/<?= $id ?>/vorschau">Vorschau</button>
       </div>
@@ -45,7 +53,7 @@ $approved = ($cur['review_status'] ?? '') === 'approved';
     <form method="post" action="/vorlagen/<?= $id ?>/version" class="stack">
       <?= $ui->csrf() ?>
       <?= $ui->field('body', 'Vorlagentext', ['type' => 'textarea', 'rows' => 14, 'value' => $cur['body'], 'required' => true]) ?>
-      <?= $ui->field('fields', 'Felder', ['type' => 'textarea', 'rows' => 6, 'value' => $schemaText, 'help' => 'code|Beschriftung|typ|pflicht|optionen']) ?>
+      <?= $ui->field('fields', 'Felder', ['type' => 'textarea', 'rows' => 6, 'value' => $schemaText, 'help' => 'code|Beschriftung|typ|pflicht|optionen|Frage im Fragebogen|Hinweis zur Frage (die letzten beiden Angaben sind optional)']) ?>
       <div><button class="btn btn-secondary" type="submit">Als neue Version speichern</button></div>
     </form>
     <h3 class="h3 mt">Prüfung</h3>
