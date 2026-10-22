@@ -27,6 +27,8 @@ $latestVersion = $c['versions'][0] ?? null;
     </div>
   </div>
 
+  <?php include __DIR__ . '/_flow.php'; ?>
+
   <div class="grid-2">
     <div class="card">
       <h2 class="h3">Eckdaten</h2>
@@ -99,19 +101,23 @@ $latestVersion = $c['versions'][0] ?? null;
 
     <?php if ($can['request_approval'] && in_array($status, ['draft', 'rejected', 'withdrawn'], true) && $latestVersion): ?>
       <h3 class="h3 mt">Freigabe anfordern</h3>
-      <p class="muted small">Mit der Anforderung wird der aktuelle Text <strong>gesperrt</strong>. Wählen Sie je Stufe die freigebenden Personen (Stufen laufen nacheinander; innerhalb einer Stufe müssen alle zustimmen). Vier-Augen-Prinzip: Sie können Ihren eigenen Vertrag nicht selbst freigeben.</p>
+      <p class="muted small">Mit der Anforderung wird der aktuelle Text <strong>gesperrt</strong>. Wählen Sie die freigebende Person aus der Liste (bei Bedarf weitere Stufen; Stufen laufen nacheinander, innerhalb einer Stufe müssen alle zustimmen). Sie dürfen auch sich selbst wählen.</p>
       <form method="post" action="/vertraege/<?= $id ?>/freigabe" class="stack" data-wizard="auto">
         <?= $ui->csrf() ?>
-        <?php $stageSel = static function (int $n, array $opts) use ($ui): string {
-            $h = '<div class="field"><label class="label" for="step' . $n . '">Stufe ' . $n . ($n > 1 ? ' (optional)' : '') . '</label><select class="input" id="step' . $n . '" name="step' . $n . '[]" multiple size="5"' . ($n === 1 ? ' required' : '') . '>';
-            foreach ($opts as $uid => $label) { $h .= '<option value="' . (int) $uid . '">' . e($label) . '</option>'; }
-            return $h . '</select></div>';
+        <?php $stageSel = static function (int $n, array $opts, bool $required): string {
+            $mk = static function (string $id, string $label, bool $req) use ($n, $opts): string {
+                $h = '<div class="field"><label class="label" for="' . $id . '">' . e($label) . ($req ? ' <span class="req" aria-hidden="true">*</span>' : '') . '</label><select class="input" id="' . $id . '" name="step' . $n . '[]"' . ($req ? ' required' : '') . '><option value="">' . ($req ? '– Person wählen –' : '– keine –') . '</option>';
+                foreach ($opts as $uid => $lab) { $h .= '<option value="' . (int) $uid . '"' . ($req && $n === 1 && count($opts) === 1 ? ' selected' : '') . '>' . e($lab) . '</option>'; }
+                return $h . '</select></div>';
+            };
+            return $mk('step' . $n . 'a', $required ? 'Wer gibt frei?' : 'Person (optional)', $required) . $mk('step' . $n . 'b', 'Zusätzliche Person – muss ebenfalls zustimmen (optional)', false);
         }; ?>
-        <div class="wz-step stack" data-title="Erste Stufe" data-intro="Wer muss den Vertrag zuerst freigeben? Mehrere Personen auswählen: alle müssen zustimmen (Strg/Cmd gedrückt halten).">
-          <?= $stageSel(1, $approverOpts) ?>
+        <?php if ($approverOpts === []): ?><div class="alert alert-warning" role="note">Es gibt noch niemanden, der freigeben darf. Laden Sie unter «Verwaltung → Benutzer» eine Person mit der Rolle «Freigeber», «Vertragsverantwortliche» oder «Mandantenadministration» ein.</div><?php endif; ?>
+        <div class="wz-step stack" data-title="Wer gibt frei?" data-intro="Wählen Sie die Person aus der Liste. Sie dürfen auch sich selbst wählen. Eine zweite Person ist optional – dann müssen beide zustimmen.">
+          <?= $stageSel(1, $approverOpts, true) ?>
         </div>
-        <div class="wz-step stack" data-title="Weitere Stufen" data-intro="Optional: weitere Stufen, die nacheinander folgen. Ohne Auswahl genügt die erste Stufe.">
-          <div class="grid-2"><?= $stageSel(2, $approverOpts) ?><?= $stageSel(3, $approverOpts) ?></div>
+        <div class="wz-step stack" data-title="Weitere Stufen" data-intro="Optional: weitere Stufen, die nacheinander folgen (z. B. erst Fachabteilung, dann Geschäftsleitung). Ohne Auswahl genügt die erste Stufe.">
+          <div class="grid-2"><div class="stack"><strong class="small">Stufe 2</strong><?= $stageSel(2, $approverOpts, false) ?></div><div class="stack"><strong class="small">Stufe 3</strong><?= $stageSel(3, $approverOpts, false) ?></div></div>
         </div>
         <div class="wz-actions"><button class="btn btn-primary" type="submit" data-confirm="Version sperren und zur Freigabe senden?"><i class="bx bx-send" aria-hidden="true"></i> Zur Freigabe senden</button></div>
       </form>
@@ -167,8 +173,10 @@ $latestVersion = $c['versions'][0] ?? null;
         <?php endif; ?>
         </div>
         <div class="wz-step stack" data-title="Unterzeichnende" data-intro="Wer soll unterzeichnen? Mindestens eine Person mit Name und E-Mail-Adresse. Bei «Nacheinander» gilt die Reihenfolge der Liste.">
-        <?php for ($i = 0; $i < 3; $i++): ?>
-          <div class="grid-2"><?= $ui->field('signer_name[]', 'Name Unterzeichner/in ' . ($i + 1), ['maxlength' => 190]) ?><?= $ui->field('signer_email[]', 'E-Mail', ['type' => 'email', 'maxlength' => 190]) ?></div>
+        <?php $pre = array_values(array_filter($c['parties'], static fn (array $x): bool => (int) $x['must_sign'] === 1 && !empty($x['contact_email'])));
+        if ($pre !== []): ?><p class="small muted"><i class="bx bx-info-circle" aria-hidden="true"></i> Vorausgefüllt aus den Parteien, die als «unterzeichnet» markiert sind. Bitte prüfen Sie, ob die Kontaktperson die zeichnungsberechtigte Person ist.</p><?php endif; ?>
+        <?php for ($i = 0; $i < 3; $i++): $sp = $pre[$i] ?? null; ?>
+          <div class="grid-2"><?= $ui->field('signer_name[]', 'Name Unterzeichner/in ' . ($i + 1), ['maxlength' => 190, 'value' => $sp['name'] ?? '']) ?><?= $ui->field('signer_email[]', 'E-Mail', ['type' => 'email', 'maxlength' => 190, 'value' => $sp['contact_email'] ?? '']) ?></div>
         <?php endfor; ?>
         </div>
         <div class="wz-actions"><button class="btn btn-primary" type="submit" data-confirm="Unterzeichnung der freigegebenen Version anfordern?"><i class="bx bx-send" aria-hidden="true"></i> Anfordern</button></div>

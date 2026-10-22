@@ -175,6 +175,20 @@ final class ContractService
         });
     }
 
+    /**
+     * Macht aus einem abgelehnten oder zurückgezogenen Vertrag wieder einen Entwurf (neue Version mit demselben Text),
+     * damit die Freigabe ohne Umweg erneut angefordert werden kann. Bei Entwürfen geschieht nichts.
+     */
+    public function reopenForApproval(Principal $p, int $contractId): void
+    {
+        $c = $this->ac->contract($p, $contractId, 'edit');
+        if (!in_array((string) $c['status'], [StatusMachine::REJECTED, StatusMachine::WITHDRAWN], true) || $c['current_version_id'] === null) {
+            return;
+        }
+        $body = (string) $this->db->value('SELECT body_html FROM contract_versions WHERE id = ?', [(int) $c['current_version_id']]);
+        $this->saveBody($p, $contractId, $body, 'Erneute Freigabe angefordert');
+    }
+
     // ------------------------------------------------------------------ Archivierung / Nachträge
 
     public function archive(Principal $p, int $contractId, string $reason): void
@@ -224,7 +238,7 @@ final class ContractService
         $c = $this->ac->contract($p, $contractId, 'view');
         $id = (int) $c['id'];
         $c['parties'] = $this->db->all(
-            'SELECT cp.id AS link_id, cp.role_label, cp.must_sign, cp.sign_order, c.id AS counterparty_id, c.name, c.party_type
+            'SELECT cp.id AS link_id, cp.role_label, cp.must_sign, cp.sign_order, c.id AS counterparty_id, c.name, c.party_type, c.contact_email
                FROM contract_parties cp JOIN counterparties c ON c.id = cp.counterparty_id AND c.tenant_id = cp.tenant_id
               WHERE cp.contract_id = ? AND cp.tenant_id = ? ORDER BY cp.sign_order, cp.id',
             [$id, (int) $c['tenant_id']],

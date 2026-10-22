@@ -130,23 +130,46 @@ final class ContractWorkflowTest extends TestCase
         $this->assertThrows(BusinessRuleException::class, fn () => $this->app->approvals->request($mgr, $id, [[$appr->userId]]));
     }
 
-    public function testCreatorCannotApproveOwnVersion(): void
+    public function testRoleWithoutApprovalRightCannotBeChosen(): void
     {
         $mgr = $this->app->actor($this->tenant, 'contract_manager');
-        $selfApprover = $this->app->actor($this->tenant, 'tenant_admin'); // tenant_admin hat approval.decide nicht
+        $reader = $this->app->actor($this->tenant, 'reader');
         $id = $this->draftWithBody($mgr);
-        $this->assertThrows(ValidationException::class, fn () => $this->app->approvals->request($mgr, $id, [[$selfApprover->userId]]), 'Rolle ohne Freigaberecht');
-        $this->assertThrows(ValidationException::class, fn () => $this->app->approvals->request($mgr, $id, [[$mgr->userId]]), 'Ersteller ohne Freigaberecht');
+        $this->assertThrows(ValidationException::class, fn () => $this->app->approvals->request($mgr, $id, [[$reader->userId]]), 'Leser darf nicht freigeben');
     }
 
-    public function testApproverRoleUserWhoCreatedVersionCannotSelfApprove(): void
+    public function testCreatorMayApproveOwnVersionAndAdminsMayBeChosen(): void
     {
-        $approver = $this->app->actor($this->tenant, 'approver');
-        $this->db->run("INSERT INTO tenant_memberships (tenant_id, user_id, role_id) SELECT ?, ?, id FROM roles WHERE code = 'contract_manager'", [$this->tenant, $approver->userId]);
-        $mgrAppr = $this->app->ac->principal($approver->userId, $this->tenant);
-        $id = $this->draftWithBody($mgrAppr);
-        $e = $this->assertThrows(BusinessRuleException::class, fn () => $this->app->approvals->request($mgrAppr, $id, [[$approver->userId]]));
-        $this->assertContains('Vier-Augen', $e->getMessage());
+        // Prüfung entfernt: kein Vier-Augen-Zwang; auch Mandantenadministration und Vertragsverantwortliche dürfen freigeben
+        $mgr = $this->app->actor($this->tenant, 'contract_manager');
+        $id = $this->draftWithBody($mgr);
+        $this->app->approvals->request($mgr, $id, [[$mgr->userId]]);
+        $ap = (int) $this->db->value('SELECT id FROM approvals WHERE contract_id = ?', [$id]);
+        $this->assertSame('approved', $this->app->approvals->decide($mgr, $ap, 'approve'));
+        $admin = $this->app->actor($this->tenant, 'tenant_admin');
+        $id2 = $this->draftWithBody($mgr);
+        $this->app->approvals->request($mgr, $id2, [[$admin->userId]]);
+        $this->assertSame('review', (string) $this->db->value('SELECT status FROM contracts WHERE id = ?', [$id2]));
+    }
+
+    public function testRequestAgainAfterRejectionCreatesNewDraft(): void
+    {
+        $mgr = $this->app->actor($this->tenant, 'contract_manager');
+        $appr = $this->app->actor($this->tenant, 'approver');
+        $id = $this->draftWithBody($mgr);
+        $this->app->approvals->request($mgr, $id, [[$appr->userId]]);
+        $ap = (int) $this->db->value('SELECT id FROM approvals WHERE contract_id = ?', [$id]);
+        $this->assertSame('rejected', $this->app->approvals->decide($appr, $ap, 'reject', 'Bitte Ziffer 3 prüfen'));
+        $this->app->contracts->reopenForApproval($mgr, $id);
+        $this->assertSame('draft', (string) $this->db->value('SELECT status FROM contracts WHERE id = ?', [$id]));
+        $this->app->approvals->request($mgr, $id, [[$appr->userId]]);
+        $this->assertSame('review', (string) $this->db->value('SELECT status FROM contracts WHERE id = ?', [$id]));
+        $this->assertSame(2, (int) $this->db->value('SELECT COUNT(*) FROM contract_versions WHERE contract_id = ?', [$id]));
+        // Zurückgezogen geht ebenso
+        $this->app->approvals->withdraw($mgr, $id, 'Zurück');
+        $this->app->contracts->reopenForApproval($mgr, $id);
+        $this->app->approvals->request($mgr, $id, [[$appr->userId]]);
+        $this->assertSame('review', (string) $this->db->value('SELECT status FROM contracts WHERE id = ?', [$id]));
     }
 
     // ---- Freigabe-Workflow

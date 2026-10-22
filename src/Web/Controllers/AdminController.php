@@ -17,7 +17,22 @@ final class AdminController extends Controller
     public function index(Request $r, array $params = []): Response
     {
         $this->s()->ac->require($this->p(), 'tenant.manage');
-        return $this->render('admin/index');
+        $db = $this->s()->db;
+        $t = (int) $this->p()->tenantId;
+        $n = static fn (string $sql): int => (int) $db->value($sql, [$t]);
+        $stats = [
+            'users' => $n("SELECT COUNT(DISTINCT user_id) FROM tenant_memberships WHERE tenant_id = ? AND status = 'active'"),
+            'departments' => $n('SELECT COUNT(*) FROM departments WHERE tenant_id = ?'),
+            'types' => $n('SELECT COUNT(*) FROM contract_types WHERE tenant_id = ?'),
+            'fields' => $n('SELECT COUNT(*) FROM custom_field_definitions WHERE tenant_id = ?'),
+            'templates' => $n('SELECT COUNT(*) FROM contract_templates WHERE tenant_id = ? AND archived_at IS NULL'),
+            'connections' => (int) $db->value("SELECT COUNT(*) FROM tenant_connections WHERE status = 'active' AND (requester_tenant_id = ? OR target_tenant_id = ?)", [$t, $t]),
+            'mandates' => $n("SELECT COUNT(*) FROM external_mandates WHERE tenant_id = ? AND status = 'active'"),
+            'sso' => $n('SELECT COUNT(*) FROM tenant_sso WHERE tenant_id = ? AND enabled = 1'),
+            'retention' => $n('SELECT COUNT(*) FROM retention_policies WHERE tenant_id = ?'),
+            'approvers' => count($this->s()->reads->members($t, 'approval.decide')),
+        ];
+        return $this->render('admin/index', ['st' => $stats]);
     }
 
     /** @param array<string,mixed> $params */

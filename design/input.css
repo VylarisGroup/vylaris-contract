@@ -416,3 +416,10 @@ a:hover{color:var(--brand-800)}
 .code-big { white-space: nowrap; }
 .bar { @apply w-40 h-2 align-middle; accent-color: #4f46e5; }
 .sso-box > summary { @apply cursor-pointer list-none text-center; }
+
+.flow-steps { @apply space-y-3; }
+.flow-step { @apply flex gap-3 items-start; }
+.flow-n { @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600; }
+.flow-current .flow-n { @apply bg-indigo-600 text-white; }
+.flow-done .flow-n { @apply bg-emerald-100 text-emerald-700; }
+.flow-todo { @apply opacity-60; }

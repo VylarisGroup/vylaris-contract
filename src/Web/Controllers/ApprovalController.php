@@ -29,6 +29,7 @@ final class ApprovalController extends Controller
                     $steps[] = $ids;
                 }
             }
+            $this->s()->contracts->reopenForApproval($this->p(), $id); // abgelehnt/zurückgezogen -> neuer Entwurf mit gleichem Text
             $this->s()->approvals->request($this->p(), $id, $steps);
         });
     }

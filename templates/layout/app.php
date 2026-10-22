@@ -24,17 +24,20 @@ if ($p !== null) {
         }
         $nav[] = ['/gegenparteien', 'Gegenparteien', 'bx-buildings', 'Hauptbereich'];
         $nav[] = ['/geteilt', 'Geteilte Verträge', 'bx-share-alt', 'Hauptbereich'];
+        if ($p->can('tenant.manage') || $p->can('user.manage')) {
+            $nav[] = ['/verwaltung', 'Übersicht & Einrichtung', 'bx-cog', 'Verwaltung'];
+            $nav[] = ['/verwaltung/benutzer', 'Benutzer & Rollen', 'bx-group', 'Verwaltung'];
+            if ($p->can('tenant.manage')) {
+                $nav[] = ['/verwaltung/abteilungen', 'Abteilungen', 'bx-sitemap', 'Verwaltung'];
+                $nav[] = ['/verwaltung/mandant', 'Mandant & Stammdaten', 'bx-building-house', 'Verwaltung'];
+                $nav[] = ['/verwaltung/vertragsarten', 'Vertragsarten & Felder', 'bx-category', 'Verwaltung'];
+                $nav[] = ['/verwaltung/mandate', 'Externe Zugriffe', 'bx-user-voice', 'Verwaltung'];
+                $nav[] = ['/verwaltung/sso', 'Single Sign-on', 'bx-key', 'Verwaltung'];
+                $nav[] = ['/verwaltung/protokoll', 'Protokoll', 'bx-list-check', 'Verwaltung'];
+            }
+        }
         if ($p->can('legalhold.manage') || $p->can('retention.manage') || $p->can('privacy.manage')) {
             $nav[] = ['/compliance', 'Compliance', 'bx-shield-quarter', 'Verwaltung'];
-        }
-        if ($p->can('tenant.manage') || $p->can('user.manage')) {
-            $nav[] = ['/verwaltung', 'Verwaltung', 'bx-cog', 'Verwaltung'];
-            if ($p->can('tenant.manage')) {
-                $nav[] = ['/verwaltung/mandant', 'Mandant', 'bx-building-house', 'Verwaltung'];
-                $nav[] = ['/verwaltung/vertragsarten', 'Vertragsarten', 'bx-category', 'Verwaltung'];
-                $nav[] = ['/verwaltung/felder', 'Zusatzfelder', 'bx-list-plus', 'Verwaltung'];
-                $nav[] = ['/verwaltung/sso', 'Single Sign-on', 'bx-key', 'Verwaltung'];
-            }
         }
     } else {
         $nav[] = ['/vertraege', 'Verträge', 'bx-file', 'Hauptbereich'];

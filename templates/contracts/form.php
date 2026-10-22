@@ -1,7 +1,8 @@
 <?php
 $edit = $mode === 'edit';
 $v->title = $edit ? 'Vertrag bearbeiten' : 'Neuer Vertrag';
-$val = static fn (string $k, mixed $d = '') => $c[$k] ?? $d;
+$defaults = $defaults ?? [];
+$val = static fn (string $k, mixed $d = '') => $c[$k] ?? ($defaults[$k] ?? $d);
 $isDraft = !$edit || ($c['status'] ?? '') === 'draft';
 $action = $edit ? '/vertraege/' . (int) $c['id'] . '/bearbeiten' : '/vertraege/neu';
 $memberOpts = $members;
@@ -10,6 +11,7 @@ $rows = max(2, count($parties) + 1);
 ?>
 <section class="stack">
   <h1 class="h1"><?= $edit ? 'Vertrag bearbeiten' : 'Neuen Vertrag anlegen' ?></h1>
+  <?php if (!$edit): ?><div class="alert alert-info" role="note"><strong>Was passiert hier?</strong> Sie erfassen die Eckdaten. Das System vergibt die Vertragsnummer, berechnet Kündigungs- und Ablauffristen und schlägt Beginn, anwendbares Recht und Währung aus Ihren Mandanten-Einstellungen vor – Sie können alles ändern. <?= ($startWith ?? '') === 'import' ? 'Danach laden Sie auf der Vertragsseite Ihr Word- oder PDF-Dokument hoch.' : 'Danach folgt der Vertragstext.' ?> Alles ist später noch bearbeitbar, solange der Vertrag ein Entwurf ist.</div><?php endif; ?>
   <?php if ($edit && !$isDraft): ?><div class="alert alert-info" role="status">Der Vertrag ist nicht mehr im Entwurf. Vertragsinhaltliche Angaben sind gesperrt; Änderungen erfolgen über eine neue Version oder einen Nachtrag.</div><?php endif; ?>
   <form method="post" action="<?= e($action) ?>" class="card stack" data-wizard="<?= $edit ? 'on' : 'auto' ?>">
     <?= $ui->csrf() ?>
@@ -39,7 +41,7 @@ $rows = max(2, count($parties) + 1);
     <?= $ui->field('payment_terms', 'Zahlungsbedingungen', ['value' => $val('payment_terms'), 'maxlength' => 500]) ?>
     </div>
     <?php if ($isDraft): ?>
-    <div class="wz-step stack" data-title="Parteien" data-intro="Wer sind die Vertragsparteien, und wer unterzeichnet? Gegenparteien legen Sie unter «Gegenparteien» an.">
+    <div class="wz-step stack" data-title="Parteien" data-intro="Wer sind die Vertragsparteien, und wer unterzeichnet? Es stehen die mit Ihnen verbundenen Gegenparteien zur Auswahl (Verbindung über den Mandanten-Code unter «Gegenparteien»).">
     <?php include __DIR__ . '/_parties.php'; ?>
     </div>
     <?php endif; ?>

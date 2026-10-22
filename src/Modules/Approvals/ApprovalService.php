@@ -56,7 +56,7 @@ final class ApprovalService
                 throw new NotFoundException();
             }
             if ($c['status'] !== StatusMachine::DRAFT) {
-                throw new BusinessRuleException('Eine Freigabe kann nur für Entwürfe angefordert werden.');
+                throw new BusinessRuleException('Eine Freigabe kann nur für Entwürfe angefordert werden. Bei abgelehnten oder zurückgezogenen Verträgen wird dafür automatisch ein neuer Entwurf erstellt.');
             }
             $v = $c['current_version_id'] === null ? null : $this->db->one('SELECT * FROM contract_versions WHERE id = ? FOR UPDATE', [(int) $c['current_version_id']]);
             if ($v === null || trim((string) $v['body_text']) === '') {
@@ -70,9 +70,6 @@ final class ApprovalService
             }
             foreach ($steps as $stepNo => $approvers) {
                 foreach ($approvers as $uid) {
-                    if ($uid === (int) $v['created_by']) {
-                        throw new BusinessRuleException('Die Person, die diese Version erstellt hat, darf sie nicht selbst freigeben (Vier-Augen-Prinzip).');
-                    }
                     $this->db->run(
                         'INSERT INTO approvals (tenant_id, contract_id, contract_version_id, step_no, approver_user_id, version_hash) VALUES (?,?,?,?,?,?)',
                         [$tenantId, $contractId, (int) $v['id'], $stepNo + 1, $uid, $hash],

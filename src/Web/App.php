@@ -262,7 +262,8 @@ final class App
         $r->get('/vertraege/vorschlaege', $h(C\ContractController::class, 'suggest'), $int);
 
         // Verträge (intern)
-        $r->get('/vertraege/neu', $h(C\ContractController::class, 'createForm'), $int);
+        $r->get('/vertraege/neu', $h(C\ContractController::class, 'startPage'), $int);
+        $r->get('/vertraege/neu/formular', $h(C\ContractController::class, 'createForm'), $int);
         $r->post('/vertraege/neu', $h(C\ContractController::class, 'create'), $int);
         $r->get('/vertraege/{id}', $h(C\ContractController::class, 'show'), $auth);
         $r->get('/vertraege/{id}/bearbeiten', $h(C\ContractController::class, 'editForm'), $int);
@@ -385,6 +386,7 @@ final class App
         $r->get('/system/audit-kette', $h(C\SystemController::class, 'auditChain'), $sys);
         $r->get('/system/aufgaben', $h(C\SystemController::class, 'jobs'), $sys);
         $r->post('/system/mandanten', $h(C\SystemController::class, 'createTenant'), $sys);
+        $r->post('/system/mandanten/{id}', $h(C\SystemController::class, 'updateTenant'), $sys);
         $r->post('/system/mandanten/{id}/status', $h(C\SystemController::class, 'tenantStatus'), $sys);
         $r->get('/system/aktualisierung', $h(C\SystemController::class, 'updateForm'), $sys);
         $r->post('/system/aktualisierung/pruefen', $h(C\SystemController::class, 'updateCheck'), $sys);

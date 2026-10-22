@@ -81,10 +81,25 @@ final class ContractController extends Controller
     }
 
     /** @param array<string,mixed> $params */
+    public function startPage(Request $r, array $params = []): Response
+    {
+        $this->s()->ac->require($this->p(), 'contract.create');
+        $tid = (int) $this->p()->tenantId;
+        return $this->render('contracts/start', [
+            'templateCount' => count(array_filter($this->s()->templates->list($this->p()), static fn (array $t): bool => ($t['review_status'] ?? '') === 'approved')),
+            'counterpartyCount' => count($this->s()->counterparties->selectable($this->p(), [])),
+            'hasApprover' => $this->s()->reads->members($tid, 'approval.decide') !== [],
+        ]);
+    }
+
+    /** @param array<string,mixed> $params */
     public function createForm(Request $r, array $params = []): Response
     {
         $this->s()->ac->require($this->p(), 'contract.create');
-        return $this->render('contracts/form', $this->formData() + ['mode' => 'create', 'parent' => null]);
+        $jur = strtoupper((string) $this->s()->db->value('SELECT jurisdiction_default FROM tenants WHERE id = ?', [$this->p()->tenantId]));
+        $law = ['CH' => 'Schweizer Recht', 'DE' => 'Deutsches Recht', 'AT' => 'Österreichisches Recht', 'LI' => 'Liechtensteinisches Recht'][$jur] ?? '';
+        $defaults = ['start_date' => gmdate('Y-m-d'), 'governing_law' => $law, 'value_currency' => 'CHF'];
+        return $this->render('contracts/form', $this->formData() + ['mode' => 'create', 'parent' => null, 'defaults' => $defaults, 'startWith' => $r->string('start')]);
     }
 
     /** @return array<string,mixed> */
@@ -126,7 +141,7 @@ final class ContractController extends Controller
     /** @param array<string,mixed> $params */
     public function create(Request $r, array $params = []): Response
     {
-        return $this->act($r, '/vertraege/neu', 'Vertrag als Entwurf angelegt.', fn (): string => '/vertraege/' . $this->s()->contracts->create($this->p(), $this->input($r)));
+        return $this->act($r, '/vertraege/neu/formular', 'Vertrag als Entwurf angelegt. Als Nächstes: Vertragstext – folgen Sie dem Ablauf oben auf der Seite.', fn (): string => '/vertraege/' . $this->s()->contracts->create($this->p(), $this->input($r)));
     }
 
     /** @param array<string,mixed> $params */

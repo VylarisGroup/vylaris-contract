@@ -44,7 +44,15 @@ final class SystemController extends Controller
     /** @param array<string,mixed> $params */
     public function tenants(Request $r, array $params = []): Response
     {
-        return $this->render('system/tenants', ['tenants' => $this->s()->sysAdmin->tenants($this->p())]);
+        $all = $this->s()->sysAdmin->tenants($this->p());
+        $editId = $r->int('bearbeiten');
+        $edit = null;
+        foreach ($all as $t) {
+            if ((int) $t['id'] === $editId) {
+                $edit = $t;
+            }
+        }
+        return $this->render('system/tenants', ['tenants' => $all, 'showArchived' => $r->string('archiv') === '1', 'edit' => $edit]);
     }
 
     /** @param array<string,mixed> $params */
@@ -70,6 +78,12 @@ final class SystemController extends Controller
     public function createTenant(Request $r, array $params = []): Response
     {
         return $this->act($r, '/system/mandanten', 'Mandant angelegt; die erste Administration wurde eingeladen.', fn () => $this->s()->sysAdmin->createTenant($this->p(), $r->string('name'), $r->string('slug'), $r->string('admin_email'), $r->string('admin_name')));
+    }
+
+    /** @param array<string,mixed> $params */
+    public function updateTenant(Request $r, array $params): Response
+    {
+        return $this->act($r, '/system/mandanten', 'Mandant gespeichert.', fn () => $this->s()->sysAdmin->updateTenant($this->p(), $this->id($params), $r->string('name'), $r->string('slug')));
     }
 
     /** @param array<string,mixed> $params */

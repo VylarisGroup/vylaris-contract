@@ -14,7 +14,7 @@ use App\Modules\Audit\AuditLogger;
 use App\Security\AuthService;
 
 /**
- * Systemadministration: Mandanten anlegen/sperren. Systemadmins sehen KEINE Vertragsinhalte
+ * Systemadministration: Mandanten anlegen, bearbeiten, sperren und archivieren (endgültig gelöscht wird nie: Protokoll und Aufbewahrungspflichten). Systemadmins sehen KEINE Vertragsinhalte
  * (ihre Rolle enthält keine Vertragsrechte) – sie verwalten nur Mandanten und Technik.
  */
 final class SystemAdminService
@@ -76,19 +76,43 @@ final class SystemAdminService
     public function setTenantStatus(Principal $p, int $tenantId, string $status): void
     {
         $this->require($p);
-        if (!in_array($status, ['active', 'suspended'], true)) {
+        if (!in_array($status, ['active', 'suspended', 'archived'], true)) {
             throw new ValidationException(['status' => 'Ungültiger Status.']);
         }
-        if ($this->db->execute('UPDATE tenants SET status = ? WHERE id = ?', [$status, $tenantId]) === 0 && !$this->db->value('SELECT 1 FROM tenants WHERE id = ?', [$tenantId])) {
+        $archivedAt = $status === 'archived' ? gmdate('Y-m-d H:i:s') : null;
+        if ($this->db->execute('UPDATE tenants SET status = ?, archived_at = ? WHERE id = ?', [$status, $archivedAt, $tenantId]) === 0 && !$this->db->value('SELECT 1 FROM tenants WHERE id = ?', [$tenantId])) {
             throw new NotFoundException();
         }
         $this->audit->log('tenant.status_' . $status, 'success', $tenantId, $p->userId, 'tenant', $tenantId);
+    }
+
+    /** Name und Kürzel ändern (Kürzel nur solange es frei ist). */
+    public function updateTenant(Principal $p, int $tenantId, string $name, string $slug): void
+    {
+        $this->require($p);
+        $name = trim($name);
+        $slug = strtolower(trim($slug));
+        if ($name === '' || mb_strlen($name) > 190) {
+            throw new ValidationException(['name' => 'Name erforderlich.']);
+        }
+        if (preg_match('/^[a-z0-9][a-z0-9-]{1,60}$/', $slug) !== 1) {
+            throw new ValidationException(['slug' => 'Kürzel: 2–61 Zeichen (a–z, 0–9, -).']);
+        }
+        if (!$this->db->value('SELECT 1 FROM tenants WHERE id = ?', [$tenantId])) {
+            throw new NotFoundException();
+        }
+        if ($this->db->value('SELECT 1 FROM tenants WHERE slug = ? AND id <> ?', [$slug, $tenantId])) {
+            throw new ValidationException(['slug' => 'Dieses Kürzel ist vergeben.']);
+        }
+        $this->db->run('UPDATE tenants SET name = ?, slug = ? WHERE id = ?', [$name, $slug, $tenantId]);
+        $this->db->run('UPDATE counterparties SET name = ? WHERE linked_tenant_id = ?', [mb_substr($name, 0, 255), $tenantId]);
+        $this->audit->log('tenant.updated', 'success', $tenantId, $p->userId, 'tenant', $tenantId, ['slug' => $slug]);
     }
 
     /** @return list<array<string,mixed>> */
     public function tenants(Principal $p): array
     {
         $this->require($p);
-        return $this->db->all('SELECT t.id, t.name, t.slug, t.status, t.created_at, (SELECT COUNT(*) FROM tenant_memberships tm WHERE tm.tenant_id = t.id AND tm.status = \'active\') AS members FROM tenants t ORDER BY t.name');
+        return $this->db->all('SELECT t.id, t.name, t.slug, t.status, t.created_at, t.archived_at, (SELECT COUNT(*) FROM contracts c WHERE c.tenant_id = t.id) AS contracts, (SELECT COUNT(*) FROM tenant_memberships tm WHERE tm.tenant_id = t.id AND tm.status = \'active\') AS members FROM tenants t ORDER BY t.name');
     }
 }

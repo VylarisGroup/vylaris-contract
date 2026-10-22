@@ -3,6 +3,23 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.13.0 – 2026-10-22
+Mandanten verwalten, einfachere Freigabe, geführte Vertragserstellung und neu gegliederte Verwaltung.
+
+### Neu
+- **Mandanten bearbeiten, archivieren, wiederherstellen** (Systemadministration): Name und Kürzel ändern, Mandanten archivieren und wieder aktivieren. Mandanten werden bewusst nie endgültig gelöscht (Nachvollziehbarkeit, Aufbewahrung); archivierte Mandanten können sich nicht anmelden.
+- **Startassistent für neue Verträge:** Wahl zwischen Vorlage, vorhandenem Dokument oder von Grund auf, mit Vorab-Prüfung und Erklärung, wie es danach weitergeht.
+- **«Ablauf dieses Vertrags»** auf jeder Vertragsseite: zeigt in fünf Schritten, was das System übernimmt und was Sie tun, inklusive nächstem Schritt.
+- **Standardwerte:** Beginn (heute), anwendbares Recht (aus den Mandanten-Einstellungen) und Währung werden vorgeschlagen; Unterzeichnende werden aus den Vertragsparteien vorausgefüllt.
+- **Verwaltung neu gegliedert:** Übersicht mit Einrichtungs-Checkliste, erklärten Kacheln und Tabelle «Wer darf was?».
+
+### Verbessert
+- **Freigabe:** Freigebende werden per Auswahlliste gewählt (statt Texteingabe). Die Vier-Augen-Sperre bei Verträgen entfällt; Mandantenadministration und Vertragsverantwortliche dürfen freigeben. Nach Ablehnung oder Rückzug lässt sich die Freigabe erneut anfordern (es entsteht automatisch ein neuer Entwurf).
+
+### Wichtig
+- Datenbankänderung: Migration 008 (automatisch beim Update, additiv). Sie erweitert den Mandantenstatus um «archiviert» und vergibt das Recht «Freigabe entscheiden» an Mandantenadministration und Vertragsverantwortliche.
+- Die Vier-Augen-Regel für die Prüfung von Vorlagen bleibt unverändert.
+
 ## 1.12.0 – 2026-10-17
 Verbinden statt anlegen, Single Sign-on, Zeitstempel, Auswertungen und Fragebogen für Vorlagen.
 

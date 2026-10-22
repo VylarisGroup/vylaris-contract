@@ -6,7 +6,7 @@
   - [Die Plattform in fünf Minuten kennenlernen](#willkommen)
   - [Mit Assistenten Schritt für Schritt eingeben](#assistenten)
 - **Mit Verträgen arbeiten**
-  - [Einen Vertrag erfassen](#vertrag-erfassen)
+  - [Einen Vertrag erstellen – was das System tut, was Sie tun](#vertrag-erfassen)
   - [Freigabe beantragen und erteilen](#vertrag-freigabe)
   - [Einen Vertrag unterzeichnen lassen](#vertrag-signieren)
   - [Fristen, Aufgaben und Erinnerungen](#fristen)
@@ -63,18 +63,20 @@ Dauer: ca. 2 Min. · für Alle
 ## Mit Verträgen arbeiten
 
 <a id="vertrag-erfassen"></a>
-### Einen Vertrag erfassen
+### Einen Vertrag erstellen – was das System tut, was Sie tun
 
-_Vom leeren Formular zum gespeicherten Vertrag mit Gegenpartei, Laufzeit und Dokument._  
+_Der ganze Weg vom neuen Vertrag bis zur Unterzeichnung, mit klarer Aufteilung der Arbeit._  
 Dauer: ca. 5 Min. · für Mitarbeitende
 
-1. **«Neuer Vertrag» öffnen** – Im Menü auf «Neuer Vertrag» klicken (nur sichtbar mit der Berechtigung, Verträge anzulegen).
-2. **Eckdaten ausfüllen** – Pflicht sind Titel und Vertragsart. Zusätzlich lassen sich Abteilung, zuständige Person, Beginn, Ende, Kündigungsfrist, automatische Verlängerung, Vertragswert, anwendbares Recht und Zahlungsbedingungen erfassen. Je vollständiger Beginn, Ende und Kündigungsfrist sind, desto besser kann die Plattform Fristen berechnen.
-3. **Gegenpartei zuordnen** – Wählen Sie die Vertragspartner aus Ihren Gegenparteien. Neue Gegenparteien legen Sie vorher unter «Gegenparteien» an.
-4. **Text eintragen oder Dokument hochladen** – Sie können den Vertragstext direkt erfassen oder nach dem Speichern auf der Vertragsseite eine Datei hochladen (maximale Grösse siehe Hinweis am Upload-Feld). Dort stehen auch die Versionen.
-5. **Speichern** – Der Vertrag erhält automatisch eine Nummer und startet als «Entwurf». Jede spätere Änderung erzeugt eine neue Version; mit der Änderungsnotiz halten Sie fest, was sich geändert hat.
+1. **Startweg wählen** – «Neuer Vertrag» zeigt drei Wege: aus einer Vorlage (empfohlen), mit vorhandenem Word-/PDF-Dokument oder von Grund auf. Bei jedem Weg steht dabei, was das System übernimmt und was Sie tun.
+2. **Eckdaten erfassen (Sie)** – Titel und Vertragsart sind Pflicht; Parteien, Laufzeit, Kündigungsfrist und Wert sind optional und später ergänzbar. Das System schlägt Beginn (heute), anwendbares Recht und Währung aus den Mandanten-Einstellungen vor, vergibt die Vertragsnummer und berechnet daraus Kündigungs- und Ablauffristen samt Erinnerungen.
+3. **Vertragstext (Sie wählen, das System übernimmt)** – Aus einer Vorlage beantworten Sie nur den Fragebogen; das System setzt Ihre Antworten in den fertigen Text ein. Bei einer Word-Datei übernimmt das System den Text, eine PDF-Datei wird unverändert abgelegt. Jede Fassung wird als Version mit Prüfsumme gesichert.
+4. **Freigabe (Sie wählen, das System führt)** – Sie wählen aus der Liste, wer freigibt (auch Sie selbst sind möglich; bei nur einer möglichen Person ist sie vorgewählt). Das System sperrt die Textfassung, benachrichtigt die Personen, protokolliert jeden Entscheid und macht die Freigabe ungültig, falls der Text danach geändert wird. Nach einer Ablehnung oder einem Zurückziehen erstellt das System automatisch einen neuen Entwurf mit demselben Text, damit Sie sofort erneut anfordern können.
+5. **Unterzeichnung (Sie bestätigen, das System erledigt)** – Die Unterzeichnenden werden aus den Parteien vorausgefüllt (Gegenparteien mit hinterlegter Kontaktadresse). Das System lädt per E-Mail ein, prüft die Einmalcodes, erstellt das Signaturprotokoll mit Siegel und setzt den Vertrag nach der letzten Unterschrift auf «Aktiv».
+6. **Laufzeit (das System überwacht)** – Das System erinnert an Fristen, markiert abgelaufene Verträge und wendet Aufbewahrungsregeln an. Sie legen bei Änderungen einen Nachtrag an und archivieren den Vertrag am Ende.
 
 > **Gut zu wissen**
+> - Auf jeder Vertragsseite zeigt das Feld «Ablauf dieses Vertrags», wo Sie stehen und was als Nächstes dran ist.
 > - Tags (mit Komma getrennt) erleichtern die spätere Suche.
 > - Zusatzfelder Ihrer Organisation erscheinen ebenfalls im Formular.
 
@@ -90,7 +92,7 @@ Dauer: ca. 3 Min. · für Mitarbeitende
 4. **Ergebnis** – Nach der letzten Freigabe wird der Vertrag «Freigegeben» und kann zur Unterzeichnung weitergegeben werden. Jeder Schritt ist im Protokoll des Vertrags nachvollziehbar.
 
 > **Gut zu wissen**
-> - Wer die Textfassung eines Vertrags erstellt hat, darf sie nicht selbst freigeben (Vier-Augen-Prinzip).
+> - Die Freigabe kann auch von der Person erteilt werden, die den Vertrag erstellt hat. Wer es strenger will, wählt eine andere Person.
 > - Eine Freigabe gilt für eine bestimmte Textfassung; wird der Text danach geändert, ist eine neue Freigabe nötig.
 
 <a id="vertrag-signieren"></a>

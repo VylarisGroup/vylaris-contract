@@ -143,6 +143,27 @@ final class AdminTest extends TestCase
         $this->assertThrows(ValidationException::class, fn () => $this->app->sysAdmin->createTenant($sys, 'Bad', 'Bad Slug!', 'x@y.ch', 'X'));
     }
 
+    public function testSystemAdminEditsArchivesAndRestoresTenant(): void
+    {
+        $sys = $this->sysadmin();
+        $tid = $this->app->sysAdmin->createTenant($sys, 'Alt AG', 'alt-ag', 'chef@alt.ch', 'Chef');
+        $this->app->sysAdmin->updateTenant($sys, $tid, 'Neu AG', 'neu-ag');
+        $this->assertSame(['Neu AG', 'neu-ag'], [(string) $this->db->value('SELECT name FROM tenants WHERE id = ?', [$tid]), (string) $this->db->value('SELECT slug FROM tenants WHERE id = ?', [$tid])]);
+        $this->assertThrows(ValidationException::class, fn () => $this->app->sysAdmin->updateTenant($sys, $tid, 'X', 'Ungültig!'));
+        $this->assertThrows(ValidationException::class, fn () => $this->app->sysAdmin->updateTenant($sys, $tid, 'X', (string) $this->db->value('SELECT slug FROM tenants WHERE id = ?', [$this->tenant])), 'Kürzel vergeben');
+        $this->app->sysAdmin->updateTenant($sys, $tid, 'Neu AG', 'neu-ag'); // eigenes Kürzel behalten ist erlaubt
+
+        $this->app->sysAdmin->setTenantStatus($sys, $tid, 'archived');
+        $this->assertSame('archived', (string) $this->db->value('SELECT status FROM tenants WHERE id = ?', [$tid]));
+        $this->assertTrue($this->db->value('SELECT archived_at FROM tenants WHERE id = ?', [$tid]) !== null);
+        $uid = (int) $this->db->value("SELECT user_id FROM tenant_memberships WHERE tenant_id = ?", [$tid]);
+        $this->assertSame([], $this->app->tenantAdmin ? array_values(array_filter((new \App\Repositories\UserRepository($this->db))->activeTenants($uid), static fn (array $t): bool => true)) : [], 'archivierter Mandant ist nicht wählbar');
+        $this->app->sysAdmin->setTenantStatus($sys, $tid, 'active');
+        $this->assertTrue($this->db->value('SELECT archived_at FROM tenants WHERE id = ?', [$tid]) === null);
+        $this->assertThrows(ValidationException::class, fn () => $this->app->sysAdmin->setTenantStatus($sys, $tid, 'geloescht'));
+        $this->assertThrows(ForbiddenException::class, fn () => $this->app->sysAdmin->setTenantStatus($this->admin, $tid, 'archived'));
+    }
+
     public function testTenantAdminIsNotSystemAdmin(): void
     {
         $this->assertThrows(ForbiddenException::class, fn () => $this->app->sysAdmin->createTenant($this->admin, 'X', 'xx', 'a@b.ch', 'A'));
