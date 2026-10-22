@@ -154,6 +154,16 @@ final class TemplateController extends Controller
     }
 
     /** @param array<string,mixed> $params */
+    public function installStandard(Request $r, array $params = []): Response
+    {
+        return $this->act($r, '/vorlagen', null, function (): string {
+            $n = $this->s()->templates->installStandardLibrary($this->p());
+            $this->x->session->flash('success', $n['templates'] . ' Vorlagen und ' . $n['clauses'] . ' Klauseln übernommen' . ($n['skipped'] > 0 ? ' (' . $n['skipped'] . ' waren schon vorhanden)' : '') . '. Alle sind noch ungeprüft.');
+            return '/vorlagen';
+        });
+    }
+
+    /** @param array<string,mixed> $params */
     public function clauses(Request $r, array $params = []): Response
     {
         return $this->render('templates/clauses', ['clauses' => $this->s()->templates->listClauses($this->p())]);

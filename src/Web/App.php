@@ -298,6 +298,7 @@ final class App
 
         // Vorlagen & Klauseln
         $r->get('/vorlagen', $h(C\TemplateController::class, 'index'), $int);
+        $r->post('/vorlagen/standard', $h(C\TemplateController::class, 'installStandard'), $int);
         $r->get('/vorlagen/neu', $h(C\TemplateController::class, 'createForm'), $int);
         $r->post('/vorlagen/neu', $h(C\TemplateController::class, 'create'), $int);
         $r->get('/vorlagen/{id}', $h(C\TemplateController::class, 'show'), $int);

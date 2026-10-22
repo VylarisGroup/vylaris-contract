@@ -194,4 +194,30 @@ final class TemplateServiceTest extends TestCase
         $this->app->templates->archive($this->mgr, $id);
         $this->assertThrows(BusinessRuleException::class, fn () => $this->app->templates->instantiate($this->mgr, $id, $this->app->contractInput(), ['kunde' => 'A', 'start' => '2026-07-01'], true));
     }
+
+    public function testStandardLibraryInstallsRendersAndIsIdempotent(): void
+    {
+        $r = $this->app->templates->installStandardLibrary($this->mgr);
+        $this->assertSame(8, $r['templates']);
+        $this->assertSame(6, $r['clauses']);
+        $again = $this->app->templates->installStandardLibrary($this->mgr);
+        $this->assertSame(0, $again['templates']);
+        $this->assertSame(14, $again['skipped']);
+        // Jede globale Vertragsart hat mindestens eine Vorlage, alle ungeprüft.
+        $missing = (int) $this->db->value("SELECT COUNT(*) FROM contract_types ct WHERE ct.tenant_id IS NULL AND NOT EXISTS (SELECT 1 FROM contract_templates t WHERE t.tenant_id = ? AND t.contract_type_id = ct.id)", [$this->tenant]);
+        $this->assertSame(0, $missing);
+        $this->assertSame(0, (int) $this->db->value("SELECT COUNT(*) FROM contract_templates WHERE tenant_id = ? AND review_status <> 'unreviewed'", [$this->tenant]));
+        // Jede Vorlage lässt sich mit Beispielwerten vollständig rendern, ohne offene Platzhalter.
+        foreach ($this->app->templates->list($this->mgr) as $t) {
+            $full = $this->app->templates->get($this->mgr, (int) $t['id']);
+            $values = [];
+            foreach ($full["current"]["field_schema"] as $f) {
+                $values[$f['code']] = match ($f['type']) {
+                    'number' => '10', 'date' => '2027-01-01', 'boolean' => '1', 'select' => (string) $f['options'][0], default => 'Beispiel AG',
+                };
+            }
+            $pv = $this->app->templates->preview($this->mgr, (int) $t['id'], $values);
+            $this->assertTrue($pv['html'] !== '' && !str_contains($pv['html'], '{{'), $t['name']);
+        }
+    }
 }

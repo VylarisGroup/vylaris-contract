@@ -3,6 +3,17 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.13.1 – 2026-10-22
+Standardvorlagen für alle vorbereiteten Vertragsarten.
+
+### Neu
+- **Standardvorlagen:** Unter «Vorlagen → Standardvorlagen übernehmen» legt die Plattform für jede vorbereitete Vertragsart eine Vorlage (Schweizer Recht) samt Fragebogen an: Dienstleistung, Software-Lizenz, Nutzungsbedingungen, Auftragsbearbeitung (Datenschutz), NDA, Kooperation, Miete Geschäftsräume und Kauf beweglicher Sachen. Dazu kommt eine Klauselbibliothek (Salvatorische Klausel, Schriftform, anwendbares Recht, Ausfertigung, Abtretung, Höhere Gewalt).
+- Der Import ergänzt nur, was noch fehlt, und überschreibt nichts.
+
+### Wichtig
+- Die Vorlagen sind allgemeine Ausgangstexte und keine Rechtsberatung. Sie starten als «ungeprüft» und sollten vor dem produktiven Einsatz von einer fachkundigen Person geprüft und angepasst werden.
+- Keine Datenbankänderung.
+
 ## 1.13.0 – 2026-10-22
 Mandanten verwalten, einfachere Freigabe, geführte Vertragserstellung und neu gegliederte Verwaltung.
 

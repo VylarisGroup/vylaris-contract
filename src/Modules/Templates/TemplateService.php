@@ -201,6 +201,41 @@ final class TemplateService
         return ['html' => HtmlSanitizer::clean($r['html']), 'warnings' => $warnings];
     }
 
+    /**
+     * Legt die mitgelieferten Standardklauseln und -vorlagen im Mandanten an (bereits vorhandene bleiben unberührt).
+     * Alles startet als «ungeprüft»; die fachliche Prüfung bleibt Sache des Mandanten.
+     *
+     * @return array{templates:int,clauses:int,skipped:int}
+     */
+    public function installStandardLibrary(Principal $p): array
+    {
+        $tenantId = $this->tenant($p, 'template.manage');
+        $res = ['templates' => 0, 'clauses' => 0, 'skipped' => 0];
+        foreach (StandardLibrary::clauses() as $c) {
+            if ($this->db->value('SELECT id FROM template_clauses WHERE tenant_id = ? AND code = ?', [$tenantId, $c['code']])) {
+                $res['skipped']++;
+                continue;
+            }
+            $this->saveClause($p, $c['code'], $c['title'], $c['body']);
+            $res['clauses']++;
+        }
+        foreach (StandardLibrary::templates() as $t) {
+            if ($this->db->value('SELECT id FROM contract_templates WHERE tenant_id = ? AND name = ?', [$tenantId, $t['name']])) {
+                $res['skipped']++;
+                continue;
+            }
+            $typeId = $this->db->value('SELECT id FROM contract_types WHERE code = ? AND tenant_id IS NULL', [$t['type']]);
+            if (!$typeId) {
+                $res['skipped']++;
+                continue;
+            }
+            $this->create($p, $t['name'], (int) $typeId, $t['jurisdiction'], $t['body'], $t['fields']);
+            $res['templates']++;
+        }
+        $this->audit->log('template.standard_installed', 'success', $tenantId, $p->userId, 'template', null, $res);
+        return $res;
+    }
+
     // ------------------------------------------------------------------ Klauseln
 
     public function saveClause(Principal $p, string $code, string $title, string $body, ?int $clauseId = null): int
