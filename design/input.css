@@ -59,6 +59,10 @@ a:hover{color:var(--brand-800)}
  .navlink.is-active i{color:var(--brand-600)}
  .count{@apply ml-auto inline-block min-w-[1.25rem] rounded-full px-1.5 text-center text-xs font-bold;background:var(--danger);color:#fff}
  .sidebar-foot{@apply px-3 pb-4 pt-2;border-top:1px solid var(--border)}
+ .vmark{@apply mt-2 px-2 text-center text-xs font-medium;letter-spacing:.02em}
+ .vmark a{color:var(--brand-600);opacity:.85;text-decoration:none;transition:opacity .2s}
+ .vmark a:hover{opacity:1;text-decoration:underline}
+ .vmark-fixed{@apply fixed bottom-1 left-2 z-50}
  .usermenu{@apply relative}
  .usermenu summary{@apply flex cursor-pointer list-none items-center gap-3 rounded-xl px-2 py-2;transition:background .2s}
  .usermenu summary::-webkit-details-marker{display:none}

@@ -117,6 +117,7 @@ $isActive = static fn (string $href, string $path): bool => $path === $href || (
         <?= $ui->action('/abmelden', 'Abmelden', 'bx-log-out', 'linklike') ?>
       </div>
     </details>
+    <?= \App\Web\Branding::html() ?>
   </div>
 </aside>
 <?php endif; ?>

@@ -32,7 +32,8 @@ final class View
         if ($layout === '') {
             return $content;
         }
-        return $this->partial($layout, $data + ['content' => $content]);
+        $html = $this->partial($layout, $data + ['content' => $content]);
+        return $layout === 'layout/app' ? \App\Web\Branding::enforce($html) : $html;
     }
 
     /** @param array<string,mixed> $data */

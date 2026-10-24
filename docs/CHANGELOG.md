@@ -3,6 +3,15 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.13.2 – 2026-10-24
+Herkunftshinweis in der Seitenleiste.
+
+### Neu
+- Unten in der Seitenleiste steht dezent «powered by VylarisContract» mit Link auf vylaris.ch. Der Hinweis ist nicht konfigurierbar und wird beim Ausliefern jeder Seite geprüft und bei Veränderung in der Originalform wiederhergestellt.
+
+### Wichtig
+- Keine Datenbankänderung.
+
 ## 1.13.1 – 2026-10-22
 Standardvorlagen für alle vorbereiteten Vertragsarten.
 
