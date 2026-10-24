@@ -3,6 +3,15 @@
 Dieser Verlauf wird nach einem Update beim ersten Login in die Verwaltung angezeigt (Seite «Neuigkeiten»). Format je Version:
 `## Version – Datum`, optional eine Kurzbeschreibung, darunter Abschnitte `### Neu`, `### Verbessert`, `### Behoben`, `### Wichtig`.
 
+## 1.13.3 – 2026-10-24
+Hilfe bei fehlendem Setup-Schlüssel.
+
+### Verbessert
+- Fehlt `SETUP-SCHLUESSEL.txt` (etwa bei Installation aus dem GitHub-Quellcode), erklärt der Installationsassistent jetzt, wie die Datei selbst angelegt wird. Zu kurze Schlüssel (unter 20 Zeichen) werden abgelehnt.
+
+### Wichtig
+- Keine Datenbankänderung.
+
 ## 1.13.2 – 2026-10-24
 Herkunftshinweis in der Seitenleiste.
 

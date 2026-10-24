@@ -13,7 +13,7 @@ Die Anwendung braucht **kein Composer, kein Node, keinen Build** auf dem Server.
 2. **Dokumentenstamm auf `public/` setzen.** Plesk → *Hosting-Einstellungen* → *Dokumentenstamm* = `<Projektordner>/public`. **Das ist zwingend**: Alles ausser `public/` (Code, `.env`, Dokumente, Sicherungen) darf nicht über das Web erreichbar sein. Kann Ihr Tarif den Dokumentenstamm nicht ändern, installieren Sie nicht.
 3. **Datenbank anlegen.** Plesk → *Datenbanken* → neue leere Datenbank + Benutzer mit **allen Rechten, insbesondere `TRIGGER`** (sonst fehlen die Datenbank-Sperren gegen nachträgliche Änderung; die App warnt dann in der Diagnose).
 4. **PHP-Limits** (Plesk → PHP-Einstellungen): `upload_max_filesize` und `post_max_size` mindestens so gross wie »Maximale Dateigrösse« (Standard 20 MB), `memory_limit` ≥ 128M.
-5. **Setup-Schlüssel lesen.** Im Projektordner liegt `SETUP-SCHLUESSEL.txt` (Plesk-Dateimanager). Der Schlüssel ist für **dieses** Paket einmalig erzeugt.
+5. **Setup-Schlüssel lesen.** Im Projektordner liegt `SETUP-SCHLUESSEL.txt` (Plesk-Dateimanager). Der Schlüssel ist für **dieses** Paket einmalig erzeugt. **Installieren Sie aus dem GitHub-Quellcode** (Code herunterladen / `git clone`), fehlt die Datei: Sie wird nur im fertigen Paket (Release-ZIP) mitgeliefert. Legen Sie sie dann selbst an – eine Textdatei `SETUP-SCHLUESSEL.txt` im Projektordner mit einer zufälligen Zeichenfolge (mindestens 20 Zeichen) als einzigem Inhalt.
 6. **Assistent öffnen:** `https://IHRE-DOMAIN/setup`. Der Assistent führt in sechs Schritten durch die Installation (Schritt für Schritt erklärt in `ANLEITUNGEN.md` → «Installation in sechs Schritten»):
    1. **Start** – Systemprüfung (PHP, Erweiterungen, Verzeichnisse) und Setup-Schlüssel,
    2. **Adresse** – öffentliche HTTPS-Adresse, maximale Dateigrösse,
@@ -33,7 +33,7 @@ Neues Paket über den Programmordner entpacken, **`.env` und `storage/` behalten
 
 ## Fehlersuche
 - Weisse Seite/500: `storage/logs/app.log` (mit Referenznummer aus der Fehlerseite) und `storage/logs/php-error.log`.
-- »Installation nicht möglich«: `SETUP-SCHLUESSEL.txt` fehlt (Paket erneut entpacken) oder die Installation ist bereits gesperrt.
+- »Installation nicht möglich«: `SETUP-SCHLUESSEL.txt` fehlt (Paket erneut entpacken oder die Datei selbst anlegen, siehe Schritt 5) oder die Installation ist bereits gesperrt.
 - Assets (CSS/Icons) fehlen: Dokumentenstamm zeigt nicht auf `public/`.
 
 ## Hinweis zum Dokumentenstamm (HTTP 403)

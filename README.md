@@ -6,7 +6,7 @@ Mandantenfähige Vertragsverwaltung für die Schweiz und die EU – PHP 8.3 ohne
 
 ## Schnellstart (Plesk)
 1. Paket im Domain-Ordner entpacken, **Dokumentenstamm auf `public/` setzen**, leere Datenbank (Benutzer mit TRIGGER-Recht) anlegen, HTTPS aktivieren.
-2. `https://IHRE-DOMAIN/setup` öffnen; den Setup-Schlüssel aus `SETUP-SCHLUESSEL.txt` eingeben.
+2. `https://IHRE-DOMAIN/setup` öffnen; den Setup-Schlüssel aus `SETUP-SCHLUESSEL.txt` eingeben (liegt nur im Release-ZIP bei; bei Installation aus dem Quellcode die Datei selbst mit einer zufälligen Zeichenfolge ≥ 20 Zeichen anlegen).
 3. Cronjob `php bin/cron.php` (alle 5 Min.) und täglich `php bin/backup.php` einrichten.
 4. *System → Diagnose* abarbeiten.
 

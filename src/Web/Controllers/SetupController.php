@@ -36,7 +36,10 @@ final class SetupController
         }
         $keyFile = $this->root . '/SETUP-SCHLUESSEL.txt';
         if (!is_file($keyFile)) {
-            return $this->page(['fatal' => 'Es ist keine Installation möglich: Die Datei SETUP-SCHLUESSEL.txt fehlt im Projektordner. Laden Sie das Installationspaket erneut hoch.', 'checks' => []], 403);
+            return $this->page(['fatal' => 'Es ist keine Installation möglich: Die Datei SETUP-SCHLUESSEL.txt fehlt im Projektordner. Sie liegt nur im fertigen Installationspaket (ZIP) bei, nicht im GitHub-Quellcode. Legen Sie die Datei selbst an: Erstellen Sie im Projektordner (oberhalb von public/) eine Textdatei SETUP-SCHLUESSEL.txt, die nur eine zufällige Zeichenfolge von mindestens 20 Zeichen enthält (z. B. mit einem Passwort-Generator), und laden Sie diese Seite neu. Diesen Text geben Sie anschliessend im Assistenten als Setup-Schlüssel ein.', 'checks' => []], 403);
+        }
+        if (strlen(trim((string) file_get_contents($keyFile))) < 20) {
+            return $this->page(['fatal' => 'Der Setup-Schlüssel in SETUP-SCHLUESSEL.txt ist zu kurz oder leer. Bitte eine zufällige Zeichenfolge mit mindestens 20 Zeichen eintragen.', 'checks' => []], 403);
         }
         if ($r->path === '/setup/db-test') {
             return $r->method === 'POST' ? $this->dbTest($r, trim((string) file_get_contents($keyFile))) : Response::redirect('/setup');
